@@ -1,0 +1,43 @@
+@import '../../node_modules/angular-material/angular-material.scss';
+@import '../../node_modules/golden-layout/src/css/goldenlayout-base.css';
+
+body, html {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.wrapper {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+body.theme-dark {
+  @import '../../node_modules/golden-layout/src/css/goldenlayout-dark-theme';
+}
+
+body.theme-light {
+  @import '../../node_modules/golden-layout/src/css/goldenlayout-light-theme';
+}
+
+iframe {
+  width: 100%;
+  height: 100%;
+}
+
+.compact {
+  margin: 0;
+}
+
+.footer {
+  padding: 0 8px;
+}
+
+.md-button.md-raised:not([disabled]).loginWithTwitch {
+  &,&:hover {
+    background-color: hsl(258, 39%, 35%);
+  }
+}

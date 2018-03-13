@@ -1,0 +1,32 @@
+<div ng-controller="HomeController as homeCtrl">
+  <md-button class="loginWithTwitch md-primary md-raised" ng-click="mainCtrl.loginWithTwitch()" ng-if="!mainCtrl.auth">
+    Log in with twitch
+  </md-button>
+  <md-button class="loginWithTwitch md-primary md-raised" ng-click="mainCtrl.logoutFromTwitch()" ng-if="mainCtrl.auth">
+    Log out ({{mainCtrl.auth.name}})
+  </md-button>
+  Home.
+  <br>
+  <div class="footer" flex="none" layout="row">
+    <div flex="none" layout="row" layout-align="space-between center">
+      <span>Profile:</span>
+      <md-select class="compact md-no-underline" ng-model="mainCtrl.selectedProfile" ng-change="mainCtrl.updateConfig()">
+        <md-option ng-repeat="(id, profile) in mainCtrl.profiles" ng-value="id">{{profile.name}}</md-option>
+      </md-select>
+      <md-button class="md-fab md-mini md-primary">
+        <md-icon md-svg-src="/src/assets/add.svg"></md-icon>
+      </md-button>
+    </div>
+  </div>
+  <md-input-container>
+    <input type="text" placeholder="Channel name" ng-model="homeCtrl.currentChannel">
+  </md-input-container>
+  <div class="chatAdder" golden-layout-drag-source gl-ds-channel="homeCtrl.currentChannel" gl-ds-template="'chatTemplate'"
+    gl-ds-layout="mainCtrl.layout">
+    add chat
+  </div>
+  <div class="streamAdder" golden-layout-drag-source gl-ds-channel="homeCtrl.currentChannel" gl-ds-template="'streamTemplate'"
+    gl-ds-layout="mainCtrl.layout">
+    add stream
+  </div>
+</div>

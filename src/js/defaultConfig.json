@@ -1,0 +1,14 @@
+{
+  "content": [
+    {
+      "title": "Home",
+      "type": "component",
+      "componentName": "angularModule",
+      "isClosable": false,
+      "componentState": {
+        "module": "mtApp",
+        "templateId": "homeTemplate"
+      }
+    }
+  ]
+}
