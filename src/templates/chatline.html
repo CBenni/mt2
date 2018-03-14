@@ -1,0 +1,19 @@
+<div class="chat-line-wrapper">
+  <span class="chat-line-time hide-s">
+    <!-- timestamp -->
+    {{line.time | date : 'hh:mm:ss a'}}
+  </span>
+  <span class="chat-line-badges"><img ng-src="{{badge.url}}" ng-repeat="badge in line.user.badges" class="chat-line-badge" title="{{badge.title}}"></span>
+  <span class="chat-line-username">{{line.user.displayName}}</span><span class="chat-line-colon">: </span>
+  <span class="chat-line-text" ng-bind-html="line.html"></span>
+  <span ng-if="line.modlog | isntEmpty">(By: {{modLogList(message.modlog)}})
+    <md-tooltip md-direction="top">
+      <table>
+        <tr ng-repeat="(user, time) in line.modlog">
+          <td>{{user}}</td>
+          <td>{{modLogDisplay(time)}}</td>
+        </tr>
+      </table>
+    </md-tooltip>
+  </span>
+</div>

@@ -14,10 +14,6 @@
     </div>
     <div class="chat-container" flex="100" layout="column" layout-align="end stretch">
       <div class="chat-line" ng-repeat="line in chatCtrl.lines">
-        <span class="chat-line-timestamp">{{line.time | date}}</span>
-        <span class="chat-line-username">{{line.user.name}}</span>
-        <span class="chat-line-colon">: </span>
-        <span class="chat-line-text" ng-bind-html="line.html"></span>
       </div>
     </div>
     <div class="chat-input-box">

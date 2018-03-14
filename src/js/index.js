@@ -11,7 +11,10 @@ import MainController from './controllers/maincontroller';
 import HomeController from './controllers/homecontroller';
 import ChatController from './controllers/chatcontroller';
 import StreamController from './controllers/streamcontroller';
+
 import goldenLayoutDragSource from './directives/goldenlayoutdragsourcedirective';
+import { chatLineDirective, isntEmptyFilter } from './directives/chatlinedirective';
+
 import ApiService from './services/apiservice';
 import ChatService from './services/chatservice';
 
@@ -23,6 +26,9 @@ app.controller('ChatController', ChatController);
 app.controller('StreamController', StreamController);
 
 app.directive('goldenLayoutDragSource', goldenLayoutDragSource);
+app.directive('chatLine', chatLineDirective);
 
 app.service('ApiService', ApiService);
 app.service('ChatService', ChatService);
+
+app.filter('isntEmpty', isntEmptyFilter);

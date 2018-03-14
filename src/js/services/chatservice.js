@@ -43,19 +43,99 @@ function parseIRCMessage(message) {
     trailing: data[STATE_TRAILING]
   };
 }
+const DEFAULTCOLORS = ['#e391b8', '#e091ce', '#da91de', '#c291db', '#ab91d9', '#9691d6', '#91a0d4', '#91b2d1', '#91c2cf', '#91ccc7', '#91c9b4', '#90c7a2', '#90c492', '#9dc290', '#aabf8f', '#b5bd8f', '#bab58f', '#b8a68e', '#b5998e', '#b38d8d'];
+function sdbmCode(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    // eslint-disable-next-line no-bitwise
+    hash = str.charCodeAt(i) + (hash << 6) + (hash << 16) - hash;
+  }
+  return Math.abs(hash);
+}
+const entityMap = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;',
+  '/': '&#x2F;'
+};
+
+function formatTimespan(timespan) {
+  let age = Math.round(parseInt(timespan, 10));
+  const periods = [
+    { abbr: 'y', len: 3600 * 24 * 365 },
+    { abbr: 'm', len: 3600 * 24 * 30 },
+    { abbr: 'd', len: 3600 * 24 },
+    { abbr: ' hrs', len: 3600 },
+    { abbr: ' min', len: 60 },
+    { abbr: ' sec', len: 1 }
+  ];
+  let res = '';
+  let count = 0;
+  for (let i = 0; i < periods.length; ++i) {
+    if (age >= periods[i].len) {
+      const pval = Math.floor(age / periods[i].len);
+      age %= periods[i].len;
+      res += (res ? ' ' : '') + pval + periods[i].abbr;
+      count++;
+      if (count >= 2) break;
+    }
+  }
+  return res;
+}
+function formatCount(i) {
+  return i <= 1 ? '' : ` (${i} times)`;
+}
+
+function escapeHtml(string) {
+  return String(string).replace(/[&<>"'\\/]/g, s => entityMap[s]);
+}
+
+export function formatTimeout(timeout) {
+  const tags = timeout.tags;
+  console.log('Formatting timeout: ', tags);
+  if (timeout.type === 'timeout') {
+    // timeout
+    if (!tags.reasons || tags.reasons.length === 0) {
+      return `<${tags['display-name']} has been timed out for ${formatTimespan(tags.duration)}${formatCount(tags.count)}>`;
+    } else if (tags.reasons.length === 1) {
+      return `<${tags['display-name']} has been timed out for ${formatTimespan(tags.duration)}. Reason: ${tags.reasons.join(', ')}${formatCount(tags.count)}>`;
+    }
+    return `<${tags['display-name']} has been timed out for ${formatTimespan(tags.duration)}. Reasons: ${tags.reasons.join(', ')}${formatCount(tags.count)}>`;
+  }
+  // banned
+  if (timeout.type === 'ban') {
+    if (!tags.reasons || tags.reasons.length === 0) {
+      return `<${tags['display-name']} has been banned>`;
+    } else if (tags.reasons.length === 1) {
+      return `<${tags['display-name']} has been banned. Reason: ${tags.reasons.join(', ')}>`;
+    }
+    return `<${tags['display-name']} has been banned. Reasons: ${tags.reasons.join(', ')}>`;
+  }
+  return '<invalid timeout>';
+}
+
+function capitalizeFirst(str) {
+  return str.slice(0, 1).toUpperCase() + str.slice(1);
+}
 
 export default class ChatService extends EventEmitter {
-  constructor(ApiService) {
+  constructor(ApiService, $sce) {
     'ngInject';
 
     super();
     this.ApiService = ApiService;
+    this.$sce = $sce;
 
     this.chatReceiveConnection = null;
     this.chatSendConnection = null;
     this.pubsubConnection = null;
     this.user = null;
     this.joinedChannels = {};
+
+    this.badges = {};
+    this.getBadges();
   }
 
   init(user) {
@@ -190,5 +270,111 @@ export default class ChatService extends EventEmitter {
       console.log('Channel fully joined: ', channelObj);
       return channelObj;
     });
+  }
+
+  // chat rendering tools
+
+  getBadges(channelID) {
+    let resource = 'global';
+    if (channelID) resource = `channels/${channelID}`;
+    if (this.badges[resource]) return Promise.resolve(this.badges[resource]);
+    const channelBadgesPromise = this.ApiService.twitchGet(`https://badges.twitch.tv/v1/badges/${resource}/display?language=en`).then(response => {
+      if (response.data) return response.data.badge_sets;
+      console.error(`Couldnt load badges for channel ${channelID}`, response);
+      return {};
+    });
+    if (resource === 'global') {
+      this.badges[resource] = channelBadgesPromise;
+      return channelBadgesPromise;
+    }
+    const mergedBadgesPromise = Promise.all([this.badges.global, channelBadgesPromise]).then(([globalBadges, channelBadges]) => _.merge({}, globalBadges, channelBadges));
+    this.badges[resource] = mergedBadgesPromise;
+    return mergedBadgesPromise;
+  }
+
+  processMessage(message) {
+    const channelID = message.tags['room-id'];
+    const channelName = message.param.slice(1);
+    message.channel = {
+      id: channelID,
+      name: channelName
+    };
+    return this.getBadges(channelID).then(badges => this._processMessage(message, badges));
+  }
+
+  _processMessage(message, badges) {
+    if (!message.time) message.time = new Date();
+
+
+    if (message.prefix) {
+      const [username] = message.prefix.split('!');
+      message.user = {
+        name: username,
+        id: message.tags['user-id'],
+        displayName: message.tags['display-name'] || capitalizeFirst(username)
+      };
+      let color = message.tags.color;
+      if (!color || color === '') {
+        color = DEFAULTCOLORS[sdbmCode(message.user.id || username) % (DEFAULTCOLORS.length)];
+      }
+      message.user.color = color;
+    }
+
+    let html = '';
+    if (message.tags.badges) {
+      message.user.badges = [];
+      message.tags.badges.split(',').forEach(badgeID => {
+        const [badgeName, badgeVersion] = badgeID.split('/');
+        const badgeSet = badges[badgeName];
+        console.log(`Handling badge ${badgeName} version ${badgeVersion}. BadgeSet: `, badgeSet);
+        if (badgeSet) {
+          const versionInfo = badgeSet.versions[badgeVersion];
+          if (versionInfo) {
+            message.user.badges.push({
+              url: versionInfo.image_url_1x,
+              title: versionInfo.title,
+              name: badgeName
+            });
+          }
+        }
+      });
+    }
+    let isAction = false;
+    const actionmatch = /^\u0001ACTION (.*)\u0001$/.exec(message.trailing);
+    if (actionmatch != null) {
+      isAction = true;
+      message.trailing = actionmatch[1];
+      message.isAction = isAction;
+    }
+
+    if (message.trailing) {
+      // replace emotes
+      const charArray = Array.from(message.trailing);
+      if (message.tags.emotes) {
+        const emoteLists = message.tags.emotes.split('/');
+        for (let i = 0; i < emoteLists.length; i++) {
+          const [emoteid, emotepositions] = emoteLists[i].split(':');
+          const positions = emotepositions.split(',');
+          for (let j = 0; j < positions.length; j++) {
+            let [start, end] = positions[j].split('-');
+            start = parseInt(start, 10);
+            end = parseInt(end, 10);
+            const emotename = charArray.slice(start, end + 1).join('');
+            charArray[start] = `<img class="emote emote-${emoteid}" alt="${emotename}" title="${emotename}" src="//static-cdn.jtvnw.net/emoticons/v1/${emoteid}/3.0"></img>`;
+            for (let k = start + 1; k <= end; ++k) charArray[k] = '';
+          }
+        }
+      }
+      for (let i = 0; i < charArray.length; i++) {
+        html += entityMap[charArray[i]] || charArray[i];
+      }
+    }
+    if (message.type === 'timeout' || message.type === 'ban') {
+      html += escapeHtml(formatTimeout(message));
+    }
+
+    message.html = this.$sce.trustAsHtml(html);
+
+    return message;
   }
 }

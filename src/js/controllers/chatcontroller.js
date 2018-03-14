@@ -1,7 +1,3 @@
-function capitalizeFirst(str) {
-  return str.slice(0, 1).toUpperCase() + str.slice(1);
-}
-
 export default class ChatController {
   constructor($sce, $scope, $timeout, ChatService) {
     'ngInclude';
@@ -42,7 +38,7 @@ export default class ChatController {
   systemMessage(text) {
     this.addLine({
       tags: {
-        'display-name': '',
+        'display-name': 'system',
         class: 'system-msg'
       },
       prefix: 'jtv!jvt.chat.twitch.tv',
@@ -52,22 +48,10 @@ export default class ChatController {
     });
   }
 
-  toHTML(line) {
-    return line.trailing;
-  }
-
   addLine(line) {
     console.log('Adding line ', line);
-    line.html = this.$sce.trustAsHtml(this.toHTML(line));
-
-    const [username] = line.prefix.split('!');
-    line.user = {
-      name: username,
-      id: line.tags['user-id'],
-      displayName: line.tags['display-name'] || capitalizeFirst(username)
-    };
-    line.time = new Date();
-
-    this.$scope.$apply(() => this.lines.push(line));
+    this.ChatService.processMessage(line).then(() => {
+      this.$scope.$apply(() => this.lines.push(line));
+    });
   }
 }

@@ -1,0 +1,22 @@
+.chat-line-wrapper {
+  padding: 4px 2px;
+
+  .chat-line-time {
+    color: rgba(0, 0, 0, 0.7);
+    font-size: small;
+  }
+
+  .emote {
+    height: 2em;
+  }
+
+  img.emote {
+    vertical-align: middle;
+    margin: -1em 0 -1em 0;
+  }
+
+  img.chat-line-badge {
+    vertical-align: bottom;
+    margin: 0 1px 0 0;
+  }
+}
