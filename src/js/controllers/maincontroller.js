@@ -3,7 +3,7 @@ import GoldenLayout from 'golden-layout';
 import $ from 'jquery';
 import _ from 'lodash';
 
-import defaultConfig from '../defaultConfig.json';
+import defaultProfile from '../defaultProfile.json';
 import config from '../config.json';
 
 import chatTemplate from '../../templates/chatwindow.html';
@@ -16,15 +16,18 @@ const windowTemplates = {
   homeTemplate
 };
 
-
 export default class MainController {
-  constructor($compile, $scope, ApiService, ChatService) {
+  constructor($compile, $scope, $sce, ApiService, ChatService) {
     'ngInclude';
 
-    this.profiles = [{
-      name: 'Default',
-      config: defaultConfig
-    }];
+    this.ApiService = ApiService;
+    this.ChatService = ChatService;
+    this.$scope = $scope;
+    this.$sce = $sce;
+
+    this.defaultProfile = defaultProfile;
+
+    this.profiles = [this.defaultProfile];
 
     // initialize layout
     const storedProfiles = localStorage.getItem('mt2-profiles');
@@ -64,6 +67,20 @@ export default class MainController {
     if (auth) {
       this.auth = JSON.parse(auth);
       ChatService.init(this.auth);
+
+      this.conversations = [];
+      ChatService.on('whisper_received', pubsubMessage => {
+        console.log('Received whisper: ', pubsubMessage);
+        this.addWhisper(pubsubMessage).then(() => {
+          $scope.$apply(() => {});
+        });
+      });
+      ChatService.on('whisper_sent', pubsubMessage => {
+        console.log('Sent whisper: ', pubsubMessage);
+        this.addWhisper(pubsubMessage).then(() => {
+          $scope.$apply(() => {});
+        });
+      });
     }
 
     if (window.location.hash) {
@@ -100,6 +117,10 @@ export default class MainController {
     return this.profiles[this.selectedProfile];
   }
 
+  getSetting(key) {
+    return _.get(this.getCurrentProfile().settings, key, _.get(this.defaultProfile.settings, key));
+  }
+
   updateConfig() {
   }
 
@@ -114,5 +135,92 @@ export default class MainController {
 
   removeHash() {
     window.history.pushState('', document.title, window.location.pathname + window.location.search);
+  }
+
+  async upgradeBadges(badgeList) {
+    const badges = await this.ChatService.getBadges();
+    _.each(badgeList, badge => {
+      const badgeSet = badges[badge.id];
+      if (badgeSet) {
+        const versionInfo = badgeSet.versions[badge.version];
+        if (versionInfo) {
+          badge.url = versionInfo.image_url_1x;
+          badge.title = versionInfo.title;
+          badge.name = badge.id;
+        }
+      }
+    });
+  }
+
+  async addWhisper(msg) {
+    if (msg.tags.badges && msg.tags.badges.length > 0) await this.upgradeBadges(msg.tags.badges);
+
+    let isAction = false;
+    const actionmatch = /^\u0001ACTION (.*)\u0001$/.exec(msg.body);
+    if (actionmatch != null) {
+      isAction = true;
+      msg.body = actionmatch[1];
+    }
+
+
+    const transformedMessage = {
+      time: msg.sent_ts ? new Date(msg.sent_ts) : new Date(),
+      tags: msg.tags,
+      trailing: msg.body,
+      user: {
+        id: msg.from_id,
+        name: msg.tags.login,
+        displayName: msg.tags.display_name,
+        color: msg.tags.login,
+        badges: msg.tags.badges
+      },
+      isAction,
+      html: this.$sce.trustAsHtml(this.ChatService.renderEmotes(msg.body, msg.tags.emotes)),
+      recipient: msg.recipient,
+      threadID: msg.thread_id
+    };
+
+    const conversation = this.findConversation(transformedMessage);
+    conversation.lines.push(transformedMessage);
+    console.log('Conversations: ', this.conversations);
+  }
+
+  findConversation(msg) {
+    let convo = _.find(this.conversations, conversation => conversation.id === msg.threadID);
+    if (!convo) {
+      let otherUser = msg.user;
+      if (`${otherUser.id}` === this.auth.id) {
+        // we sent the message ourselves, find the other user
+        otherUser = {
+          id: msg.recipient.id,
+          name: msg.recipient.username,
+          displayName: msg.recipient.display_name,
+          color: msg.recipient.color,
+          badges: msg.recipient.badges
+        };
+        this.upgradeBadges(otherUser.badges);
+      }
+      convo = {
+        user: otherUser,
+        lines: [],
+        whisperText: '',
+        collapse: false,
+        id: msg.threadID
+      };
+      this.conversations.push(convo);
+    }
+    return convo;
+  }
+
+  sendWhisper($event, conversation) {
+    if ($event.keyCode === 13 && conversation.whisperText.length > 0) {
+      this.ChatService.chatSend({ name: 'jtv' }, `/w ${conversation.user.name} ${conversation.whisperText}`);
+      conversation.whisperText = '';
+    }
+  }
+
+  closeConversation($event, conversation) {
+    _.pull(this.conversations, conversation);
+    $event.preventDefault();
   }
 }

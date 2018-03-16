@@ -1,6 +1,8 @@
 @import '../../node_modules/angular-material/angular-material.scss';
 @import '../../node_modules/golden-layout/src/css/goldenlayout-base.css';
+@import './variables.scss';
 @import './chat.scss';
+@import './whispers.scss';
 
 body, html {
   width: 100%;
@@ -18,10 +20,12 @@ body, html {
 
 body.theme-dark {
   @import '../../node_modules/golden-layout/src/css/goldenlayout-dark-theme';
+  @import './dark';
 }
 
 body.theme-light {
   @import '../../node_modules/golden-layout/src/css/goldenlayout-light-theme';
+  @import './light';
 }
 
 iframe {
@@ -31,6 +35,17 @@ iframe {
 
 .compact {
   margin: 0;
+  &.md-button {
+    padding: 0;
+    min-width: 0;
+    min-height: 0;
+    line-height: 0;
+  }
+}
+
+md-input-container.compact {
+  margin: 0;
+  padding: 0;
 }
 
 .footer {
@@ -41,4 +56,12 @@ iframe {
   &,&:hover {
     background-color: hsl(258, 39%, 35%);
   }
+}
+
+.md-button.tiny-button {
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+  min-height: 0;
+  line-height: 0;
 }

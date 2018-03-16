@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 export default class ChatController {
   constructor($sce, $scope, $timeout, ChatService) {
     'ngInclude';
@@ -8,6 +10,8 @@ export default class ChatController {
     this.$sce = $sce;
     this.$scope = $scope;
     this.lines = [];
+    this.chatInputContent = '';
+    this.showModButtons = true;
 
     $timeout(() => {
       this.user = $scope.mainCtrl.auth;
@@ -49,9 +53,45 @@ export default class ChatController {
   }
 
   addLine(line) {
-    console.log('Adding line ', line);
     this.ChatService.processMessage(line).then(() => {
       this.$scope.$apply(() => this.lines.push(line));
     });
+  }
+
+  chatInputKeyPress(event) {
+    if (event.keyCode === 13) {
+      if (this.chatInputContent) {
+        console.log('Chat message: ', this.chatInputContent);
+        this.sendLine(this.chatInputContent);
+        this.chatInputContent = '';
+        event.preventDefault();
+      }
+    }
+  }
+
+  sendLine(text) {
+    this.ChatService.chatSend(this.channelObj, text);
+  }
+
+  modAction($event, modButton, line) {
+    switch (modButton.action.type) {
+      case 'command':
+        this.runCommand(modButton.action.command, line);
+        break;
+      case 'url':
+        break;
+      default:
+        break;
+    }
+  }
+
+  runCommand(commandTemplate, line) {
+    const templateRegex = /{{((?:\w+)(?:\.\w+)*)}}/g;
+    const command = commandTemplate.replace(templateRegex, (match, group) => {
+      console.log(`Getting property ${group} of line`);
+      return _.get(line, group, '');
+    });
+    console.log('Mod button triggered command: ', command);
+    this.sendLine(command);
   }
 }

@@ -1,0 +1,55 @@
+{
+  "name": "Default",
+  "config": {
+    "content": [
+      {
+        "title": "Home",
+        "type": "component",
+        "componentName": "angularModule",
+        "isClosable": false,
+        "componentState": {
+          "module": "mtApp",
+          "templateId": "homeTemplate"
+        }
+      }
+    ]
+  },
+  "settings": {
+    "modButtons": [
+      {
+        "action": {
+          "type": "command",
+          "command": "/timeout {{user.name}} 1"
+        },
+        "tooltip": "Purge",
+        "icon": {
+          "type": "icon",
+          "code": "remove_circle_outline"
+        }
+      },
+      {
+        "action": {
+          "type": "command",
+          "command": "/timeout {{user.name}} 600"
+        },
+        "tooltip": "Timeout",
+        "icon": {
+          "type": "icon",
+          "code": "hourglass_empty"
+        }
+      },
+      {
+        "action": {
+          "type": "command",
+          "command": "/ban {{user.name}}"
+        },
+        "tooltip": "Ban",
+        "icon": {
+          "type": "text",
+          "code": "BanThatLittleShit"
+        }
+      }
+    ],
+    "timeFormat": "hh:mm:ss a"
+  }
+}

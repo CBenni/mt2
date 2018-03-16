@@ -120,6 +120,21 @@ function capitalizeFirst(str) {
   return str.slice(0, 1).toUpperCase() + str.slice(1);
 }
 
+export function jsonParseRecursive(thing) {
+  if (typeof (thing) === 'object') {
+    _.each(thing, (val, prop) => {
+      thing[prop] = jsonParseRecursive(val);
+    });
+    return thing;
+  } else if (typeof (thing) === 'string' && (thing[0] === '[' || thing[0] === '{')) {
+    try {
+      return jsonParseRecursive(JSON.parse(thing));
+    } catch (err) {
+      return thing;
+    }
+  } else return thing;
+}
+
 export default class ChatService extends EventEmitter {
   constructor(ApiService, $sce) {
     'ngInject';
@@ -151,6 +166,7 @@ export default class ChatService extends EventEmitter {
       conn.send('CAP REQ :twitch.tv/tags twitch.tv/commands');
       conn.send(`PASS oauth:${user.token}`);
       conn.send(`NICK ${user.name}`);
+      conn.name = 'chatReceiveConnection';
 
       conn.addEventListener('message', event => {
         this.handleIRCMessage(conn, event.data);
@@ -161,6 +177,7 @@ export default class ChatService extends EventEmitter {
       conn.send('CAP REQ :twitch.tv/tags twitch.tv/commands');
       conn.send(`PASS oauth:${user.token}`);
       conn.send(`NICK ${user.name}`);
+      conn.name = 'chatSendConnection';
 
       conn.addEventListener('message', event => {
         this.handleIRCMessage(conn, event.data);
@@ -191,6 +208,7 @@ export default class ChatService extends EventEmitter {
       line = line.trim();
       if (line.length === 0) return;
       const parsed = parseIRCMessage(line.trim());
+      parsed.connection = connection;
       this.emit(parsed.command, parsed);
       if (parsed.param && parsed.param.length > 0) this.emit(`${parsed.command}-${parsed.param}`, parsed);
 
@@ -201,10 +219,25 @@ export default class ChatService extends EventEmitter {
   }
 
   handlePubSubMessage(connection, message) {
-    const parsed = JSON.parse(message);
-    console.log('Pubsub message received: ', parsed);
-    console.log('Emitting ', `${parsed.type}-${parsed.nonce}`);
-    this.emit(`${parsed.type}-${parsed.nonce}`, parsed);
+    const parsed = jsonParseRecursive(message);
+    if (parsed.data) {
+      const msg = parsed.data.message;
+      if (msg) {
+        const dataObject = msg.data || msg.data_object;
+        if (dataObject && msg.type) {
+          console.log('Emitting (1) ', `${msg.type}`);
+          this.emit(`${msg.type}`, dataObject);
+        }
+      }
+      if (parsed.data.topic) {
+        console.log('Emitting (2) ', `${parsed.data.topic}`);
+        this.emit(`${parsed.data.topic}`, parsed);
+      }
+    }
+    if (parsed.type && parsed.nonce) {
+      console.log('Emitting (3) ', `${parsed.type}-${parsed.nonce}`);
+      this.emit(`${parsed.type}-${parsed.nonce}`, parsed);
+    }
   }
 
   connectWebsocket(url) {
@@ -226,7 +259,7 @@ export default class ChatService extends EventEmitter {
     const conn = await this.pubsubConnection;
     const nonce = genNonce();
     conn.send(JSON.stringify({ type, data: { topics, auth_token: this.user.token }, nonce }));
-    if (skipReply) {
+    if (!skipReply) {
       return new Promise((resolve, reject) => {
         console.log('Listening for ', `RESPONSE-${nonce}`);
         this.once(`RESPONSE-${nonce}`, msg => {
@@ -320,13 +353,11 @@ export default class ChatService extends EventEmitter {
       message.user.color = color;
     }
 
-    let html = '';
     if (message.tags.badges) {
       message.user.badges = [];
       message.tags.badges.split(',').forEach(badgeID => {
         const [badgeName, badgeVersion] = badgeID.split('/');
         const badgeSet = badges[badgeName];
-        console.log(`Handling badge ${badgeName} version ${badgeVersion}. BadgeSet: `, badgeSet);
         if (badgeSet) {
           const versionInfo = badgeSet.versions[badgeVersion];
           if (versionInfo) {
@@ -346,10 +377,9 @@ export default class ChatService extends EventEmitter {
       message.trailing = actionmatch[1];
       message.isAction = isAction;
     }
-
+    let html = '';
     if (message.trailing) {
-      // replace emotes
-      const charArray = Array.from(message.trailing);
+      const emotes = [];
       if (message.tags.emotes) {
         const emoteLists = message.tags.emotes.split('/');
         for (let i = 0; i < emoteLists.length; i++) {
@@ -359,15 +389,15 @@ export default class ChatService extends EventEmitter {
             let [start, end] = positions[j].split('-');
             start = parseInt(start, 10);
             end = parseInt(end, 10);
-            const emotename = charArray.slice(start, end + 1).join('');
-            charArray[start] = `<img class="emote emote-${emoteid}" alt="${emotename}" title="${emotename}" src="//static-cdn.jtvnw.net/emoticons/v1/${emoteid}/3.0"></img>`;
-            for (let k = start + 1; k <= end; ++k) charArray[k] = '';
+            emotes.push({
+              start,
+              end,
+              id: emoteid
+            });
           }
         }
       }
-      for (let i = 0; i < charArray.length; i++) {
-        html += entityMap[charArray[i]] || charArray[i];
-      }
+      html = this.renderEmotes(message.trailing, emotes);
     }
     if (message.type === 'timeout' || message.type === 'ban') {
       html += escapeHtml(formatTimeout(message));
@@ -376,5 +406,21 @@ export default class ChatService extends EventEmitter {
     message.html = this.$sce.trustAsHtml(html);
 
     return message;
+  }
+
+  renderEmotes(text, emotes) {
+    // replace emotes
+    const charArray = Array.from(text);
+    let html = '';
+    for (let i = 0; i < emotes.length; ++i) {
+      const emote = emotes[i];
+      const emoteName = charArray.slice(emote.start, emote.end + 1).join('');
+      charArray[emote.start] = `<img class="emote emote-${emote.id}" alt="${emoteName}" title="${emoteName}" src="//static-cdn.jtvnw.net/emoticons/v1/${emote.id}/3.0"></img>`;
+      for (let k = emote.start + 1; k <= emote.end; ++k) charArray[k] = '';
+    }
+    for (let i = 0; i < charArray.length; i++) {
+      html += entityMap[charArray[i]] || charArray[i];
+    }
+    return html;
   }
 }

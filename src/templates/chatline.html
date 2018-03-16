@@ -1,10 +1,21 @@
 <div class="chat-line-wrapper">
   <span class="chat-line-time hide-s">
     <!-- timestamp -->
-    {{line.time | date : 'hh:mm:ss a'}}
+    {{line.time | date : $parent.mainCtrl.getSetting('timeFormat')}}
   </span>
-  <span class="chat-line-badges"><img ng-src="{{badge.url}}" ng-repeat="badge in line.user.badges" class="chat-line-badge" title="{{badge.title}}"></span>
-  <span class="chat-line-username">{{line.user.displayName}}</span><span class="chat-line-colon">: </span>
+  <span class="chat-line-mod-buttons" ng-if="$parent.chatCtrl && $parent.chatCtrl.showModButtons">
+    <md-button class="chat-line-mod-button compact" ng-repeat="modButton in $parent.mainCtrl.getSetting('modButtons')"
+    ng-click="$parent.chatCtrl.modAction($event, modButton, line)">
+      <md-tooltip md-delay="500">{{modButton.tooltip}}</md-tooltip>
+      <md-icon ng-if="modButton.icon.type === 'icon'">{{modButton.icon.code}}</md-icon>
+      <span ng-if="modButton.icon.type === 'text'" class="chat-line-mod-button-label">{{modButton.icon.code}}</span>
+    </md-button>
+  </span>
+  <span class="chat-line-badges">
+    <img ng-src="{{badge.url}}" ng-repeat="badge in line.user.badges" class="chat-line-badge" title="{{badge.title}}">
+  </span>
+  <span class="chat-line-username">{{line.user.displayName}}</span>
+  <span class="chat-line-colon">: </span>
   <span class="chat-line-text" ng-bind-html="line.html"></span>
   <span ng-if="line.modlog | isntEmpty">(By: {{modLogList(message.modlog)}})
     <md-tooltip md-direction="top">

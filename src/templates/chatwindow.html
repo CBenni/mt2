@@ -17,10 +17,7 @@
       </div>
     </div>
     <div class="chat-input-box">
-      <md-input-container>
-        <textarea class="chat-input">
-        </textarea>
-      </md-input-container>
+      <textarea class="chat-input" ng-keydown="chatCtrl.chatInputKeyPress($event)" ng-model="chatCtrl.chatInputContent" rows=1></textarea>
     </div>
   </div>
 </div>

@@ -1,0 +1,32 @@
+.whisper-container {
+  position: absolute;
+  bottom: 0;
+  max-height: 0px;
+  width: 100%;
+
+  .whisper-conversation {
+    max-height: 350px;
+    height: 350px;
+    width: 350px;
+    margin-right: 5px;
+
+    &.collapse {
+      height: initial;
+    }
+
+    .whisper-header {
+      padding: 8px;
+      background-color: $widget-header;
+    }
+    .whisper-body-wrapper {
+      overflow-y: auto;
+      height: 100%;
+      max-height: 100%;
+      flex-direction: column-reverse;
+      background-color: $widget-body;
+    }
+    .whisper-body {
+      padding-bottom: 5px;
+    }
+  }
+}
