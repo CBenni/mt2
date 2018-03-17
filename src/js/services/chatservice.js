@@ -19,7 +19,7 @@ const STATE_TRAILING = 5;
 
 function parseIRCMessage(message) {
   const data = rx.exec(message);
-  if (data == null) {
+  if (data === null) {
     console.error(`Couldnt parse message '${message}'`);
     return null;
   }

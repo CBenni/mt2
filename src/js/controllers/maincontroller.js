@@ -118,7 +118,8 @@ export default class MainController {
   }
 
   getSetting(key) {
-    return _.get(this.getCurrentProfile().settings, key, _.get(this.defaultProfile.settings, key));
+    // we dont use default because we want "" to be interpreted as "use default".
+    return _.get(this.getCurrentProfile().settings, key) || _.get(this.defaultProfile.settings, key);
   }
 
   updateConfig() {

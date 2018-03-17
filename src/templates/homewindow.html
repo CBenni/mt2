@@ -1,13 +1,13 @@
-<div ng-controller="HomeController as homeCtrl">
-  <md-button class="loginWithTwitch md-primary md-raised" ng-click="mainCtrl.loginWithTwitch()" ng-if="!mainCtrl.auth">
-    Log in with twitch
-  </md-button>
-  <md-button class="loginWithTwitch md-primary md-raised" ng-click="mainCtrl.logoutFromTwitch()" ng-if="mainCtrl.auth">
-    Log out ({{mainCtrl.auth.name}})
-  </md-button>
-  Home.
-  <br>
-  <div class="footer" flex="none" layout="row">
+<div ng-controller="HomeController as homeCtrl" layout="column" layout-align="start stretch">
+  <div class="home-controls" layout="row">
+    <div class="login-button" flex="none">
+      <md-button class="loginWithTwitch md-primary md-raised" ng-click="mainCtrl.loginWithTwitch()" ng-if="!mainCtrl.auth">
+        Log in with twitch
+      </md-button>
+      <md-button class="loginWithTwitch md-primary md-raised" ng-click="mainCtrl.logoutFromTwitch()" ng-if="mainCtrl.auth">
+        Log out ({{mainCtrl.auth.name}})
+      </md-button>
+    </div>
     <div flex="none" layout="row" layout-align="space-between center">
       <span>Profile:</span>
       <md-select class="compact md-no-underline" ng-model="mainCtrl.selectedProfile" ng-change="mainCtrl.updateConfig()">
@@ -19,14 +19,35 @@
     </div>
   </div>
   <md-input-container>
-    <input type="text" placeholder="Channel name" ng-model="homeCtrl.currentChannel">
+    <input type="text" placeholder="Search..." ng-model="homeCtrl.streamSearchText">
   </md-input-container>
-  <div class="chatAdder" golden-layout-drag-source gl-ds-channel="homeCtrl.currentChannel" gl-ds-template="'chatTemplate'"
-    gl-ds-layout="mainCtrl.layout">
+
+  <!--
+    <div class="chatAdder" >
     add chat
   </div>
   <div class="streamAdder" golden-layout-drag-source gl-ds-channel="homeCtrl.currentChannel" gl-ds-template="'streamTemplate'"
     gl-ds-layout="mainCtrl.layout">
     add stream
+  </div>
+-->
+
+  <div class="stream-list" layout="row" layout-align="start start" layout-wrap>
+    <div ng-repeat="stream in homeCtrl.getStreams()" class="stream-list-item" flex="none" layout="column" layout-align="start stretch">
+      <img ng-src="{{stream.preview.medium}}">
+      <div class="stream-title" flex="none">{{stream.channel.status}}</div>
+      <div class="stream-meta" flex="none">{{stream.viewers}} watching {{stream.channel.display_name}} plaing {{stream.game}}</div>
+      <div class="spacer" flex="100"></div>
+      <div class="stream-add-buttons" flex="none" layout="row" layout-align="center end">
+        <div class="stream-add-button chat-adder" golden-layout-drag-source gl-ds-channel="stream.channel.name" gl-ds-template="'chatTemplate'" gl-ds-layout="mainCtrl.layout">
+          <md-icon>chat</md-icon>
+        </div>
+        <div class="stream-add-button stream-adder" golden-layout-drag-source gl-ds-channel="stream.channel.name" gl-ds-template="'streamTemplate'"
+          gl-ds-layout="mainCtrl.layout">
+          <md-icon>videocam</md-icon>
+        </div>
+      </div>
+    </div>
+    <div ng-hide="homeCtrl.getStreams().length">No streams found</div>
   </div>
 </div>

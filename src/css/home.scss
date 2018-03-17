@@ -1,0 +1,23 @@
+.stream-list {
+  overflow-y: auto;
+
+  .stream-list-item {
+    width: 300px;
+    height: 300px;
+    padding: 8px;
+
+    .stream-title {
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      max-width: 100%;
+      overflow: hidden;
+    }
+
+    .stream-add-buttons {
+      .stream-add-button {
+        padding: 0 8px;
+        cursor: move;
+      }
+    }
+  }
+}
