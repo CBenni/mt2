@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 export default function goldenLayoutDragSource() {
   return {
     restrict: 'A',
@@ -26,8 +28,12 @@ export default function goldenLayoutDragSource() {
       $scope.$watch('glDsTemplate', () => {
         config.componentState.templateId = $scope.glDsTemplate;
       });
-      console.log('Enabling drag source for ', config);
-      $scope.glDsLayout.createDragSource($element[0], config);
+      const dragSource = $scope.glDsLayout.createDragSource($element[0], config);
+
+      $scope.$on('$destroy', () => {
+        dragSource._dragListener.destroy();
+        _.pull($scope.glDsLayout, dragSource);
+      });
     }
   };
 }

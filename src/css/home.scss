@@ -3,8 +3,9 @@
 
   .stream-list-item {
     width: 300px;
-    height: 300px;
-    padding: 8px;
+    height: 280px;
+    margin: 8px;
+    position: relative;
 
     .stream-title {
       white-space: nowrap;
@@ -14,8 +15,16 @@
     }
 
     .stream-add-buttons {
+      position: absolute;
+      top: 0;
+      left: 0;
+      padding: 2px;
+
       .stream-add-button {
-        padding: 0 8px;
+        background-color: #e7e7e7;
+        border-radius: 5px;
+        padding: 2px;
+        margin: 2px;
         cursor: move;
       }
     }

@@ -32,3 +32,5 @@ app.service('ApiService', ApiService);
 app.service('ChatService', ChatService);
 
 app.filter('isntEmpty', isntEmptyFilter);
+
+app.run($q => { window.Promise = $q; });

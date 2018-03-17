@@ -45,8 +45,8 @@
         },
         "tooltip": "Ban",
         "icon": {
-          "type": "text",
-          "code": "BanThatLittleShit"
+          "type": "icon",
+          "code": "block"
         }
       }
     ],

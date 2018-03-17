@@ -19,6 +19,14 @@
     vertical-align: bottom;
     margin: 0 1px 0 0;
   }
+
+  .chat-line-text {
+    word-break: break-word;
+  }
+}
+
+.chat-container {
+  overflow-y: scroll;
 }
 
 .chat-input-box {
@@ -31,7 +39,7 @@
   }
 }
 
-.md-button.chat-line-mod-button {
+.chat-line-mod-button {
   .chat-line-mod-button-label {
     font-weight: bold;
     font-size: 1.5em;

@@ -4,12 +4,12 @@
     {{line.time | date : $parent.mainCtrl.getSetting('timeFormat')}}
   </span>
   <span class="chat-line-mod-buttons" ng-if="$parent.chatCtrl && $parent.chatCtrl.showModButtons">
-    <md-button class="chat-line-mod-button compact" ng-repeat="modButton in $parent.mainCtrl.getSetting('modButtons')"
+    <span class="chat-line-mod-button compact" ng-repeat="modButton in $parent.mainCtrl.getSetting('modButtons')"
     ng-click="$parent.chatCtrl.modAction($event, modButton, line)">
       <md-tooltip md-delay="500">{{modButton.tooltip}}</md-tooltip>
       <md-icon ng-if="modButton.icon.type === 'icon'">{{modButton.icon.code}}</md-icon>
       <span ng-if="modButton.icon.type === 'text'" class="chat-line-mod-button-label">{{modButton.icon.code}}</span>
-    </md-button>
+    </span>
   </span>
   <span class="chat-line-badges">
     <img ng-src="{{badge.url}}" ng-repeat="badge in line.user.badges" class="chat-line-badge" title="{{badge.title}}">

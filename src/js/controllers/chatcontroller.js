@@ -54,7 +54,7 @@ export default class ChatController {
 
   addLine(line) {
     this.ChatService.processMessage(line).then(() => {
-      this.$scope.$apply(() => this.lines.push(line));
+      this.lines.push(line);
     });
   }
 

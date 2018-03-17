@@ -21,7 +21,7 @@ export default class HomeController {
     }, 500);
 
     this.getGlobalStreams();
-    this.getFollowedStreams();
+    $timeout(() => { this.getFollowedStreams(); });
 
     this.currentChannel = 'cbenni';
   }
