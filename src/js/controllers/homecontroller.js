@@ -70,11 +70,8 @@ export default class HomeController {
   }
 
   async getSearchedStreams() {
-    if (this.streamSearchText.length > 0) {
-      const searchText = this.streamSearchText;
-      console.log(`Starting search for ${searchText}`);
-      this.searchForStreamsThrottled(searchText);
-    }
+    const searchText = this.streamSearchText;
+    this.searchForStreamsThrottled(searchText);
   }
 
   getStreams() {
@@ -86,6 +83,7 @@ export default class HomeController {
   searchForStreams(searchText) {
     try {
       if (searchText.length > 0) {
+        console.log(`Starting search for ${searchText}`);
         const streamsSearch = this.ApiService.twitchGet(`https://api.twitch.tv/kraken/search/streams?query=${window.encodeURIComponent(searchText)}&limit=25`)
         .then(response => response.data.streams);
         const channelLookup = this.ApiService.twitchGetUserByName(searchText).then(user => {
@@ -102,6 +100,7 @@ export default class HomeController {
           this.searchedStreams = _.uniqBy(_.flatten(results), a => `${a.channel._id}`);
         });
       }
+      this.searchedStreams = null;
     } catch (err) {
       console.error(err);
     }
