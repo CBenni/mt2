@@ -7,6 +7,10 @@
     margin: 8px;
     position: relative;
 
+    img.stream-preview {
+      width: 300px;
+    }
+
     .stream-title {
       white-space: nowrap;
       text-overflow: ellipsis;

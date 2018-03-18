@@ -1,5 +1,17 @@
 import _ from 'lodash';
 
+function mockStreamFromChannel(channel) {
+  const videoBanner = channel.video_banner || '/assets/defaultChannelBanner-1920x1080.png';
+  return {
+    preview: {
+      small: videoBanner.replace('1920x1080', '240x135'),
+      medium: videoBanner.replace('1920x1080', '480x270'),
+      large: videoBanner
+    },
+    channel
+  };
+}
+
 export default class HomeController {
   constructor($scope, $timeout, ApiService) {
     'ngInclude';
@@ -14,11 +26,10 @@ export default class HomeController {
     this.streamSearchText = '';
     this.globalStreams = [];
     this.followedStreams = [];
-    this.searchedStreams = [];
+    this.searchedStreams = null;
 
-    this.searchForStreamsThrottled = _.throttle(() => {
-      this.searchForStreams();
-    }, 500);
+    this.searchForStreamsThrottled = _.throttle(searchText => this.searchForStreams(searchText), 500);
+    this.currentStreamSearch = null;
 
     this.getGlobalStreams();
     $timeout(() => { this.getFollowedStreams(); });
@@ -60,23 +71,36 @@ export default class HomeController {
 
   async getSearchedStreams() {
     if (this.streamSearchText.length > 0) {
-      const searchResponse = await this.searchForStreamsThrottled();
-      if (searchResponse && searchResponse.data.streams) {
-        this.searchedStreams = searchResponse.data.streams;
-      }
+      const searchText = this.streamSearchText;
+      console.log(`Starting search for ${searchText}`);
+      this.searchForStreamsThrottled(searchText);
     }
   }
 
   getStreams() {
-    if (this.searchedStreams.length > 0) return this.searchedStreams;
+    if (this.searchedStreams !== null) return this.searchedStreams;
     if (this.followedStreams.length > 0) return this.followedStreams;
     return this.globalStreams;
   }
 
-  searchForStreams() {
+  searchForStreams(searchText) {
     try {
-      if (this.streamSearchText.length > 0) {
-        return this.ApiService.twitchGet(`https://api.twitch.tv/kraken/search/streams?query=${window.encodeUriComponent(this.streamSearchText)}`);
+      if (searchText.length > 0) {
+        const streamsSearch = this.ApiService.twitchGet(`https://api.twitch.tv/kraken/search/streams?query=${window.encodeURIComponent(searchText)}&limit=25`)
+        .then(response => response.data.streams);
+        const channelLookup = this.ApiService.twitchGetUserByName(searchText).then(user => {
+          if (user) return this.ApiService.twitchGet(`https://api.twitch.tv/kraken/channels/${user._id}`).then(response => [mockStreamFromChannel(response.data)]);
+          return [];
+        });
+        const channelSearch = this.ApiService.twitchGet(`https://api.twitch.tv/kraken/search/channels?query=${window.encodeURIComponent(searchText)}&limit=25`)
+        .then(response => {
+          const channels = response.data.channels;
+          return _.map(channels, mockStreamFromChannel);
+        });
+        return Promise.all([streamsSearch, channelLookup, channelSearch]).then(results => {
+          console.log(`Search results for ${searchText}: `, results);
+          this.searchedStreams = _.uniqBy(_.flatten(results), a => `${a.channel._id}`);
+        });
       }
     } catch (err) {
       console.error(err);

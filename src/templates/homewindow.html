@@ -19,14 +19,15 @@
     </div>
   </div>
   <md-input-container flex="none">
-    <input type="text" placeholder="Search..." ng-model="homeCtrl.streamSearchText">
+    <input type="text" placeholder="Search..." ng-model="homeCtrl.streamSearchText" ng-change="homeCtrl.getSearchedStreams()">
   </md-input-container>
 
   <div class="stream-list" layout="row" layout-align="start start" layout-wrap flex="100">
     <div ng-repeat="stream in homeCtrl.getStreams()" class="stream-list-item" flex="none" layout="column" layout-align="start stretch">
-      <img ng-src="{{stream.preview.medium}}">
+      <img class="stream-preview" ng-src="{{stream.preview.medium}}">
       <div class="stream-title" flex="none">{{stream.channel.status}}</div>
-      <div class="stream-meta" flex="none"><strong>{{stream.viewers}}</strong> watching <strong>{{stream.channel.display_name}}</strong> playing <strong>{{stream.game}}</strong></div>
+      <div class="stream-meta" flex="none" ng-if="stream.viewers"><strong>{{stream.viewers}}</strong> watching <strong>{{stream.channel.display_name}}</strong> playing <strong>{{stream.game}}</strong></div>
+      <div class="stream-meta" flex="none" ng-if="!stream.viewers"><strong>{{stream.channel.display_name}}</strong></div>
       <div class="spacer" flex="100"></div>
       <div class="stream-add-buttons" layout="row" layout-align="start start">
         <div class="stream-add-button chat-adder" golden-layout-drag-source gl-ds-channel="stream.channel.name" gl-ds-template="'chatTemplate'" gl-ds-layout="mainCtrl.layout">
