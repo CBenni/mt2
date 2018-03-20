@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import SettingsDialog from '../../templates/settingsdialog.html';
 
 function mockStreamFromChannel(channel) {
   const videoBanner = channel.video_banner || '/assets/defaultChannelBanner-1920x1080.png';
@@ -13,7 +14,7 @@ function mockStreamFromChannel(channel) {
 }
 
 export default class HomeController {
-  constructor($scope, $timeout, ApiService) {
+  constructor($scope, $timeout, ApiService, $mdDialog) {
     'ngInclude';
 
     this.$timeout = $timeout;
@@ -22,6 +23,7 @@ export default class HomeController {
     this.state = $scope.state;
     this.ApiService = ApiService;
     this.mainCtrl = $scope.$parent.mainCtrl;
+    this.$mdDialog = $mdDialog;
 
     this.streamSearchText = '';
     this.globalStreams = [];
@@ -109,5 +111,21 @@ export default class HomeController {
 
   debugTest(...args) {
     console.log('Debug test: ', args);
+  }
+
+  openSettings($event) {
+    this.$mdDialog.show({
+      template: SettingsDialog,
+      targetEvent: $event,
+      clickOutsideToClose: true,
+      escapeToClose: true,
+      controller: 'SettingsDialogController',
+      controllerAs: 'dialogCtrl',
+      locals: {
+        mainCtrl: this.mainCtrl,
+        homeCtrl: this
+      },
+      bindToController: true
+    });
   }
 }

@@ -3,10 +3,11 @@
 
 <head>
   <title ng-bind="mainCtrl.getTitle()">ModTwitch by CBenni</title>
+  <base href="/">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 
-<body class="theme-light">
+<body ng-class="['theme-'+mainCtrl.getSetting('style')]" md-theme="mainCtrl.getSetting('style')">
   <div class="wrapper layout-container" id="layout-container"></div>
   <div class="whisper-container" ng-if="mainCtrl.auth" layout="row" layout-align="end end">
     <div ng-repeat="conversation in mainCtrl.conversations"
@@ -15,7 +16,7 @@
       <div class="whisper-header" flex="none" ng-click="conversation.collapse = !conversation.collapse" layout="row" layout-align="space-between center">
         <span flex="none">{{conversation.user.displayName}}</span>
         <md-button class="tiny-button" flex="none" ng-click="mainCtrl.closeConversation($event, conversation)">
-          <md-icon md-svg-src="/assets/close.svg"></md-icon>
+          <md-icon>close</md-icon>
         </md-button>
       </div>
       <div class="whisper-body-wrapper" layout="column" layout-align="start stretch" flex="100" ng-show="!conversation.collapse">
@@ -26,7 +27,9 @@
       <input type="text" ng-model="conversation.whisperText" ng-keyup="mainCtrl.sendWhisper($event, conversation)" flex="none" ng-show="!conversation.collapse">
     </div>
     <div class="whisper-menu">
-      <img src="/assets/chat.svg">
+      <md-button class="compact md-primary">
+        <md-icon>chat</md-icon>
+      </md-button>
     </div>
   </div>
 </body>

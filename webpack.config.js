@@ -17,6 +17,10 @@ const config = {
   module: {
     rules: [
       {
+        test: /ui-sortable/,
+        use: ['imports-loader?$UI=jquery-ui/ui/widgets/sortable']
+      },
+      {
         test: /\.js$/,
         exclude: /node_modules(?!\/webpack-dev-server)/,
         use: {
@@ -76,12 +80,15 @@ const config = {
       devServer: {
         outputPath: path.join(__dirname, 'dist/assets')
       }
+    }),
+    new webpack.ProvidePlugin({
+      'window.jQuery': 'jquery'
     })
   ]
 };
 
 if (process.env.NODE_ENV === 'production') {
-  config.plugins.push(new webpack.optimize.UglifyJsPlugin());
+  config.plugins.push(new webpack.optimize.UglifyJsPlugin({ minimize: true }));
 }
 
 module.exports = config;

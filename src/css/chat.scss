@@ -27,6 +27,7 @@
 
 .chat-container {
   overflow-y: scroll;
+  background-color: $page-body;
 }
 
 .chat-input-box {
@@ -36,17 +37,26 @@
     height: 100%;
     border: 0px none;
     resize: none;
+    background-color: transparent;
   }
 }
 
 .chat-line-mod-button {
-  .chat-line-mod-button-label {
-    font-weight: bold;
+  line-height: initial;
+  span.chat-line-mod-button-label {
     font-size: 1.5em;
+    font-weight: bold;
     text-transform: none;
-    line-height: initial;
+    vertical-align: middle;
     color: rgba(0,0,0,0.54);
   }
+
+  img.chat-line-mod-button-label {
+    margin: -0.75px 0;
+    max-height: 1.5em;
+    vertical-align: middle;
+  }
+
   md-icon.material-icons {
     font-weight: bold;
   }

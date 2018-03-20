@@ -13,8 +13,8 @@
       <md-select class="compact md-no-underline" ng-model="mainCtrl.selectedProfile" ng-change="mainCtrl.updateConfig()">
         <md-option ng-repeat="(id, profile) in mainCtrl.profiles" ng-value="id">{{profile.name}}</md-option>
       </md-select>
-      <md-button class="md-fab md-mini md-primary">
-        <md-icon md-svg-src="/src/assets/add.svg"></md-icon>
+      <md-button class="md-primary md-icon-button" ng-click="homeCtrl.openSettings($event)">
+        <md-icon>settings</md-icon>
       </md-button>
     </div>
   </div>

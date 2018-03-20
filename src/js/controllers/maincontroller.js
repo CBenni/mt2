@@ -72,13 +72,13 @@ export default class MainController {
       ChatService.on('whisper_received', pubsubMessage => {
         console.log('Received whisper: ', pubsubMessage);
         this.addWhisper(pubsubMessage).then(() => {
-          $scope.$apply(() => {});
+          $scope.$apply(() => { });
         });
       });
       ChatService.on('whisper_sent', pubsubMessage => {
         console.log('Sent whisper: ', pubsubMessage);
         this.addWhisper(pubsubMessage).then(() => {
-          $scope.$apply(() => {});
+          $scope.$apply(() => { });
         });
       });
     }

@@ -1,7 +1,42 @@
 .whisper-container {
   .whisper-conversation {
     .whisper-header {
-      background-color: rgba(0,0,0,0.9);
+      background-color: $widget-body-dark;
     }
   }
+}
+
+.lm_content {
+  background-color: $page-body-dark;
+}
+
+.chat-container {
+  overflow-y: scroll;
+  background-color: $page-body-dark;
+
+  .chat-line-mod-button-label {
+    color: $text-color-dark;
+  }
+}
+
+.stream-list .stream-list-item .stream-add-buttons .stream-add-button {
+  background-color: $widget-body-dark;
+  md-icon {
+    color: $text-color-dark;
+  }
+}
+
+&, .chat-line-wrapper .chat-line-time{
+  color: $text-color-dark;
+}
+
+.md-button.md-default-theme.md-primary:not([disabled]) md-icon,
+.md-button.md-primary:not([disabled]) md-icon,
+md-select.md-default-theme .md-select-icon,
+md-select .md-select-icon {
+  color: $text-color-dark;
+}
+
+md-tabs.md-dark-theme .md-tab.md-active, md-tabs.md-dark-theme .md-tab.md-active md-icon, md-tabs.md-dark-theme .md-tab.md-focused, md-tabs.md-dark-theme .md-tab.md-focused md-icon {
+  color: $text-color-dark;
 }

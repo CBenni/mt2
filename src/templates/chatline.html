@@ -8,7 +8,8 @@
     ng-click="$parent.chatCtrl.modAction($event, modButton, line)">
       <md-tooltip md-delay="500">{{modButton.tooltip}}</md-tooltip>
       <md-icon ng-if="modButton.icon.type === 'icon'">{{modButton.icon.code}}</md-icon>
-      <span ng-if="modButton.icon.type === 'text'" class="chat-line-mod-button-label">{{modButton.icon.code}}</span>
+      <span ng-if="modButton.icon.type === 'text'" class="chat-line-mod-button-label">{{modButton.icon.text}}</span>
+      <img ng-if="modButton.icon.type === 'image'" class="chat-line-mod-button-label" ng-src="{{modButton.icon.image}}">
     </span>
   </span>
   <span class="chat-line-badges">

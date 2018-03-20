@@ -34,3 +34,26 @@
     }
   }
 }
+
+.settings-dialog {
+  width: 70%;
+  min-height: 50%;
+
+  .settings-mod-button {
+    margin-bottom: 8px;
+
+    .drag-handle {
+      cursor: move;
+    }
+
+    md-input-container.dropdown {
+      min-width: 150px;
+      max-width: 150px;
+      width: 150px;
+    }
+
+    md-input-container.text-input {
+      width: 80%;
+    }
+  }
+}
