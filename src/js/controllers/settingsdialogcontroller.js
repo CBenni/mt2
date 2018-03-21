@@ -17,6 +17,10 @@ export default class SettingsDialogController extends DialogController {
     this.initDefault('style');
     this.initDefault('styleSheet');
     this.initDefault('modButtons');
+    this.initDefault('colorAdjustment');
+    this.initDefault('monoColor');
+    this.initDefault('chatSettings');
+    this.initDefault('chatPresets');
     this.initDefault('timeFormat');
   }
 

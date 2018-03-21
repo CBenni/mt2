@@ -39,6 +39,15 @@
   width: 70%;
   min-height: 50%;
 
+  .settings-row {
+    min-width: 400px;
+    padding-right: 50px;
+
+    label {
+      width: 200px;
+    }
+  }
+
   .settings-mod-button {
     margin-bottom: 8px;
 
@@ -52,7 +61,16 @@
       width: 150px;
     }
 
+    .settings-mod-button-setting-complex {
+      min-width: 400px;
+    }
+
+    .settings-mod-button-setting-simple {
+      min-width: 300px;
+    }
+
     md-input-container.text-input {
+      min-width: 200px;
       width: 80%;
     }
   }

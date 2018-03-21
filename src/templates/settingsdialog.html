@@ -1,63 +1,104 @@
 <md-dialog class="settings-dialog">
   <form ng-cloak>
     <md-toolbar>
-      <div class="md-toolbar-tools">
-        <h2>Settings</h2>
-        <md-button class="md-icon-button" ng-click="cancel()">
+      <div class="md-toolbar-tools" layout="row">
+        <h2 flex="none">Settings</h2>
+        <span flex></span>
+        <md-button class="md-icon-button" ng-click="cancel()" flex="none">
           <md-icon>close</md-icon>
         </md-button>
       </div>
     </md-toolbar>
     <md-dialog-content class="settings-dialog-content">
-      {{settings}}
       <div class="md-dialog-content">
         <md-tabs md-dynamic-height md-border-bottom>
           <md-tab label="Appearance">
             <md-content class="md-padding">
-              <div layout="row" layout-s="column">
-                <div class="settings-column" flex layout="column">
-                  <div class="settings-row" layout="row" layout-align="start space-between">
-                    <label for="style" flex="none">Style</label>
-                    <span flex></span>
-                    <div flex="none">
-                      <md-select name="style" class="compact md-no-underline" ng-model="settings.style">
-                        <md-option value="dark">dark mode</md-option>
-                        <md-option value="light">light mode</md-option>
-                        <md-option value="custom">custom style</md-option>
-                      </md-select>
+              <div class="settings-column" flex layout="row" layout-wrap>
+                <div class="settings-row" layout="row" layout-align="start center" flex="50">
+                  <label for="style" flex="none">Style</label>
+                  <div>
+                    <md-select name="style" class="compact md-no-underline" ng-model="settings.style">
+                      <md-option value="dark">dark mode</md-option>
+                      <md-option value="light">light mode</md-option>
+                      <md-option value="custom">custom style</md-option>
+                    </md-select>
+                    <div ng-if="settings.style === 'custom'">
                       <md-input-container>
-                        <input type="text" ng-model="settings.styleSheet" ng-show="settings.style === 'custom'" placeholder="style sheet url">
+                        <input type="text" ng-model="settings.styleSheet" placeholder="style sheet url">
                       </md-input-container>
                     </div>
                   </div>
                 </div>
-              </div>
-              <div flex>
+                <div class="settings-row" layout="row" layout-align="start center" flex="50">
+                  <label for="color-adjustment" flex="none">Color correction</label>
+                  <div>
+                    <md-select name="color-adjustment" class="compact md-no-underline" ng-model="settings.colorAdjustment">
+                      <md-option value="none">No correction</md-option>
+                      <md-option value="mono">Monochromatic</md-option>
+                      <md-option value="hsl">HSL correction</md-option>
+                    </md-select>
+                    <div ng-if="settings.colorAdjustment === 'mono'">
+                      <md-input-container>
+                        <input type="text" ng-model="settings.monoColor" placeholder="style sheet url">
+                      </md-input-container>
+                    </div>
+                  </div>
+                </div>
+                <!-- <div class="settings-row" layout="row" layout-align="start center" flex="50">
 
+                </div> -->
               </div>
             </md-content>
           </md-tab>
-          <md-tab label="Moderation">
+          <md-tab label="Chat">
             <md-content class="md-padding">
-              <h3>In-line moderation icons</h3>
-              <ul ui-sortable="{handle: '> .drag-handle'}" ng-model="settings.modButtons">
-                <li ng-repeat="button in settings.modButtons" layout="row" class="settings-mod-button md-whiteframe-2dp">
-                  <div flex="none" layout="column">
-                      <div flex="none" class="drag-handle">
-                        <md-icon>reorder</md-icon>
-                      </div>
-                      <div flex="none">
-                        <md-button class="compact" ng-click="dialogCtrl.deleteModButton(button)">
-                            <md-icon>delete</md-icon>
-                        </md-button>
-                      </div>
+              <div class="settings-column" flex layout="row" layout-wrap>
+                <div class="settings-row" layout="row" layout-align="start center" flex="50">
+                  <label for="pauseOn" flex="none">Pause chat on...</label>
+                  <div>
+                    <md-select name="pauseOn" class="compact md-no-underline" ng-model="settings.chatSettings.pauseOn" multiple="">
+                        <md-option value="hover">hover</md-option>
+                        <md-option value="ctrl">ctrl</md-option>
+                        <md-option value="alt">alt</md-option>
+                        <md-option value="shift">shift</md-option>
+                        <md-option value="lshift">lshift</md-option>
+                        <md-option value="lctrl">lctrl</md-option>
+                        <md-option value="lalt">lalt</md-option>
+                    </md-select>
                   </div>
-                  <div flex="20">
+                </div>
+                <div class="settings-row" layout="row" layout-align="start center" flex="100">
+                    <label for="knownBots" flex="none">Known bots</label>
+                    <div>
+                      <md-chips ng-model="settings.chatSettings.knownBots">
+
+                      </md-chips>
+                    </div>
+                </div>
+              </div>
+            </md-content>
+          </md-tab>
+          <md-tab label="Moderation icons">
+            <md-content class="md-padding">
+              <ul ui-sortable="{handle: '> .drag-handle'}" ng-model="settings.modButtons">
+                <li ng-repeat="button in settings.modButtons" layout="row" class="settings-mod-button md-whiteframe-2dp" layout-wrap>
+                  <div flex="none" layout="column">
+                    <div flex="none" class="drag-handle">
+                      <md-icon>reorder</md-icon>
+                    </div>
+                    <div flex="none">
+                      <md-button class="compact" ng-click="dialogCtrl.deleteModButton(button)">
+                        <md-icon>delete</md-icon>
+                      </md-button>
+                    </div>
+                  </div>
+                  <div flex="20" class="settings-mod-button-setting-simple">
                     <md-input-container class="text-input">
                       <input type="text" ng-model="button.tooltip" placeholder="Button name">
                     </md-input-container>
                   </div>
-                  <div flex="40" layout="row">
+                  <div flex="35" layout="row" class="settings-mod-button-setting-complex">
                     <md-input-container flex class="dropdown">
                       <label>Icon type</label>
                       <md-select name="style" class="compact md-no-underline" ng-model="button.icon.type" placeholder="Icon type">
@@ -84,7 +125,7 @@
                       </div>
                     </div>
                   </div>
-                  <div flex="40" layout="row">
+                  <div flex="35" layout="row" class="settings-mod-button-setting-complex">
                     <md-input-container class="dropdown md-no-underline">
                       <label>Action</label>
                       <md-select name="style" class="compact md-no-underline" ng-model="button.action.type" placeholder="Action">
@@ -114,6 +155,69 @@
                 </li>
               </ul>
               <md-button class="md-primary md-raised" ng-click="dialogCtrl.addModButton()">Add</md-button>
+            </md-content>
+          </md-tab>
+          <md-tab label="Chat presets">
+            <md-content class="md-padding">
+              <ul ui-sortable="{handle: '> .drag-handle'}" ng-model="settings.chatPresets">
+                <li ng-repeat="preset in settings.chatPresets" layout="row" class="settings-mod-button md-whiteframe-2dp" layout-wrap>
+                  <div flex="none" layout="column">
+                    <div flex="none" class="drag-handle">
+                      <md-icon>reorder</md-icon>
+                    </div>
+                    <div flex="none">
+                      <md-button class="compact" ng-click="dialogCtrl.deleteChatPreset(preset)">
+                        <md-icon>delete</md-icon>
+                      </md-button>
+                    </div>
+                  </div>
+                  <div flex="20" class="settings-mod-button-setting-simple">
+                    <md-input-container class="text-input">
+                      <input type="text" ng-model="preset.name" placeholder="Preset name">
+                    </md-input-container>
+                  </div>
+                  <div flex="35" layout="row" class="settings-mod-button-setting-complex">
+                    <md-input-container flex class="dropdown">
+                      <label>Icon type</label>
+                      <md-select name="style" class="compact md-no-underline" ng-model="preset.icon.type" placeholder="Icon type">
+                        <md-option value="icon">Icon</md-option>
+                        <md-option value="text">Text</md-option>
+                        <md-option value="image">Custom image</md-option>
+                      </md-select>
+                    </md-input-container>
+                    <div flex>
+                      <div ng-if="preset.icon.type === 'icon'">
+                        <md-input-container class="text-input">
+                          <input type="text" ng-model="preset.icon.code" placeholder="Icon code">
+                        </md-input-container>
+                      </div>
+                      <div ng-if="preset.icon.type === 'text'">
+                        <md-input-container class="text-input">
+                          <input type="text" ng-model="preset.icon.text" placeholder="Button text">
+                        </md-input-container>
+                      </div>
+                      <div ng-if="preset.icon.type === 'image'">
+                        <md-input-container class="text-input">
+                          <input type="text" ng-model="preset.icon.image" placeholder="Image url">
+                        </md-input-container>
+                      </div>
+                    </div>
+                  </div>
+                  <div flex="35" layout="row" class="settings-mod-button-setting-complex">
+                    <md-input-container class="md-no-underline">
+                      <label>Show messages containing...</label>
+                      <md-select name="style" class="compact md-no-underline" ng-model="preset.messageFilters" placeholder="Action" multiple="">
+                        <md-option value="chat">Chat</md-option>
+                        <md-option value="bots">Bots</md-option>
+                        <md-option value="mentions">Mentions</md-option>
+                        <md-option value="modlogs">Modlogs</md-option>
+                        <md-option value="bots">Automod</md-option>
+                        <md-option value="bits">Bits</md-option>
+                      </md-select>
+                    </md-input-container>
+                  </div>
+                </li>
+              </ul>
             </md-content>
           </md-tab>
         </md-tabs>

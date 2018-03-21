@@ -17,6 +17,8 @@
   "settings": {
     "style": "dark",
     "styleSheet": "",
+    "colorAdjustment": "hsl",
+    "monoColor": "rgb(245,245,245)",
     "modButtons": [
       {
         "action": {
@@ -50,6 +52,46 @@
           "type": "icon",
           "code": "block"
         }
+      }
+    ],
+    "chatSettings": {
+      "extraMentions": [],
+      "knownBots": [
+        "drangrybot",
+        "gather_bot",
+        "hnlbot",
+        "mikuia",
+        "monstercat",
+        "moobot",
+        "nightbot",
+        "ohbot",
+        "poketrivia",
+        "snusbot",
+        "streamelements",
+        "vivbot",
+        "wizebot",
+        "xanbot"
+      ],
+      "pauseOn": [
+        "hover"
+      ]
+    },
+    "chatPresets": [
+      {
+        "name": "Chat",
+        "icon": {
+          "type":"icon",
+          "code":"chat"
+        },
+        "incognito": true,
+        "messageFilters": [
+          "modlogs",
+          "chat",
+          "bots",
+          "mentions",
+          "bits",
+          "automod"
+        ]
       }
     ],
     "timeFormat": "hh:mm:ss a"
