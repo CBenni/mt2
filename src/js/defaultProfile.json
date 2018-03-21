@@ -83,7 +83,7 @@
           "type":"icon",
           "code":"chat"
         },
-        "incognito": true,
+        "incognito": false,
         "messageFilters": [
           "modlogs",
           "chat",

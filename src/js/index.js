@@ -22,6 +22,7 @@ import ApiService from './services/apiservice';
 import ChatService from './services/chatservice';
 
 import registerDarkMode from './themes/dark';
+import registerLightMode from './themes/light';
 
 const app = angular.module('mtApp', [angularAria, angularAnimate, angularMaterial, angularUIRouter, angularCookies, 'ui.sortable']);
 
@@ -44,4 +45,5 @@ app.run($q => { window.Promise = $q; });
 app.config(($locationProvider, $mdThemingProvider) => {
   $locationProvider.html5Mode(true);
   registerDarkMode($mdThemingProvider);
+  registerLightMode($mdThemingProvider);
 });

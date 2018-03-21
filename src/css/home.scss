@@ -63,15 +63,22 @@
 
     .settings-mod-button-setting-complex {
       min-width: 400px;
+      margin-right: 20px;
     }
 
     .settings-mod-button-setting-simple {
       min-width: 300px;
+      margin-right: 20px;
+    }
+
+    .settings-mod-button-setting-very-simple {
+      min-width: 200px;
+      margin-right: 20px;
     }
 
     md-input-container.text-input {
       min-width: 200px;
-      width: 80%;
+      width: 90%;
     }
   }
 }
