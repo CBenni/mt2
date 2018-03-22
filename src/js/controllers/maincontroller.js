@@ -39,7 +39,6 @@ export default class MainController {
     const layout = new GoldenLayout(this.getCurrentProfile().config, $('#layout-container'));
     this.layout = layout;
 
-    console.log(windowTemplates);
     const AngularModuleComponent = (container, state) => {
       const html = windowTemplates[state.templateId];
       const element = container.getElement();

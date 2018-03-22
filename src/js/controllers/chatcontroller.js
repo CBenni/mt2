@@ -9,7 +9,14 @@ export default class ChatController {
     this.state = $scope.state;
     this.$sce = $sce;
     this.$scope = $scope;
-    this.lines = [];
+    this.$timeout = $timeout;
+    this.pausedLines = [];
+    this.chatLines = [];
+    this.pagesToShow = 10;
+    this.pageSize = 10;
+    this.baseLine = 0;
+    this.isScrolledToBottom = true;
+    this.chatElement = null;
     this.chatInputContent = '';
     this.showModButtons = true;
 
@@ -54,8 +61,66 @@ export default class ChatController {
 
   addLine(line) {
     this.ChatService.processMessage(line).then(() => {
-      this.lines.push(line);
+      // chat pausing goes here
+
+      if (!this.getChatPaused()) this.baseLine = this.chatLines.length;
+      this.chatLines.push(line);
     });
+  }
+
+  getChatPaused() {
+    return this.baseLine < this.chatLines.length - 1;
+  }
+
+  getActiveChatLines() {
+    const basePage = Math.ceil(this.baseLine / this.pageSize);
+    return this.chatLines.slice(Math.max(0, (basePage - this.pagesToShow) * this.pageSize), basePage * this.pageSize);
+  }
+
+  onChatScroll($event, $element, scrollPos) {
+    if ($event === null) {
+      // when the directive is created, it calls this event handler with $event = null once
+      this.chatElement = $element;
+      console.log('Chat element:', this.chatElement);
+      this.isScrolledToBottom = true;
+      return;
+    }
+
+    const scrollLenience = $element.innerHeight() / 4;
+    const isNearBottom = scrollPos + $element.innerHeight() >= $element[0].scrollHeight - scrollLenience;
+    if (isNearBottom) {
+      this.baseLine = Math.min(this.chatLines.length - 1, this.baseLine + this.pageSize);
+    }
+    const isNearTop = scrollPos <= scrollLenience;
+    if (isNearTop) {
+      this.baseLine = Math.max(this.pagesToShow * this.pageSize, this.baseLine - this.pageSize);
+    }
+    this.$scope.$apply();
+    /*
+      console.log('Scroll direction:', direction);
+
+
+      if (isAtBottom) {
+        if (this.basePage < this.chatPages.length) {
+          this.basePage++;
+          this.isScrolledToBottom = false;
+        } else {
+          this.isScrolledToBottom = true;
+        }
+      } else if (this.isScrolledToBottom && direction < 0) {
+        this.isScrolledToBottom = false;
+      }
+      if (isAtTop) {
+        if (this.basePage > 1) {
+          this.basePage--;
+        }
+      } */
+  }
+
+  scrollToBottom() {
+    if (this.isScrolledToBottom && !this.getChatPaused()) {
+      this.chatElement.scrollTop(this.chatElement[0].scrollHeight);
+    }
   }
 
   chatInputKeyPress(event) {

@@ -17,6 +17,7 @@ import SettingsDialogController from './controllers/settingsdialogcontroller';
 
 import goldenLayoutDragSource from './directives/goldenlayoutdragsourcedirective';
 import { chatLineDirective, isntEmptyFilter } from './directives/chatlinedirective';
+import onScrollDirective from './directives/onscrolldirective';
 
 import ApiService from './services/apiservice';
 import ChatService from './services/chatservice';
@@ -35,6 +36,7 @@ app.controller('SettingsDialogController', SettingsDialogController);
 
 app.directive('goldenLayoutDragSource', goldenLayoutDragSource);
 app.directive('chatLine', chatLineDirective);
+app.directive('onScroll', onScrollDirective);
 
 app.service('ApiService', ApiService);
 app.service('ChatService', ChatService);
@@ -44,6 +46,7 @@ app.filter('isntEmpty', isntEmptyFilter);
 app.run($q => { window.Promise = $q; });
 app.config(($locationProvider, $mdThemingProvider) => {
   $locationProvider.html5Mode(true);
+  $mdThemingProvider.alwaysWatchTheme(true);
   registerDarkMode($mdThemingProvider);
   registerLightMode($mdThemingProvider);
 });

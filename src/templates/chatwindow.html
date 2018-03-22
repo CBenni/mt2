@@ -12,10 +12,9 @@
         status
       </div>
     </div>
-    <div class="chat-container" flex="100">
-      <div class="chat-lines" layout="column" layout-align="end stretch">
-        <div class="chat-line" ng-repeat="line in chatCtrl.lines">
-        </div>
+    <div class="chat-container column-reverse" layout-align="end stretch" layout="column" flex="100" on-scroll="chatCtrl.onChatScroll($event, $element, scrollPos, direction)">
+      <div class="chat-lines column-reverse" layout-align="end stretch" flex="none">
+        <div class="chat-line" ng-repeat="line in chatCtrl.getActiveChatLines()" flex="none"></div>
       </div>
     </div>
     <div class="chat-input-box">

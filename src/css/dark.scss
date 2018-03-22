@@ -10,6 +10,10 @@
   background-color: $page-body-dark;
 }
 
+.lm_goldenlayout, .lm_splitter {
+  background-color: $splitter-body-dark;
+}
+
 .chat-container {
   overflow-y: scroll;
   background-color: $page-body-dark;
@@ -37,6 +41,14 @@ md-select .md-select-icon {
   color: $text-color-dark;
 }
 
-md-tabs.md-dark-theme .md-tab.md-active, md-tabs.md-dark-theme .md-tab.md-active md-icon, md-tabs.md-dark-theme .md-tab.md-focused, md-tabs.md-dark-theme .md-tab.md-focused md-icon {
+md-tabs.md-dark-theme .md-tab.md-active, md-tabs.md-dark-theme .md-tab.md-active md-icon, md-tabs.md-dark-theme .md-tab.md-focused, md-tabs.md-dark-theme .md-tab.md-focused md-icon,
+md-input-container.md-input-focused label, md-input-container.md-default-theme .md-placeholder, md-input-container .md-placeholder, md-input-container.md-default-theme label, md-input-container label,
+md-input-container.md-default-theme:not(.md-input-invalid).md-input-has-value label, md-input-container:not(.md-input-invalid).md-input-has-value label
+{
+  color: $text-color-dark;
+}
+
+md-input-container.md-default-theme .md-input, md-input-container .md-input {
+  border-color: $text-color-dark;
   color: $text-color-dark;
 }

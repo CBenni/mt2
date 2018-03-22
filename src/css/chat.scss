@@ -28,6 +28,7 @@
 .chat-container {
   overflow-y: scroll;
   background-color: $page-body;
+  justify-content: end;
 }
 
 .chat-input-box {
