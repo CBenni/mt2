@@ -202,4 +202,8 @@ export default class ChatController {
     console.log('Mod button triggered command: ', command);
     this.sendLine(command);
   }
+
+  openModCard(user) {
+    this.mainCtrl.openModCard(user, this);
+  }
 }
