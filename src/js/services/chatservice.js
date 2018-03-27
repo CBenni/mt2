@@ -200,6 +200,12 @@ export default class ChatService extends EventEmitter {
       this.emit(`join-${channelObj.name}`);
       this.emit(`join-${channelObj.id}`);
     });
+
+    this.on('ROOMSTATE', async parsed => {
+      const channelObj = await this.joinedChannels[parsed.tags['room-id']];
+      if (channelObj) _.merge(channelObj.roomState, parsed.tags);
+      else console.error('ROOMSTATE received for unknown channel', { id: parsed.tagsparsed.tags['room-id'], name: parsed.param });
+    });
   }
 
   handleIRCMessage(connection, message) {
@@ -277,32 +283,30 @@ export default class ChatService extends EventEmitter {
     conn.send(`PRIVMSG #${channelObj.name} :${text}`);
   }
 
+  findChannelByName(name) {
+    name = name.toLowerCase().replace('#', '');
+    return _.find(this.joinedChannels, { name });
+  }
+
   async joinChannel(channelObj) {
     // fill up missing properties
     if (!channelObj.name) channelObj.name = (await this.ApiService.twitchGetUserByID(channelObj.id)).name;
     if (!channelObj.id) channelObj.id = (await this.ApiService.twitchGetUserByName(channelObj.name))._id;
 
     if (this.joinedChannels[channelObj.id]) return channelObj;
-    console.log('Waiting for chatReceiveConnection', this.chatReceiveConnection);
+    channelObj.roomState = {};
     this.chatReceiveConnection.then(conn => {
       conn.send(`JOIN #${channelObj.name}`);
     });
-    console.log('Waiting for chatJoinedPromise');
     const chatJoinedPromise = new Promise(resolve => {
       this.once(`JOIN-#${channelObj.name}`, () => {
         resolve();
       });
     });
-    console.log('Joining pubsub for channel ', channelObj);
     const pubsubJoinedPromise = this.pubsubSend('LISTEN', [`chat_moderator_actions.${this.user.id}.${channelObj.id}`]);
-    console.log('Promises: ', chatJoinedPromise, pubsubJoinedPromise);
     const channelJoinedPromise = Promise.all([chatJoinedPromise, pubsubJoinedPromise]).then(() => channelObj);
     this.joinedChannels[channelObj.id] = channelJoinedPromise;
-    console.log('Sent joins, waiting for join results.');
-    return channelJoinedPromise.then(() => {
-      console.log('Channel fully joined: ', channelObj);
-      return channelObj;
-    });
+    return channelJoinedPromise.then(() => channelObj);
   }
 
   // chat rendering tools

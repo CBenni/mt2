@@ -1,3 +1,4 @@
+import 'jquery-ui';
 import angular from 'angular';
 import angularMaterial from 'angular-material';
 import angularAnimate from 'angular-animate';
@@ -20,10 +21,13 @@ import goldenLayoutDragSource from './directives/goldenlayoutdragsourcedirective
 import { chatLineDirective, isntEmptyFilter } from './directives/chatlinedirective';
 import onScrollDirective from './directives/onscrolldirective';
 import buttonSettingsDirective from './directives/buttonsettingsdirective';
+import draggableDirective from './directives/draggabledirective';
+import { timeAgoFilter, largeNumberFilter, durationFilter } from './directives/filters';
 
 import ApiService from './services/apiservice';
 import ChatService from './services/chatservice';
 import KeyPressService from './services/keypressservice';
+import ToastService from './services/toastservice';
 
 import registerDarkMode from './themes/dark';
 import registerLightMode from './themes/light';
@@ -42,12 +46,17 @@ app.directive('goldenLayoutDragSource', goldenLayoutDragSource);
 app.directive('chatLine', chatLineDirective);
 app.directive('onScroll', onScrollDirective);
 app.directive('buttonSettings', buttonSettingsDirective);
+app.directive('draggable', draggableDirective);
 
 app.service('ApiService', ApiService);
 app.service('ChatService', ChatService);
 app.service('KeyPressService', KeyPressService);
+app.service('ToastService', ToastService);
 
 app.filter('isntEmpty', isntEmptyFilter);
+app.filter('timeAgo', timeAgoFilter);
+app.filter('largeNumber', largeNumberFilter);
+app.filter('duration', durationFilter);
 
 app.run($q => { window.Promise = $q; });
 app.config(($locationProvider, $mdThemingProvider) => {

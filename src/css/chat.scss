@@ -20,6 +20,10 @@
     margin: 0 1px 0 0;
   }
 
+  .chat-line-username {
+    cursor: pointer;
+  }
+
   .chat-line-text {
     word-break: break-word;
   }
@@ -72,4 +76,8 @@
   md-icon.material-icons {
     font-weight: bold;
   }
+}
+
+.chat-status-indicators .chat-status-indicator {
+  padding: 0 8px;
 }

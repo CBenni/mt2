@@ -60,6 +60,17 @@
     "modCardButtons": [
       {
         "action": {
+          "type": "whisper"
+        },
+        "tooltip": "Whisper",
+        "icon": {
+          "type": "text",
+          "text": "Whisper"
+        },
+        "hotkey": "KeyW"
+      },
+      {
+        "action": {
           "type": "command",
           "command": "/timeout {{user.name}} 1"
         },

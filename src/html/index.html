@@ -11,7 +11,7 @@
   <div class="wrapper layout-container" id="layout-container"></div>
   <div class="whisper-container" ng-if="mainCtrl.auth" layout="row" layout-align="end end">
     <div ng-repeat="conversation in mainCtrl.conversations"
-    class="whisper-conversation md-whiteframe-2dp" ng-class="{'collapse':conversation.collapse}"
+    class="whisper-conversation md-whiteframe-4dp" ng-class="{'collapse':conversation.collapse}"
     layout="column" layout-align="start stretch">
       <div class="whisper-header" flex="none" ng-click="conversation.collapse = !conversation.collapse" layout="row" layout-align="space-between center">
         <span flex="none">{{conversation.user.displayName}}</span>
@@ -24,12 +24,56 @@
               <div ng-repeat="line in conversation.lines" chat-line flex="none"></div>
           </div>
       </div>
-      <input type="text" ng-model="conversation.whisperText" ng-keyup="mainCtrl.sendWhisper($event, conversation)" flex="none" ng-show="!conversation.collapse">
+      <input type="text" ng-model="conversation.whisperText" ng-keyup="mainCtrl.sendWhisper($event, conversation)" flex="none" ng-show="!conversation.collapse" class="whisper-input-field">
     </div>
     <div class="whisper-menu">
       <md-button class="md-icon-button md-primary">
         <md-icon>chat</md-icon>
       </md-button>
+    </div>
+  </div>
+  <div class="mod-card md-whiteframe-5dp" ng-repeat="modCard in mainCtrl.modCards" layout="column" draggable="{handle: '> .mod-card-header'}" ng-style="{left: modCard.xPos, top: modCard.yPos}">
+    <div class="mod-card-header layout-padding" layout="row" layout-align="space-between stretch" flex="none">
+      <div layout="column" flex="none" layout-align="center center">
+        <img class="mod-card-profile-picture" flex="none" ng-src="{{modCard.stats.logo}}">
+      </div>
+      <div class="mod-card-header-info" layout="column" flex="100">
+        <div flex="50" layout="row" layout-align="space-between center">
+          <div class="mod-card-username">{{modCard.stats.display_name || modCard.user.displayName}}</div>
+          <div class="mod-card-controls" flex="none" ng-click="modCard.pinned = !modCard.pinned">
+            <md-button class="md-icon-button md-primary">
+              <md-icon md-svg-src="/assets/pin.svg" ng-class="{'mod-card-pin': true, 'mod-card-pinned': modCard.pinned}"></md-icon>
+            </md-button>
+            <md-button class="md-icon-button md-primary" ng-click="mainCtrl.closeModCard(modCard)">
+              <md-icon>close</md-icon>
+            </md-button>
+          </div>
+        </div>
+        <div class="mod-card-user-info" flex="50">
+          <md-icon>
+            remove_red_eye
+          </md-icon>
+          {{modCard.stats.views | largeNumber}}
+          <span class="tiny-icon">
+            ♥
+          </span>
+          {{modCard.stats.followers | largeNumber}}
+          <md-icon>
+            access_time
+          </md-icon>
+          {{modCard.stats.created_at | timeAgo }}
+        </div>
+      </div>
+    </div>
+    <div class="mod-card-body layout-padding" flex="100" layout="column">
+      <div class="mod-card-mod-buttons">
+        <md-button class="md-primary mod-card-mod-button dynamic-icon-button" ng-class="{'md-icon-button': modButton.icon.type !== 'text'}" ng-repeat="modButton in mainCtrl.getSetting('modCardButtons')" ng-click="modCard.chatCtrl.modAction($event, modButton, modCard)">
+          <md-tooltip md-delay="500">{{modButton.tooltip}}</md-tooltip>
+          <md-icon ng-if="modButton.icon.type === 'icon'">{{modButton.icon.code}}</md-icon>
+          <span ng-if="modButton.icon.type === 'text'" class="chat-line-mod-button-label">{{modButton.icon.text}}</span>
+          <img ng-if="modButton.icon.type === 'image'" class="chat-line-mod-button-label" ng-src="{{modButton.icon.image}}">
+        </md-button>
+      </div>
     </div>
   </div>
 </body>

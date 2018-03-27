@@ -28,6 +28,7 @@ export default class MainController {
     this.defaultProfile = defaultProfile;
 
     this.profiles = [this.defaultProfile];
+    this.modCards = [];
 
     // initialize layout
     const storedProfiles = localStorage.getItem('mt2-profiles');
@@ -185,6 +186,12 @@ export default class MainController {
     console.log('Conversations: ', this.conversations);
   }
 
+  openConversation(user) {
+    const threadID = `${this.auth.id}_${user.id}`;
+    const convo = this.findConversation({ user, threadID });
+    convo.collapse = false;
+  }
+
   findConversation(msg) {
     let convo = _.find(this.conversations, conversation => conversation.id === msg.threadID);
     if (!convo) {
@@ -222,5 +229,46 @@ export default class MainController {
   closeConversation($event, conversation) {
     _.pull(this.conversations, conversation);
     $event.preventDefault();
+  }
+
+  openModCard($event, user, chatCtrl) {
+    const cardWidth = 400;
+    const cardHeight = 250;
+    const distanceX = 100;
+    const distanceY = 0;
+
+    let xPos = $event.pageX - cardWidth - distanceX;
+    let yPos = $event.pageY - cardHeight - distanceY;
+    if (xPos < 10) xPos = $event.pageX + distanceX;
+    if (yPos < 10) yPos = $event.pageY + distanceY;
+
+    const modCard = {
+      user,
+      chatCtrl,
+      pinned: false,
+      xPos: `${xPos}px`,
+      yPos: `${yPos}px`
+    };
+
+    const replaceCard = _.findIndex(this.modCards, card => !card.pinned);
+    if (replaceCard >= 0) {
+      this.modCards[replaceCard] = modCard;
+    } else {
+      this.modCards.push(modCard);
+    }
+
+    this.ApiService.twitchGet(`https://api.twitch.tv/helix/users/follows?from_id=${user.id}&to_id=${chatCtrl.channelObj.id}`).then(response => {
+      modCard.followedAt = new Date(response.data.data.followed_at);
+    });
+
+    this.ApiService.twitchGet(`https://api.twitch.tv/kraken/channels/${user.id}`).then(response => {
+      modCard.stats = response.data;
+    });
+
+    return modCard;
+  }
+
+  closeModCard(card) {
+    _.pull(this.modCards, card);
   }
 }

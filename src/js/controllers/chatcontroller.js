@@ -1,7 +1,9 @@
 import _ from 'lodash';
 
+import languageTable from '../languages.json';
+
 export default class ChatController {
-  constructor($sce, $scope, $timeout, ChatService, KeyPressService) {
+  constructor($sce, $scope, $timeout, $http, ChatService, KeyPressService, ToastService) {
     'ngInclude';
 
     this.layout = $scope.layout;
@@ -10,8 +12,10 @@ export default class ChatController {
     this.$sce = $sce;
     this.$scope = $scope;
     this.$timeout = $timeout;
+    this.$http = $http;
     this.mainCtrl = $scope.mainCtrl;
     this.KeyPressService = KeyPressService;
+    this.ToastService = ToastService;
 
     this.pausedChatLines = [];
     this.chatLines = [];
@@ -27,6 +31,14 @@ export default class ChatController {
     this.lastScrollPos = 0;
     this.isPaused = false;
     this.chatHoverPauseTime = 750;
+    this.indicatorDefaults = {
+      'broadcaster-lang': '',
+      'emote-only': '0',
+      'followers-only': '-1',
+      r9k: '0',
+      slow: '0',
+      'subs-only': '0'
+    };
 
     $timeout(() => {
       this.user = $scope.mainCtrl.auth;
@@ -54,7 +66,7 @@ export default class ChatController {
       if (pauseSettings.indexOf(event.code) >= 0) event.preventDefault();
       this.$scope.$apply(() => this.throttledUpdateChatPaused());
     });
-    this.KeyPressService.on('keyup', event => {
+    this.KeyPressService.on('keyup', () => {
       this.resetChatScroll();
       this.$scope.$apply(() => this.throttledUpdateChatPaused());
     });
@@ -110,6 +122,16 @@ export default class ChatController {
     }
 
     this.isPaused = isPaused;
+  }
+
+  indicatorActive(indicator) {
+    return this.channelObj
+    && this.channelObj.roomState[indicator]
+    && this.channelObj.roomState[indicator] !== this.indicatorDefaults[indicator];
+  }
+
+  getLanguageName(languageCode) {
+    return languageTable[languageCode];
   }
 
   isMouseOver() {
@@ -184,26 +206,35 @@ export default class ChatController {
     this.ChatService.chatSend(this.channelObj, text);
   }
 
-  modAction($event, modButton, line) {
+  modAction($event, modButton, locals) {
     switch (modButton.action.type) {
       case 'command':
-        this.runCommand(modButton.action.command, line);
+        this.runCommand(modButton.action.command, locals);
         break;
       case 'url':
+        window.open(modButton.action.url, '_blank');
+        break;
+      case 'whisper':
+        this.mainCtrl.openConversation(locals.user);
+        break;
+      case 'post':
+        this.$http.post(modButton.action.url)
+        .then(response => this.toastService(response.data))
+        .catch(err => this.toastService(`Error: ${err}`));
         break;
       default:
         break;
     }
   }
 
-  runCommand(commandTemplate, line) {
+  runCommand(commandTemplate, locals) {
     const templateRegex = /{{((?:\w+)(?:\.\w+)*)}}/g;
-    const command = commandTemplate.replace(templateRegex, (match, group) => _.get(line, group, ''));
+    const command = commandTemplate.replace(templateRegex, (match, group) => _.get(locals, group, ''));
     console.log('Mod button triggered command: ', command);
     this.sendLine(command);
   }
 
-  openModCard(user) {
-    this.mainCtrl.openModCard(user, this);
+  openModCard($event, user) {
+    this.mainCtrl.openModCard($event, user, this);
   }
 }

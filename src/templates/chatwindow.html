@@ -3,13 +3,38 @@
   <div ng-if="mainCtrl.auth" class="chat-wrapper wrapper" layout="column">
     <div class="chat-header" flex="none" layout="row" layout-align="space-between center">
       <div>
-        Ham
+        <md-button class="md-primary md-icon-button">
+          <md-icon>menu</md-icon>
+        </md-button>
       </div>
       <div>
-        {{chatCtrl.channel}}
+        {{chatCtrl.channelObj.name}}
       </div>
-      <div>
-        status
+      <div class="chat-status-indicators">
+          <span class="chat-status-indicator" ng-if="chatCtrl.indicatorActive('broadcaster-lang')">
+            <md-tooltip>This channel is in {{chatCtrl.getLanguageName(chatCtrl.channelObj.roomState['broadcaster-lang'])}} only mode</md-tooltip>
+            {{chatCtrl.channelObj.roomState['broadcaster-lang']}}
+          </span>
+          <span class="chat-status-indicator" ng-if="chatCtrl.indicatorActive('emote-only')">
+            <md-tooltip>This channel is in emote-only only mode</md-tooltip>
+            <img src="https://static-cdn.jtvnw.net/emoticons/v1/25/1.0" class="tiny-kappa">
+          </span>
+          <span class="chat-status-indicator" ng-if="chatCtrl.indicatorActive('followers-only')">
+            <md-tooltip>This channel is in {{chatCtrl.channelObj.roomState['followers-only'] | duration:'minutes'}} followers-only only mode</md-tooltip>
+            <span class="tiny-button">♥</span>
+          </span>
+          <span class="chat-status-indicator" ng-if="chatCtrl.indicatorActive('r9k')">
+            <md-tooltip>This channel is in r9k mode</md-tooltip>
+            <span>r9k</span>
+          </span>
+          <span class="chat-status-indicator" ng-if="chatCtrl.indicatorActive('slow')">
+            <md-tooltip>This channel is in {{chatCtrl.channelObj.roomState['slow'] | duration}} slow mode</md-tooltip>
+            <span>{{chatCtrl.channelObj.roomState['slow'] | duration}}</span>
+          </span>
+          <span class="chat-status-indicator" ng-if="chatCtrl.indicatorActive('subs-only')">
+            <md-tooltip>This channel is in subscriber only mode</md-tooltip>
+            <span class="tiny-button">$</span>
+          </span>
       </div>
     </div>
     <div class="chat-container column-reverse" layout-align="end stretch" layout="column" flex="100" on-scroll="chatCtrl.onChatScroll($event, $element, scrollPos, direction)">

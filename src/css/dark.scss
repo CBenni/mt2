@@ -1,7 +1,16 @@
 .whisper-container {
   .whisper-conversation {
     .whisper-header {
+      background-color: $widget-header-dark;
+    }
+
+    .whisper-body-wrapper {
+      background-color: $page-body-dark;
+    }
+
+    .whisper-input-field {
       background-color: $widget-body-dark;
+      color: $text-color-dark;
     }
   }
 }
@@ -44,7 +53,9 @@
 .md-button.md-default-theme.md-primary:not([disabled]) md-icon,
 .md-button.md-primary:not([disabled]) md-icon,
 md-select.md-default-theme .md-select-icon,
-md-select .md-select-icon {
+md-select .md-select-icon,
+.md-button.md-dark-theme.md-primary.md-fab, .md-button.md-dark-theme.md-primary.md-raised,
+.md-button.md-dark-theme.md-primary {
   color: $text-color-dark;
 }
 
@@ -58,4 +69,13 @@ md-input-container.md-default-theme:not(.md-input-invalid).md-input-has-value la
 md-input-container.md-default-theme .md-input, md-input-container .md-input {
   border-color: $text-color-dark;
   color: $text-color-dark;
+}
+
+.mod-card {
+  .mod-card-header {
+    background-color: $widget-header-dark;
+  }
+  .mod-card-body {
+    background-color: $widget-body-dark;
+  }
 }

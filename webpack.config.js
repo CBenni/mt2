@@ -21,6 +21,10 @@ const config = {
         use: ['imports-loader?$UI=jquery-ui/ui/widgets/sortable']
       },
       {
+        test: /draggable/,
+        use: ['imports-loader?$UI=jquery-ui/ui/widgets/draggable']
+      },
+      {
         test: /\.js$/,
         exclude: /node_modules(?!\/webpack-dev-server)/,
         use: {

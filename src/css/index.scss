@@ -4,6 +4,7 @@
 @import './chat.scss';
 @import './whispers.scss';
 @import './home.scss';
+@import './modcards.scss';
 
 body, html {
   width: 100%;
@@ -67,6 +68,15 @@ md-input-container.compact {
   line-height: 0;
 }
 
+.md-button.dynamic-icon-button {
+  width: auto;
+  min-width: 40px;
+}
+
 .column-reverse {
   flex-direction: column-reverse;
+}
+
+.md-toast-text {
+  white-space: pre-line;
 }
