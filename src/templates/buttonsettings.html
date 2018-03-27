@@ -1,0 +1,81 @@
+<ul ui-sortable="{handle: '> .drag-handle'}" ng-model="btnsCtrl.buttons">
+  <li ng-repeat="button in btnsCtrl.buttons" layout="row" class="settings-mod-button md-whiteframe-2dp">
+    <div flex="none" layout="column">
+      <div flex="none" class="drag-handle">
+        <md-icon>reorder</md-icon>
+      </div>
+      <div flex="none">
+        <md-button class="compact" ng-click="btnsCtrl.deleteButton(button)">
+          <md-icon>delete</md-icon>
+        </md-button>
+      </div>
+    </div>
+    <div flex layout="row" layout-wrap>
+      <div flex="15" class="settings-mod-button-setting-very-simple">
+        <md-input-container class="text-input">
+          <input type="text" ng-model="button.tooltip" placeholder="Button name">
+        </md-input-container>
+      </div>
+      <div flex="25" layout="row" class="settings-mod-button-setting-complex">
+        <md-input-container flex class="dropdown">
+          <label>Icon type</label>
+          <md-select name="style" class="compact md-no-underline" ng-model="button.icon.type" placeholder="Icon type">
+            <md-option value="icon">Icon</md-option>
+            <md-option value="text">Text</md-option>
+            <md-option value="image">Custom image</md-option>
+          </md-select>
+        </md-input-container>
+        <div flex>
+          <div ng-if="button.icon.type === 'icon'">
+            <md-input-container class="text-input">
+              <input type="text" ng-model="button.icon.code" placeholder="Icon code">
+            </md-input-container>
+          </div>
+          <div ng-if="button.icon.type === 'text'">
+            <md-input-container class="text-input">
+              <input type="text" ng-model="button.icon.text" placeholder="Button text">
+            </md-input-container>
+          </div>
+          <div ng-if="button.icon.type === 'image'">
+            <md-input-container class="text-input">
+              <input type="text" ng-model="button.icon.image" placeholder="Image url">
+            </md-input-container>
+          </div>
+        </div>
+      </div>
+      <div flex="25" layout="row" class="settings-mod-button-setting-complex">
+        <md-input-container class="dropdown md-no-underline">
+          <label>Action</label>
+          <md-select name="style" class="compact md-no-underline" ng-model="button.action.type" placeholder="Action">
+            <md-option value="command">Command</md-option>
+            <md-option value="url">Open url</md-option>
+            <md-option value="custom">Custom</md-option>
+          </md-select>
+        </md-input-container>
+        <div flex>
+          <div ng-if="button.action.type === 'command'">
+            <md-input-container class="text-input">
+              <input type="text" ng-model="button.action.command" placeholder="Command">
+            </md-input-container>
+          </div>
+          <div ng-if="button.action.type === 'url'">
+            <md-input-container class="text-input">
+              <input type="text" ng-model="button.action.url" placeholder="Url">
+            </md-input-container>
+          </div>
+          <div ng-if="button.action.type === 'custom'">
+            <md-input-container class="text-input">
+              <input type="text" ng-model="button.action.custom" placeholder="Custom action">
+            </md-input-container>
+          </div>
+        </div>
+      </div>
+      <div flex="5" layout="row" class="settings-mod-button-setting-very-simple">
+        <md-input-container class="text-input">
+          <input type="text" ng-model="button.action.hotkey" placeholder="Hotkey">
+        </md-input-container>
+      </div>
+    </div>
+  </li>
+</ul>
+<md-button class="md-primary md-raised" ng-click="btnsCtrl.addButton()">Add</md-button>

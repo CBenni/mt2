@@ -1,4 +1,4 @@
-<div ng-controller="ChatController as chatCtrl" class="wrapper">
+<div ng-controller="ChatController as chatCtrl" class="wrapper" ng-mousemove="chatCtrl.mouseMove()" ng-mouseleave="chatCtrl.mouseLeave()">
   <iframe ng-src="{{chatCtrl.getEmbedUrl()}}" frameborder="0" allowfullscreen="true" scrolling="no" ng-if="!mainCtrl.auth"></iframe>
   <div ng-if="mainCtrl.auth" class="chat-wrapper wrapper" layout="column">
     <div class="chat-header" flex="none" layout="row" layout-align="space-between center">
@@ -18,6 +18,7 @@
       </div>
     </div>
     <div class="chat-input-box">
+      <div class="chat-paused-indicator" ng-click="chatCtrl.resetChatScroll()" ng-show="chatCtrl.isPaused">Chat is paused because of {{chatCtrl.isPaused}}</div>
       <textarea class="chat-input" ng-keydown="chatCtrl.chatInputKeyPress($event)" ng-model="chatCtrl.chatInputContent" rows=1></textarea>
     </div>
   </div>

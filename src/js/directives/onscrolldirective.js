@@ -10,8 +10,8 @@ export default function onScrollDirective() {
       const onScroll = event => {
         const direction = $element[0].scrollTop - lastScroll;
         $scope.onScroll({
- $event: event, $element, scrollPos: $element[0].scrollTop, direction 
-});
+          $event: event, $element, scrollPos: $element[0].scrollTop, direction
+        });
       };
 
       onScroll(null);

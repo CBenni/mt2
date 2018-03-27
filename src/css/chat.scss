@@ -33,17 +33,28 @@
 
 .chat-input-box {
   height: 4em;
+
+  .chat-paused-indicator {
+    position: absolute;
+    background-color: rgba(0,0,0,0.5);
+    width: 100%;
+    padding: 2px;
+    cursor: pointer;
+  }
+
   textarea {
     width: 100%;
     height: 100%;
     border: 0px none;
     resize: none;
-    background-color: transparent;
+    background-color: $widget-body;
   }
 }
 
 .chat-line-mod-button {
   line-height: initial;
+  cursor: pointer;
+
   span.chat-line-mod-button-label {
     font-size: 1.5em;
     font-weight: bold;

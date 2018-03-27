@@ -23,6 +23,13 @@
   }
 }
 
+.chat-input-box {
+  textarea {
+    background-color: $widget-body-dark;
+    color: $text-color-dark;
+  }
+}
+
 .stream-list .stream-list-item .stream-add-buttons .stream-add-button {
   background-color: $widget-body-dark;
   md-icon {

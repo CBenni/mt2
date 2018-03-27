@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
 export default class ChatController {
-  constructor($sce, $scope, $timeout, ChatService) {
+  constructor($sce, $scope, $timeout, ChatService, KeyPressService) {
     'ngInclude';
 
     this.layout = $scope.layout;
@@ -10,7 +10,10 @@ export default class ChatController {
     this.$sce = $sce;
     this.$scope = $scope;
     this.$timeout = $timeout;
-    this.pausedLines = [];
+    this.mainCtrl = $scope.mainCtrl;
+    this.KeyPressService = KeyPressService;
+
+    this.pausedChatLines = [];
     this.chatLines = [];
     this.pagesToShow = 10;
     this.pageSize = 10;
@@ -19,6 +22,11 @@ export default class ChatController {
     this.chatElement = null;
     this.chatInputContent = '';
     this.showModButtons = true;
+    this.mouseLastOver = 0;
+    this.scrolledUp = false;
+    this.lastScrollPos = 0;
+    this.isPaused = false;
+    this.chatHoverPauseTime = 750;
 
     $timeout(() => {
       this.user = $scope.mainCtrl.auth;
@@ -35,6 +43,20 @@ export default class ChatController {
 
         this.container.setTitle(this.state.channel);
       }
+    });
+
+    this.throttledUpdateChatPaused = _.throttle(() => {
+      this.updateChatPaused();
+    }, 100);
+
+    this.KeyPressService.on('keydown', event => {
+      const pauseSettings = this.mainCtrl.getSetting('chatSettings.pauseOn');
+      if (pauseSettings.indexOf(event.code) >= 0) event.preventDefault();
+      this.$scope.$apply(() => this.throttledUpdateChatPaused());
+    });
+    this.KeyPressService.on('keyup', event => {
+      this.resetChatScroll();
+      this.$scope.$apply(() => this.throttledUpdateChatPaused());
     });
   }
 
@@ -63,13 +85,53 @@ export default class ChatController {
     this.ChatService.processMessage(line).then(() => {
       // chat pausing goes here
 
-      if (!this.getChatPaused()) this.baseLine = this.chatLines.length;
-      this.chatLines.push(line);
+      if (!this.isPaused) {
+        this.baseLine = this.chatLines.length;
+        this.chatLines.push(line);
+      } else {
+        this.pausedChatLines.push(line);
+      }
     });
   }
 
-  getChatPaused() {
-    return this.baseLine < this.chatLines.length - 1;
+  updateChatPaused() {
+    let isPaused = false;
+    if (this.isScrolledUp) isPaused = 'chat scroll';
+    const pauseSettings = this.mainCtrl.getSetting('chatSettings.pauseOn');
+    if (this.isMouseOver() && pauseSettings.indexOf('hover') >= 0) isPaused = 'mouse hover';
+    const pressedKey = _.find(pauseSettings, pauseCondition => this.KeyPressService.keysPressed[pauseCondition]);
+    if (!isPaused && pressedKey) isPaused = `${pressedKey} pressed`;
+
+    if (this.isPaused && !isPaused) {
+      this.chatLines.push(...this.pausedChatLines);
+      this.pausedChatLines = [];
+      this.baseLine = this.chatLines.length;
+      this.scrollToBottom();
+    }
+
+    this.isPaused = isPaused;
+  }
+
+  isMouseOver() {
+    return Date.now() - this.mouseLastOver < this.chatHoverPauseTime;
+  }
+
+  mouseMove() {
+    this.mouseLastOver = Date.now();
+    this.throttledUpdateChatPaused();
+    this.$timeout(this.throttledUpdateChatPaused, this.chatHoverPauseTime);
+  }
+
+  mouseLeave() {
+    this.mouseLastOver = 0;
+    this.throttledUpdateChatPaused();
+  }
+
+  resetChatScroll() {
+    this.isScrolledUp = false;
+    this.lastScrollPos = 0;
+    this.scrollToBottom();
+    this.throttledUpdateChatPaused();
   }
 
   getActiveChatLines() {
@@ -81,7 +143,6 @@ export default class ChatController {
     if ($event === null) {
       // when the directive is created, it calls this event handler with $event = null once
       this.chatElement = $element;
-      console.log('Chat element:', this.chatElement);
       this.isScrolledToBottom = true;
       return;
     }
@@ -95,38 +156,23 @@ export default class ChatController {
     if (isNearTop) {
       this.baseLine = Math.max(this.pagesToShow * this.pageSize, this.baseLine - this.pageSize);
     }
+
+    const direction = scrollPos - this.lastScrollPos;
+    this.lastScrollPos = scrollPos;
+    if (direction < 0) {
+      this.isScrolledUp = true;
+    }
+    this.throttledUpdateChatPaused();
     this.$scope.$apply();
-    /*
-      console.log('Scroll direction:', direction);
-
-
-      if (isAtBottom) {
-        if (this.basePage < this.chatPages.length) {
-          this.basePage++;
-          this.isScrolledToBottom = false;
-        } else {
-          this.isScrolledToBottom = true;
-        }
-      } else if (this.isScrolledToBottom && direction < 0) {
-        this.isScrolledToBottom = false;
-      }
-      if (isAtTop) {
-        if (this.basePage > 1) {
-          this.basePage--;
-        }
-      } */
   }
 
   scrollToBottom() {
-    if (this.isScrolledToBottom && !this.getChatPaused()) {
-      this.chatElement.scrollTop(this.chatElement[0].scrollHeight);
-    }
+    this.chatElement.scrollTop(this.chatElement[0].scrollHeight);
   }
 
   chatInputKeyPress(event) {
     if (event.keyCode === 13) {
       if (this.chatInputContent) {
-        console.log('Chat message: ', this.chatInputContent);
         this.sendLine(this.chatInputContent);
         this.chatInputContent = '';
         event.preventDefault();
@@ -152,10 +198,7 @@ export default class ChatController {
 
   runCommand(commandTemplate, line) {
     const templateRegex = /{{((?:\w+)(?:\.\w+)*)}}/g;
-    const command = commandTemplate.replace(templateRegex, (match, group) => {
-      console.log(`Getting property ${group} of line`);
-      return _.get(line, group, '');
-    });
+    const command = commandTemplate.replace(templateRegex, (match, group) => _.get(line, group, ''));
     console.log('Mod button triggered command: ', command);
     this.sendLine(command);
   }

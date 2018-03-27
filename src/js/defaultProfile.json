@@ -29,7 +29,8 @@
         "icon": {
           "type": "icon",
           "code": "remove_circle_outline"
-        }
+        },
+        "hotkey": "KeyP"
       },
       {
         "action": {
@@ -40,7 +41,8 @@
         "icon": {
           "type": "icon",
           "code": "hourglass_empty"
-        }
+        },
+        "hotkey": "KeyT"
       },
       {
         "action": {
@@ -51,7 +53,46 @@
         "icon": {
           "type": "icon",
           "code": "block"
-        }
+        },
+        "hotkey": "KeyB"
+      }
+    ],
+    "modCardButtons": [
+      {
+        "action": {
+          "type": "command",
+          "command": "/timeout {{user.name}} 1"
+        },
+        "tooltip": "Purge",
+        "icon": {
+          "type": "icon",
+          "code": "remove_circle_outline"
+        },
+        "hotkey": "KeyP"
+      },
+      {
+        "action": {
+          "type": "command",
+          "command": "/timeout {{user.name}} 600"
+        },
+        "tooltip": "Timeout",
+        "icon": {
+          "type": "icon",
+          "code": "hourglass_empty"
+        },
+        "hotkey": "KeyT"
+      },
+      {
+        "action": {
+          "type": "command",
+          "command": "/ban {{user.name}}"
+        },
+        "tooltip": "Ban",
+        "icon": {
+          "type": "icon",
+          "code": "block"
+        },
+        "hotkey": "KeyB"
       }
     ],
     "chatSettings": {
