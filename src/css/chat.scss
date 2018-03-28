@@ -1,6 +1,35 @@
 .chat-line-wrapper {
   padding: 4px 2px;
 
+  &.chat-line-deleted {
+    opacity: .5;
+
+    .chat-line-text {
+      text-decoration: line-through;
+    }
+  }
+
+  &.action-msg {
+    .chat-line-username, .chat-line-text {
+      font-style: italic;
+    }
+
+    .chat-line-colon {
+      display: none;
+    }
+  }
+
+  &.system-msg {
+    .chat-line-mod-buttons, .chat-line-username, .chat-line-colon {
+      display: none;
+    }
+  }
+
+  &.usernotice-msg {
+    background-color: hsla(0,0%,50%,.1);
+    border-left: 4px solid #6441a4;
+  }
+
   .chat-line-time {
     color: rgba(0, 0, 0, 0.7);
     font-size: small;
@@ -75,6 +104,11 @@
 
   md-icon.material-icons {
     font-weight: bold;
+    height: 19px;
+    font-size: 19px;
+    min-height: 19px;
+    min-width: 19px;
+    width: 19px;
   }
 }
 

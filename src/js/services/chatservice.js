@@ -1,140 +1,9 @@
 import _ from 'lodash';
 import { EventEmitter } from 'events';
 
-function genNonce() {
-  const charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._~';
-  const result = [];
-  window.crypto.getRandomValues(new Uint8Array(32)).forEach(c =>
-    result.push(charset[c % charset.length]));
-  return result.join('');
-}
+import { parseIRCMessage, jsonParseRecursive, sdbmCode, capitalizeFirst, genNonce, escapeHtml, entityMap } from '../helpers';
 
-const rx = /^(?:@([^ ]+) )?(?:[:](\S+) )?(\S+)(?: (?!:)(.+?))?(?: [:](.+))?$/;
-const rx2 = /([^=;]+)=([^;]*)/g;
-const STATE_V3 = 1;
-const STATE_PREFIX = 2;
-const STATE_COMMAND = 3;
-const STATE_PARAM = 4;
-const STATE_TRAILING = 5;
-
-function parseIRCMessage(message) {
-  const data = rx.exec(message);
-  if (data === null) {
-    console.error(`Couldnt parse message '${message}'`);
-    return null;
-  }
-  const tagdata = data[STATE_V3];
-  const tags = {};
-  if (tagdata) {
-    let m;
-    do {
-      m = rx2.exec(tagdata);
-      if (m) {
-        const [, key, val] = m;
-        tags[key] = val.replace(/\\s/g, ' ').trim();
-      }
-    } while (m);
-  }
-  return {
-    tags,
-    command: data[STATE_COMMAND],
-    prefix: data[STATE_PREFIX],
-    param: data[STATE_PARAM],
-    trailing: data[STATE_TRAILING]
-  };
-}
 const DEFAULTCOLORS = ['#e391b8', '#e091ce', '#da91de', '#c291db', '#ab91d9', '#9691d6', '#91a0d4', '#91b2d1', '#91c2cf', '#91ccc7', '#91c9b4', '#90c7a2', '#90c492', '#9dc290', '#aabf8f', '#b5bd8f', '#bab58f', '#b8a68e', '#b5998e', '#b38d8d'];
-function sdbmCode(str) {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    // eslint-disable-next-line no-bitwise
-    hash = str.charCodeAt(i) + (hash << 6) + (hash << 16) - hash;
-  }
-  return Math.abs(hash);
-}
-const entityMap = {
-  '&': '&amp;',
-  '<': '&lt;',
-  '>': '&gt;',
-  '"': '&quot;',
-  "'": '&#39;',
-  '/': '&#x2F;'
-};
-
-function formatTimespan(timespan) {
-  let age = Math.round(parseInt(timespan, 10));
-  const periods = [
-    { abbr: 'y', len: 3600 * 24 * 365 },
-    { abbr: 'm', len: 3600 * 24 * 30 },
-    { abbr: 'd', len: 3600 * 24 },
-    { abbr: ' hrs', len: 3600 },
-    { abbr: ' min', len: 60 },
-    { abbr: ' sec', len: 1 }
-  ];
-  let res = '';
-  let count = 0;
-  for (let i = 0; i < periods.length; ++i) {
-    if (age >= periods[i].len) {
-      const pval = Math.floor(age / periods[i].len);
-      age %= periods[i].len;
-      res += (res ? ' ' : '') + pval + periods[i].abbr;
-      count++;
-      if (count >= 2) break;
-    }
-  }
-  return res;
-}
-function formatCount(i) {
-  return i <= 1 ? '' : ` (${i} times)`;
-}
-
-function escapeHtml(string) {
-  return String(string).replace(/[&<>"'\\/]/g, s => entityMap[s]);
-}
-
-export function formatTimeout(timeout) {
-  const tags = timeout.tags;
-  console.log('Formatting timeout: ', tags);
-  if (timeout.type === 'timeout') {
-    // timeout
-    if (!tags.reasons || tags.reasons.length === 0) {
-      return `<${tags['display-name']} has been timed out for ${formatTimespan(tags.duration)}${formatCount(tags.count)}>`;
-    } else if (tags.reasons.length === 1) {
-      return `<${tags['display-name']} has been timed out for ${formatTimespan(tags.duration)}. Reason: ${tags.reasons.join(', ')}${formatCount(tags.count)}>`;
-    }
-    return `<${tags['display-name']} has been timed out for ${formatTimespan(tags.duration)}. Reasons: ${tags.reasons.join(', ')}${formatCount(tags.count)}>`;
-  }
-  // banned
-  if (timeout.type === 'ban') {
-    if (!tags.reasons || tags.reasons.length === 0) {
-      return `<${tags['display-name']} has been banned>`;
-    } else if (tags.reasons.length === 1) {
-      return `<${tags['display-name']} has been banned. Reason: ${tags.reasons.join(', ')}>`;
-    }
-    return `<${tags['display-name']} has been banned. Reasons: ${tags.reasons.join(', ')}>`;
-  }
-  return '<invalid timeout>';
-}
-
-function capitalizeFirst(str) {
-  return str.slice(0, 1).toUpperCase() + str.slice(1);
-}
-
-export function jsonParseRecursive(thing) {
-  if (typeof (thing) === 'object') {
-    _.each(thing, (val, prop) => {
-      thing[prop] = jsonParseRecursive(val);
-    });
-    return thing;
-  } else if (typeof (thing) === 'string' && (thing[0] === '[' || thing[0] === '{')) {
-    try {
-      return jsonParseRecursive(JSON.parse(thing));
-    } catch (err) {
-      return thing;
-    }
-  } else return thing;
-}
-
 export default class ChatService extends EventEmitter {
   constructor(ApiService, $sce) {
     'ngInject';
@@ -182,6 +51,10 @@ export default class ChatService extends EventEmitter {
       conn.addEventListener('message', event => {
         this.handleIRCMessage(conn, event.data);
       });
+
+      window.injectChatMessage = msg => {
+        this.handleIRCMessage(conn, msg);
+      };
     });
     this.pubsubConnection.then(conn => {
       console.log('Pubsub connection opened');
@@ -196,7 +69,7 @@ export default class ChatService extends EventEmitter {
       }, 1000 * 60);
     });
 
-    this.joinChannel(user).then(channelObj => {
+    this.joinChannel({ id: user.id, name: user.name }).then(channelObj => {
       this.emit(`join-${channelObj.name}`);
       this.emit(`join-${channelObj.id}`);
     });
@@ -204,7 +77,7 @@ export default class ChatService extends EventEmitter {
     this.on('ROOMSTATE', async parsed => {
       const channelObj = await this.joinedChannels[parsed.tags['room-id']];
       if (channelObj) _.merge(channelObj.roomState, parsed.tags);
-      else console.error('ROOMSTATE received for unknown channel', { id: parsed.tagsparsed.tags['room-id'], name: parsed.param });
+      else console.error('ROOMSTATE received for unknown channel', { id: parsed.tags['room-id'], name: parsed.param });
     });
   }
 
@@ -292,9 +165,9 @@ export default class ChatService extends EventEmitter {
     // fill up missing properties
     if (!channelObj.name) channelObj.name = (await this.ApiService.twitchGetUserByID(channelObj.id)).name;
     if (!channelObj.id) channelObj.id = (await this.ApiService.twitchGetUserByName(channelObj.name))._id;
+    if (!channelObj.roomState) channelObj.roomState = {};
 
-    if (this.joinedChannels[channelObj.id]) return channelObj;
-    channelObj.roomState = {};
+    if (this.joinedChannels[channelObj.id]) return this.joinedChannels[channelObj.id];
     this.chatReceiveConnection.then(conn => {
       conn.send(`JOIN #${channelObj.name}`);
     });
@@ -306,7 +179,7 @@ export default class ChatService extends EventEmitter {
     const pubsubJoinedPromise = this.pubsubSend('LISTEN', [`chat_moderator_actions.${this.user.id}.${channelObj.id}`]);
     const channelJoinedPromise = Promise.all([chatJoinedPromise, pubsubJoinedPromise]).then(() => channelObj);
     this.joinedChannels[channelObj.id] = channelJoinedPromise;
-    return channelJoinedPromise.then(() => channelObj);
+    return channelJoinedPromise;
   }
 
   // chat rendering tools
@@ -341,6 +214,8 @@ export default class ChatService extends EventEmitter {
 
   _processMessage(message, badges) {
     if (!message.time) message.time = new Date();
+    if (!message.tags) message.tags = {};
+    if (!message.tags.classes) message.tags.classes = [];
 
 
     if (message.prefix) {
@@ -374,12 +249,10 @@ export default class ChatService extends EventEmitter {
         }
       });
     }
-    let isAction = false;
     const actionmatch = /^\u0001ACTION (.*)\u0001$/.exec(message.trailing);
     if (actionmatch != null) {
-      isAction = true;
       message.trailing = actionmatch[1];
-      message.isAction = isAction;
+      message.tags.classes.push('action-msg');
     }
     let html = '';
     if (message.trailing) {

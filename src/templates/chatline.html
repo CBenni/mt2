@@ -1,4 +1,4 @@
-<div class="chat-line-wrapper">
+<div class="chat-line-wrapper" ng-class="line.tags.classes">
   <span class="chat-line-time hide-s">
     <!-- timestamp -->
     {{line.time | date : $parent.mainCtrl.getSetting('timeFormat')}}

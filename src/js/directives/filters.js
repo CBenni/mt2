@@ -1,3 +1,5 @@
+import { formatDuration } from '../helpers';
+
 export function timeAgoFilter() {
   return date => {
     if (!date) return '0';
@@ -27,32 +29,7 @@ export function timeAgoFilter() {
 }
 
 export function durationFilter() {
-  return (duration, baseUnit) => {
-    if (!duration) return '0';
-    let res = '';
-    duration = parseInt(duration, 10);
-    if (baseUnit) {
-      duration *= {
-        minutes: 60, hours: 3600, days: 86400, years: 86400 * 365
-      }[baseUnit];
-    }
-    if (duration < 60) {
-      res = `${duration}s`;
-    } else if (duration < 3600) {
-      const mins = Math.round(duration / 60);
-      res = `${mins}m`;
-    } else if (duration < 3600 * 24) {
-      const hrs = Math.round(duration / 3600);
-      res = `${hrs}h`;
-    } else if (duration < 3600 * 24 * 365) {
-      const days = Math.round(duration / (3600 * 24));
-      res = `${days}d`;
-    } else {
-      const years = Math.round(duration / (3600 * 24 * 365 / 10)) / 10;
-      res = `${years}y`;
-    }
-    return res;
-  };
+  return formatDuration;
 }
 
 export function largeNumberFilter() {

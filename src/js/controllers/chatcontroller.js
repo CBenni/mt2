@@ -1,5 +1,6 @@
 import _ from 'lodash';
 
+import { stringifyTimeout } from '../helpers';
 import languageTable from '../languages.json';
 
 export default class ChatController {
@@ -19,6 +20,7 @@ export default class ChatController {
 
     this.pausedChatLines = [];
     this.chatLines = [];
+    this.recentTimeouts = {};
     this.pagesToShow = 10;
     this.pageSize = 10;
     this.baseLine = 0;
@@ -51,6 +53,21 @@ export default class ChatController {
           this.ChatService.on(`PRIVMSG-#${this.channelObj.name}`, message => {
             this.addLine(message);
           });
+          this.ChatService.on(`USERNOTICE-#${this.channelObj.name}`, message => {
+            $scope.$apply(() => {
+              this.addUsernotice(message);
+            });
+          });
+          this.ChatService.on(`CLEARCHAT-#${this.channelObj.name}`, message => {
+            $scope.$apply(() => {
+              this.clearChat(message);
+            });
+          });
+          this.ChatService.on(`NOTICE-#${this.channelObj.name}`, message => {
+            $scope.$apply(() => {
+              this.systemMessage(message.trailing);
+            });
+          });
         });
 
         this.container.setTitle(this.state.channel);
@@ -81,21 +98,25 @@ export default class ChatController {
   }
 
   systemMessage(text) {
-    this.addLine({
+    const line = {
       tags: {
-        'display-name': 'system',
-        class: 'system-msg'
+        'display-name': '',
+        classes: ['system-msg']
       },
+      system: true,
       prefix: 'jtv!jvt.chat.twitch.tv',
       command: 'NOTICE',
       param: [`#${this.channelObj.name}`],
       trailing: text
-    });
+    };
+    this.addLine(line);
+    return line;
   }
 
   addLine(line) {
     this.ChatService.processMessage(line).then(() => {
-      // chat pausing goes here
+      if (!line.tags) line.tags = {};
+      if (!line.tags.classes) line.classes = [];
 
       if (!this.isPaused) {
         this.baseLine = this.chatLines.length;
@@ -104,6 +125,70 @@ export default class ChatController {
         this.pausedChatLines.push(line);
       }
     });
+  }
+
+  clearChat(message) {
+    // @ban-duration=1;ban-reason=;room-id=21018440;target-user-id=19264788;tmi-sent-ts=1522226153902 :tmi.twitch.tv CLEARCHAT #cbenni :nightbot
+    // @room-id=21018440;tmi-sent-ts=1522226157141 :tmi.twitch.tv CLEARCHAT #cbenni
+    const targetID = message.tags['target-user-id'];
+    if (targetID) {
+      const messagesToCheck = 200;
+      const pausedMessagesToCheck = Math.min(messagesToCheck, this.pausedChatLines.length);
+      const addedMessagesToCheck = Math.min(messagesToCheck - pausedMessagesToCheck, this.chatLines.length);
+      for (let i = 1; i <= pausedMessagesToCheck; ++i) {
+        const line = this.pausedChatLines[this.pausedChatLines.length - i];
+        if (line.user.id === targetID && !line.system) line.tags.classes.push('chat-line-deleted');
+      }
+      for (let i = 1; i <= addedMessagesToCheck; ++i) {
+        const line = this.chatLines[this.chatLines.length - i];
+        if (line.user.id === targetID && !line.system) line.tags.classes.push('chat-line-deleted');
+      }
+      const duration = parseInt(message.tags['ban-duration'], 10);
+      let timeoutNotice = this.recentTimeouts[targetID];
+      if (timeoutNotice) {
+        timeoutNotice.count++;
+        timeoutNotice.duration = duration;
+        if (message.tags['ban-reason']) timeoutNotice.reasons.push(message.tags['ban-reason']);
+        // update the html
+        timeoutNotice.message.html = this.$sce.trustAsHtml(stringifyTimeout(timeoutNotice));
+      } else {
+        const userName = message.trailing;
+        const userID = message.tags['target-user-id'];
+        timeoutNotice = {
+          count: 1,
+          duration,
+          reasons: [],
+          message: {
+            tags: {
+              color: 'inherit',
+              'user-id': userID,
+              'display-name': userName,
+              classes: ['action-msg']
+            },
+            system: true,
+            prefix: `${userName}!${userName}.chat.twitch.tv`,
+            command: 'NOTICE',
+            param: [`#${this.channelObj.name}`],
+            trailing: ''
+          }
+        };
+        if (message.tags['ban-reason']) timeoutNotice.reasons.push(message.tags['ban-reason']);
+        timeoutNotice.message.trailing = stringifyTimeout(timeoutNotice);
+        this.addLine(timeoutNotice.message);
+        this.recentTimeouts[userID] = timeoutNotice;
+      }
+    } else {
+      this.systemMessage('Chat was cleared by a moderator.');
+    }
+  }
+
+  addUsernotice(message) {
+    message.trailing = message.tags['system-msg'].replace(/\\s/g, ' ');
+    const userName = message.tags.login;
+    message.prefix = `${userName}!${userName}.chat.twitch.tv`;
+    message.tags.classes = ['usernotice-msg'];
+
+    this.addLine(message);
   }
 
   updateChatPaused() {
@@ -125,8 +210,7 @@ export default class ChatController {
   }
 
   indicatorActive(indicator) {
-    return this.channelObj
-    && this.channelObj.roomState[indicator]
+    return this.channelObj && this.channelObj.roomState[indicator]
     && this.channelObj.roomState[indicator] !== this.indicatorDefaults[indicator];
   }
 
