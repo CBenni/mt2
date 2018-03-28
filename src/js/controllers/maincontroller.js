@@ -4,7 +4,7 @@ import $ from 'jquery';
 import _ from 'lodash';
 
 import defaultProfile from '../defaultProfile.json';
-import config from '../config.json';
+import config from '../config';
 
 import chatTemplate from '../../templates/chatwindow.html';
 import streamTemplate from '../../templates/streamwindow.html';
@@ -18,7 +18,7 @@ const windowTemplates = {
 
 export default class MainController {
   constructor($compile, $scope, $sce, ApiService, ChatService) {
-    'ngInclude';
+    'ngInject';
 
     this.ApiService = ApiService;
     this.ChatService = ChatService;

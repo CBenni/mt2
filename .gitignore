@@ -57,5 +57,5 @@ typings/
 # dotenv environment variables file
 .env
 
-src/js/config.json
+src/js/config.*.json
 dist/

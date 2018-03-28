@@ -58,8 +58,14 @@ app.filter('timeAgo', timeAgoFilter);
 app.filter('largeNumber', largeNumberFilter);
 app.filter('duration', durationFilter);
 
-app.run($q => { window.Promise = $q; });
+app.run($q => {
+  'ngInject';
+
+  window.Promise = $q;
+});
 app.config(($locationProvider, $mdThemingProvider) => {
+  'ngInject';
+
   $locationProvider.html5Mode(true);
   $mdThemingProvider.alwaysWatchTheme(true);
   registerDarkMode($mdThemingProvider);

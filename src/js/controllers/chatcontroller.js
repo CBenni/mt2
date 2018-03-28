@@ -5,7 +5,7 @@ import languageTable from '../languages.json';
 
 export default class ChatController {
   constructor($sce, $scope, $timeout, $http, ChatService, KeyPressService, ToastService) {
-    'ngInclude';
+    'ngInject';
 
     this.layout = $scope.layout;
     this.container = $scope.container;

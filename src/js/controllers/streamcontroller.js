@@ -1,6 +1,6 @@
 export default class StreamController {
   constructor($sce, $scope) {
-    'ngInclude';
+    'ngInject';
 
     this.layout = $scope.layout;
     this.container = $scope.container;

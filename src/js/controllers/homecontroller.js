@@ -15,7 +15,7 @@ function mockStreamFromChannel(channel) {
 
 export default class HomeController {
   constructor($scope, $timeout, ApiService, $mdDialog) {
-    'ngInclude';
+    'ngInject';
 
     this.$timeout = $timeout;
     this.layout = $scope.layout;

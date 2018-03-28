@@ -2,7 +2,7 @@ import { EventEmitter } from 'events';
 
 export default class KeyDownService extends EventEmitter {
   constructor($document, $rootScope) {
-    'ngInclude';
+    'ngInject';
 
     super();
     this.keysPressed = {};
