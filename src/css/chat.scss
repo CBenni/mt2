@@ -30,6 +30,14 @@
     border-left: 4px solid #6441a4;
   }
 
+  &.timeout-msg, &.timeout-msg .chat-line-time {
+    color: #838383;
+  }
+
+  &.automod-msg {
+    border-left: 4px solid #ec1313;
+  }
+
   .chat-line-time {
     color: rgba(0, 0, 0, 0.7);
     font-size: small;
@@ -84,6 +92,12 @@
   }
 }
 
+.chat-header-button {
+  img {
+    height: 32px;
+  }
+}
+
 .chat-line-mod-button {
   line-height: initial;
   cursor: pointer;
@@ -110,8 +124,23 @@
     min-width: 19px;
     width: 19px;
   }
+
+  &.automod-approve md-icon {
+    color: #0dbf2a;
+  }
+
+  &.automod-deny md-icon {
+    color: #ec1313;
+  }
 }
 
 .chat-status-indicators .chat-status-indicator {
   padding: 0 8px;
+}
+
+.large-tooltip {
+  max-height: none;
+  overflow: visible;
+  height: auto;
+  transform: translateY(-100%);
 }

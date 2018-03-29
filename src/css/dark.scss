@@ -46,9 +46,15 @@
   }
 }
 
-&, .chat-line-wrapper .chat-line-time{
+&, .chat-line-wrapper .chat-line-time {
   color: $text-color-dark;
 }
+.chat-line-wrapper.timeout-msg {
+  .chat-line-time, md-icon.md-dark-theme {
+    color: #838383;
+  }
+}
+
 
 .md-button.md-default-theme.md-primary:not([disabled]) md-icon,
 .md-button.md-primary:not([disabled]) md-icon,

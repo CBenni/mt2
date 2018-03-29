@@ -103,9 +103,10 @@ export default class ChatService extends EventEmitter {
       const msg = parsed.data.message;
       if (msg) {
         const dataObject = msg.data || msg.data_object;
-        if (dataObject && msg.type) {
-          console.log('Emitting (1) ', `${msg.type}`);
-          this.emit(`${msg.type}`, dataObject);
+        const msgType = msg.type || dataObject.type;
+        if (dataObject && msgType) {
+          console.log('Emitting (1) ', `${msgType}`);
+          this.emit(`${msgType}`, parsed);
         }
       }
       if (parsed.data.topic) {
@@ -151,9 +152,9 @@ export default class ChatService extends EventEmitter {
     return Promise.resolve();
   }
 
-  async chatSend(channelObj, text) {
+  async chatSend(command) {
     const conn = await this.chatSendConnection;
-    conn.send(`PRIVMSG #${channelObj.name} :${text}`);
+    conn.send(command);
   }
 
   findChannelByName(name) {

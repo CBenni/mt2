@@ -1,13 +1,10 @@
 import config from '../config';
 
 export default class ApiService {
-  constructor($http, $cookies, $rootScope, $timeout) {
+  constructor($http) {
     'ngInject';
 
-    this.$rootScope = $rootScope;
-    this.$timeout = $timeout;
     this.$http = $http;
-    this.auth = { userName: $cookies.get('login') || '', token: $cookies.get('token') || '' };
 
     this.userCache = {}; // maps userID to a user object
     this.userPromises = {}; // maps a userID to a promise
@@ -20,6 +17,15 @@ export default class ApiService {
     if (token) headers.Authorization = `OAuth ${token}`;
     if (!headers.Accept) headers.Accept = 'application/vnd.twitchtv.v5+json';
     return this.$http.get(endpoint, { headers, params: query });
+  }
+
+  twitchPOST(endpoint, body, headers, token) {
+    this.nothing = false;
+    if (!headers) headers = {};
+    headers['Client-ID'] = config.auth.client_id;
+    if (token) headers.Authorization = `OAuth ${token}`;
+    if (!headers.Accept) headers.Accept = 'application/vnd.twitchtv.v5+json';
+    return this.$http.post(endpoint, body, { headers });
   }
 
   twitchGetUserByName(name) {

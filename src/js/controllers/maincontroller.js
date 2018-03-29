@@ -71,13 +71,13 @@ export default class MainController {
       this.conversations = [];
       ChatService.on('whisper_received', pubsubMessage => {
         console.log('Received whisper: ', pubsubMessage);
-        this.addWhisper(pubsubMessage).then(() => {
+        this.addWhisper(pubsubMessage.data.message.data).then(() => {
           $scope.$apply(() => { });
         });
       });
       ChatService.on('whisper_sent', pubsubMessage => {
         console.log('Sent whisper: ', pubsubMessage);
-        this.addWhisper(pubsubMessage).then(() => {
+        this.addWhisper(pubsubMessage.data.message.data).then(() => {
           $scope.$apply(() => { });
         });
       });
@@ -119,7 +119,9 @@ export default class MainController {
 
   getSetting(key) {
     // we dont use default because we want "" to be interpreted as "use default".
-    return _.get(this.getCurrentProfile().settings, key) || _.get(this.defaultProfile.settings, key);
+    const value = _.get(this.getCurrentProfile().settings, key);
+    if (value !== undefined) return value;
+    return _.get(this.defaultProfile.settings, key);
   }
 
   updateConfig() {
@@ -221,7 +223,7 @@ export default class MainController {
 
   sendWhisper($event, conversation) {
     if ($event.keyCode === 13 && conversation.whisperText.length > 0) {
-      this.ChatService.chatSend({ name: 'jtv' }, `/w ${conversation.user.name} ${conversation.whisperText}`);
+      this.ChatService.chatSend(`PRIVMSG #jtv :/w ${conversation.user.name} ${conversation.whisperText}`);
       conversation.whisperText = '';
     }
   }

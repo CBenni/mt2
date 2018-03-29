@@ -75,6 +75,12 @@
                   </div>
                 </div>
               </div>
+              <div class="settings-row" layout="row" layout-align="start center" flex="50">
+                <label for="timeFormat" flex="none">Timestamp format</label>
+                <md-input-container>
+                  <input type="text" name="timeFormat" ng-model="settings.timeFormat">
+                </md-input-container>
+              </div>
             </md-content>
           </md-tab>
           <md-tab label="In-line mod icons">
@@ -85,6 +91,11 @@
           <md-tab label="Mod Card icons">
             <md-content class="md-padding">
               <button-settings buttons="settings.modCardButtons" default-button="defaultButton"></button-settings>
+            </md-content>
+          </md-tab>
+          <md-tab label="Chat header buttons">
+            <md-content class="md-padding">
+              <button-settings buttons="settings.chatHeaderButtons" default-button="defaultChatHeaderButton"></button-settings>
             </md-content>
           </md-tab>
           <md-tab label="Chat presets">

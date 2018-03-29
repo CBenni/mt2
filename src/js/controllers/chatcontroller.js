@@ -3,8 +3,10 @@ import _ from 'lodash';
 import { stringifyTimeout } from '../helpers';
 import languageTable from '../languages.json';
 
+const templateRegex = /{{((?:\w+)(?:\.\w+)*)}}/g;
+
 export default class ChatController {
-  constructor($sce, $scope, $timeout, $http, ChatService, KeyPressService, ToastService) {
+  constructor($sce, $scope, $timeout, $http, ChatService, ApiService, KeyPressService, ToastService) {
     'ngInject';
 
     this.layout = $scope.layout;
@@ -17,6 +19,7 @@ export default class ChatController {
     this.mainCtrl = $scope.mainCtrl;
     this.KeyPressService = KeyPressService;
     this.ToastService = ToastService;
+    this.ApiService = ApiService;
 
     this.pausedChatLines = [];
     this.chatLines = [];
@@ -67,6 +70,10 @@ export default class ChatController {
             $scope.$apply(() => {
               this.systemMessage(message.trailing);
             });
+          });
+
+          this.ChatService.on('chat_login_moderation', message => {
+            this.addModLogs(message);
           });
         });
 
@@ -145,7 +152,7 @@ export default class ChatController {
       }
       const duration = parseInt(message.tags['ban-duration'], 10);
       let timeoutNotice = this.recentTimeouts[targetID];
-      if (timeoutNotice) {
+      if (timeoutNotice && !timeoutNotice.stub) {
         timeoutNotice.count++;
         timeoutNotice.duration = duration;
         if (message.tags['ban-reason']) timeoutNotice.reasons.push(message.tags['ban-reason']);
@@ -163,13 +170,15 @@ export default class ChatController {
               color: 'inherit',
               'user-id': userID,
               'display-name': userName,
-              classes: ['action-msg']
+              classes: ['action-msg', 'timeout-msg']
             },
             system: true,
+            timeout: true,
             prefix: `${userName}!${userName}.chat.twitch.tv`,
             command: 'NOTICE',
             param: [`#${this.channelObj.name}`],
-            trailing: ''
+            trailing: '',
+            modlogs: timeoutNotice ? timeoutNotice.modlogs || [] : [] // include pre-existing modlogs if present
           }
         };
         if (message.tags['ban-reason']) timeoutNotice.reasons.push(message.tags['ban-reason']);
@@ -189,6 +198,87 @@ export default class ChatController {
     message.tags.classes = ['usernotice-msg'];
 
     this.addLine(message);
+  }
+
+  addModLogs(message) {
+    const [, , channelID] = message.data.topic.split('.');
+    if (channelID !== this.channelObj.id) return;
+    // go two layers deeper
+    const info = message.data.message.data;
+    /* info looks like:
+    {
+      "type": "chat_login_moderation",
+      "moderation_action": "automod_rejected",
+      "args": [
+        "nightbot",
+        "testing: dick",
+        "sexual"
+      ],
+      "created_by": "",
+      "created_by_user_id": "",
+      "msg_id": "8c091fd0-c3df-460a-b4fc-ec6687e73b06",
+      "target_user_id": "19264788"
+    }
+    */
+    info.channelID = channelID;
+    const command = info.moderation_action;
+    switch (command) {
+      case 'automod_rejected':
+        this.automodMessage(info);
+        break;
+      case 'timeout':
+      case 'ban':
+      case 'unban':
+      case 'untimeout':
+        this.timeoutModlogs(info);
+        break;
+      default:
+        this.systemMessage(`${info.created_by} used command /${command} ${info.args.join(' ')}`);
+    }
+  }
+
+  automodMessage(message) {
+    const userName = message.args[0];
+    const msg = {
+      tags: {
+        id: message.msg_id,
+        color: 'inherit',
+        'user-id': message.target_user_id,
+        'display-name': userName,
+        classes: ['automod-msg']
+      },
+      system: true,
+      automod: true,
+      prefix: `${userName}!${userName}.chat.twitch.tv`,
+      command: 'NOTICE',
+      param: [`#${this.channelObj.name}`],
+      trailing: message.args[1]
+    };
+    this.addLine(msg);
+  }
+
+  timeoutModlogs(message) {
+    const cachedTimeout = this.recentTimeouts[message.target_user_id];
+    if (cachedTimeout) {
+      cachedTimeout.message.modlogs.push(message);
+    } else {
+      this.recentTimeouts[message.target_user_id] = {
+        stub: true,
+        modlogs: [message]
+      };
+    }
+  }
+
+  getModlogList(line) {
+    return _.uniq(_.map(line.modlogs, modlog => modlog.created_by)).join(', ');
+  }
+
+  getModlogCommand(modlog) {
+    return `/${modlog.moderation_action} ${modlog.args.join(' ')}`;
+  }
+
+  resolveAutomodMessage(action, msg) {
+    this.ApiService.twitchPOST(`https://api.twitch.tv/kraken/chat/automod/${action}`, { msg_id: msg.tags.id }, null, this.mainCtrl.auth.token);
   }
 
   updateChatPaused() {
@@ -287,22 +377,23 @@ export default class ChatController {
   }
 
   sendLine(text) {
-    this.ChatService.chatSend(this.channelObj, text);
+    this.ChatService.chatSend(`PRIVMSG #${this.channelObj.name} :${text}`);
   }
 
   modAction($event, modButton, locals) {
+    locals = _.merge({}, locals, { channel: this.channelObj });
     switch (modButton.action.type) {
       case 'command':
         this.runCommand(modButton.action.command, locals);
         break;
       case 'url':
-        window.open(modButton.action.url, '_blank');
+        window.open(this.replaceVariables(modButton.action.url, locals), '_blank');
         break;
       case 'whisper':
         this.mainCtrl.openConversation(locals.user);
         break;
       case 'post':
-        this.$http.post(modButton.action.url)
+        this.$http.post(this.replaceVariables(modButton.action.url))
         .then(response => this.toastService(response.data))
         .catch(err => this.toastService(`Error: ${err}`));
         break;
@@ -311,9 +402,12 @@ export default class ChatController {
     }
   }
 
+  replaceVariables(template, locals) {
+    return template.replace(templateRegex, (match, group) => _.get(locals, group, ''));
+  }
+
   runCommand(commandTemplate, locals) {
-    const templateRegex = /{{((?:\w+)(?:\.\w+)*)}}/g;
-    const command = commandTemplate.replace(templateRegex, (match, group) => _.get(locals, group, ''));
+    const command = this.replaceVariables(commandTemplate, locals);
     console.log('Mod button triggered command: ', command);
     this.sendLine(command);
   }

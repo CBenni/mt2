@@ -106,6 +106,32 @@
         "hotkey": "KeyB"
       }
     ],
+    "chatHeaderButtons": [
+      {
+        "action": {
+          "type": "url",
+          "url": "https://cbenni.com/{{channel.name}}/"
+        },
+        "tooltip": "Logviewer",
+        "icon": {
+          "type": "image",
+          "image": "https://cbenni.com/html/img/favicon-32x32.png"
+        },
+        "hotkey": ""
+      },
+      {
+        "action": {
+          "type": "url",
+          "url": "https://twitch.moobot.tv/{{channel.name}}"
+        },
+        "tooltip": "Moobot",
+        "icon": {
+          "type": "image",
+          "image": "https://cbenni.com/static/moobot.png"
+        },
+        "hotkey": ""
+      }
+    ],
     "chatSettings": {
       "extraMentions": [],
       "knownBots": [

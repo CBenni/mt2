@@ -2,6 +2,8 @@ import _ from 'lodash';
 
 export default class ButtonSettingsController {
   constructor($scope) {
+    'ngInject';
+
     this.$scope = $scope;
   }
 

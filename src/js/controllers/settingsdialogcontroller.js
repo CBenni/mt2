@@ -32,6 +32,7 @@ export default class SettingsDialogController extends DialogController {
     this.initDefault('styleSheet');
     this.initDefault('modButtons');
     this.initDefault('modCardButtons');
+    this.initDefault('chatHeaderButtons');
     this.initDefault('colorAdjustment');
     this.initDefault('monoColor');
     this.initDefault('chatSettings');
@@ -40,7 +41,7 @@ export default class SettingsDialogController extends DialogController {
   }
 
   initDefault(setting) {
-    if (!_.get(this.$scope.settings, setting)) {
+    if (_.get(this.$scope.settings, setting) === undefined) {
       _.set(this.$scope.settings, setting, this.mainCtrl.getSetting(setting));
     }
   }
