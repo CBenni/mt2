@@ -104,6 +104,18 @@
           "code": "block"
         },
         "hotkey": "KeyB"
+      },
+      {
+        "action": {
+          "type": "url",
+          "url": "https://cbenni.com/{{channel.name}}/"
+        },
+        "tooltip": "Logviewer",
+        "icon": {
+          "type": "image",
+          "image": "https://cbenni.com/html/img/favicon-32x32.png"
+        },
+        "hotkey": ""
       }
     ],
     "chatHeaderButtons": [
@@ -161,15 +173,17 @@
           "type":"icon",
           "code":"chat"
         },
-        "incognito": false,
-        "messageFilters": [
-          "modlogs",
-          "chat",
-          "bots",
-          "mentions",
-          "bits",
-          "automod"
-        ]
+        "settings": {
+          "incognito": false,
+          "messageFilters": [
+            "modlogs",
+            "chat",
+            "bots",
+            "mentions",
+            "bits",
+            "automod"
+          ]
+        }
       }
     ],
     "timeFormat": "hh:mm:ss a"

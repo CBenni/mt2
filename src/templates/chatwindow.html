@@ -1,9 +1,27 @@
 <div ng-controller="ChatController as chatCtrl" class="wrapper" ng-mousemove="chatCtrl.mouseMove()" ng-mouseleave="chatCtrl.mouseLeave()">
   <iframe ng-src="{{chatCtrl.getEmbedUrl()}}" frameborder="0" allowfullscreen="true" scrolling="no" ng-if="!mainCtrl.auth"></iframe>
   <div ng-if="mainCtrl.auth" class="chat-wrapper wrapper" layout="column">
+    <div class="chat-settings-menu" layout="column" ng-if="chatCtrl.showChatSettings" click-outside="chatCtrl.showChatSettings = false">
+      <div flex="none" layout="row" class="settings-mod-button-setting-complex">
+        <md-input-container class="md-no-underline">
+          <label>Show messages containing...</label>
+          <md-select name="style" class="compact md-no-underline" ng-model="chatCtrl.state.settings.messageFilters" placeholder="Filters" multiple="">
+            <md-option value="chat">Chat</md-option>
+            <md-option value="bots">Bots</md-option>
+            <md-option value="mentions">Mentions</md-option>
+            <md-option value="modlogs">Modlogs</md-option>
+            <md-option value="automod">Automod</md-option>
+            <md-option value="bits">Bits</md-option>
+          </md-select>
+        </md-input-container>
+      </div>
+      <div flex="none" layout="row" class="settings-mod-button-setting-very-simple">
+        <md-switch ng-model="chatCtrl.state.settings.incognito" class="md-invert">Incognito</md-switch>
+      </div>
+    </div>
     <div class="chat-header" flex="none" layout="row" layout-align="space-between center">
       <div flex="none">
-        <md-button class="md-primary md-icon-button">
+        <md-button class="md-primary md-icon-button chat-settings-open-button" ng-click="chatCtrl.showChatSettings = !chatCtrl.showChatSettings">
           <md-icon>menu</md-icon>
         </md-button>
       </div>
@@ -12,7 +30,8 @@
         {{chatCtrl.channelObj.name}}
       </div>
       <div flex="none" class="chat-header-buttons">
-        <md-button class="chat-header-button compact md-primary" ng-repeat="chatHeaderButton in chatCtrl.mainCtrl.getSetting('chatHeaderButtons')" ng-click="chatCtrl.modAction($event, chatHeaderButton, {})">
+        <md-button class="chat-header-button compact md-primary" ng-repeat="chatHeaderButton in chatCtrl.mainCtrl.getSetting('chatHeaderButtons')"
+          ng-click="chatCtrl.modAction($event, chatHeaderButton, {})">
           <md-tooltip md-delay="500">{{chatHeaderButton.tooltip}}</md-tooltip>
           <md-icon ng-if="chatHeaderButton.icon.type === 'icon'">{{chatHeaderButton.icon.code}}</md-icon>
           <span ng-if="chatHeaderButton.icon.type === 'text'" class="chat-header-button-label">{{chatHeaderButton.icon.text}}</span>
@@ -20,31 +39,33 @@
         </md-button>
       </div>
       <div class="chat-status-indicators" flex="none">
-          <span class="chat-status-indicator" ng-if="chatCtrl.indicatorActive('broadcaster-lang')">
-            <md-tooltip>This channel is in {{chatCtrl.getLanguageName(chatCtrl.channelObj.roomState['broadcaster-lang'])}} only mode</md-tooltip>
-            {{chatCtrl.channelObj.roomState['broadcaster-lang']}}
-          </span>
-          <span class="chat-status-indicator" ng-if="chatCtrl.indicatorActive('emote-only')">
-            <md-tooltip>This channel is in emote-only only mode</md-tooltip>
-            <img src="https://static-cdn.jtvnw.net/emoticons/v1/25/1.0" class="tiny-kappa">
-          </span>
-          <span class="chat-status-indicator" ng-if="chatCtrl.indicatorActive('followers-only')">
-            <md-tooltip>This channel is in {{chatCtrl.channelObj.roomState['followers-only'] | duration:'minutes'}} followers-only only mode</md-tooltip>
-            <span class="tiny-button">&hearts;</span>
-            <span>{{chatCtrl.channelObj.roomState['followers-only'] | duration:'minutes'}}</span>
-          </span>
-          <span class="chat-status-indicator" ng-if="chatCtrl.indicatorActive('r9k')">
-            <md-tooltip>This channel is in r9k mode</md-tooltip>
-            <span>r9k</span>
-          </span>
-          <span class="chat-status-indicator" ng-if="chatCtrl.indicatorActive('slow')">
-            <md-tooltip>This channel is in {{chatCtrl.channelObj.roomState['slow'] | duration}} slow mode</md-tooltip>
-            <span>{{chatCtrl.channelObj.roomState['slow'] | duration}}</span>
-          </span>
-          <span class="chat-status-indicator" ng-if="chatCtrl.indicatorActive('subs-only')">
-            <md-tooltip>This channel is in subscriber only mode</md-tooltip>
-            <span class="tiny-button">$</span>
-          </span>
+        <span class="chat-status-indicator" ng-if="chatCtrl.indicatorActive('broadcaster-lang')">
+          <md-tooltip>This channel is in {{chatCtrl.getLanguageName(chatCtrl.channelObj.roomState['broadcaster-lang'])}} only mode</md-tooltip>
+          {{chatCtrl.channelObj.roomState['broadcaster-lang']}}
+        </span>
+        <span class="chat-status-indicator" ng-if="chatCtrl.indicatorActive('emote-only')">
+          <md-tooltip>This channel is in emote-only only mode</md-tooltip>
+          <img src="https://static-cdn.jtvnw.net/emoticons/v1/25/1.0" class="tiny-kappa">
+        </span>
+        <span class="chat-status-indicator" ng-if="chatCtrl.indicatorActive('followers-only')">
+          <md-tooltip>This channel is in {{chatCtrl.channelObj.roomState['followers-only'] | duration:'minutes'}} followers-only only
+            mode
+          </md-tooltip>
+          <span class="tiny-button">&hearts;</span>
+          <span>{{chatCtrl.channelObj.roomState['followers-only'] | duration:'minutes'}}</span>
+        </span>
+        <span class="chat-status-indicator" ng-if="chatCtrl.indicatorActive('r9k')">
+          <md-tooltip>This channel is in r9k mode</md-tooltip>
+          <span>r9k</span>
+        </span>
+        <span class="chat-status-indicator" ng-if="chatCtrl.indicatorActive('slow')">
+          <md-tooltip>This channel is in {{chatCtrl.channelObj.roomState['slow'] | duration}} slow mode</md-tooltip>
+          <span>{{chatCtrl.channelObj.roomState['slow'] | duration}}</span>
+        </span>
+        <span class="chat-status-indicator" ng-if="chatCtrl.indicatorActive('subs-only')">
+          <md-tooltip>This channel is in subscriber only mode</md-tooltip>
+          <span class="tiny-button">$</span>
+        </span>
       </div>
     </div>
     <div class="chat-container column-reverse" layout-align="end stretch" layout="column" flex="100" on-scroll="chatCtrl.onChatScroll($event, $element, scrollPos, direction)">

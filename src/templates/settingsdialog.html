@@ -148,7 +148,7 @@
                     <div flex="25" layout="row" class="settings-mod-button-setting-complex">
                       <md-input-container class="md-no-underline">
                         <label>Show messages containing...</label>
-                        <md-select name="style" class="compact md-no-underline" ng-model="preset.messageFilters" placeholder="Action" multiple="">
+                        <md-select name="style" class="compact md-no-underline" ng-model="preset.settings.messageFilters" placeholder="Filters" multiple="">
                           <md-option value="chat">Chat</md-option>
                           <md-option value="bots">Bots</md-option>
                           <md-option value="mentions">Mentions</md-option>
@@ -159,10 +159,9 @@
                       </md-input-container>
                     </div>
                     <div flex="15" layout="row" class="settings-mod-button-setting-very-simple">
-                      <md-switch ng-model="preset.incognito" class="md-invert">Incognito</md-switch>
+                      <md-switch ng-model="preset.settings.incognito" class="md-invert">Incognito</md-switch>
                     </div>
                   </div>
-
                 </li>
               </ul>
               <md-button class="md-primary md-raised" ng-click="dialogCtrl.addChatPreset()">Add</md-button>

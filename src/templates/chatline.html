@@ -1,5 +1,5 @@
 <div class="chat-line-wrapper" ng-class="line.tags.classes">
-  <span class="chat-line-time hide-s">
+  <span class="chat-line-time hide-s" ng-if="$parent.mainCtrl.getSetting('timeFormat')">
     <!-- timestamp -->
     {{line.time | date : $parent.mainCtrl.getSetting('timeFormat')}}
   </span>

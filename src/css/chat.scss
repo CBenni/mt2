@@ -35,6 +35,7 @@
   }
 
   &.automod-msg {
+    background-color: #d0d0d0;
     border-left: 4px solid #ec1313;
   }
 
@@ -70,6 +71,16 @@
   overflow-y: scroll;
   background-color: $page-body;
   justify-content: end;
+
+}
+
+.chat-settings-menu {
+  position: absolute;
+  background-color: $widget-body;
+  z-index: 70;
+  padding: 8px;
+  top: 40px;
+  width: 350px
 }
 
 .chat-input-box {

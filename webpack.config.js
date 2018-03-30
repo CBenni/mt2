@@ -11,7 +11,7 @@ const config = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     publicPath: '/',
-    filename: 'mt2.bundle.js'
+    filename: '[name].[chunkhash].js'
   },
   devtool: 'source-map',
   module: {

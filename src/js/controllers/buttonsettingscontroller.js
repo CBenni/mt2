@@ -1,3 +1,4 @@
+import angular from 'angular';
 import _ from 'lodash';
 
 export default class ButtonSettingsController {
@@ -12,6 +13,6 @@ export default class ButtonSettingsController {
   }
 
   addButton() {
-    this.buttons.push(_.extend({}, this.defaultButton));
+    this.buttons.push(angular.copy(this.defaultButton));
   }
 }

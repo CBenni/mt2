@@ -1,3 +1,4 @@
+import angular from 'angular';
 import _ from 'lodash';
 import DialogController from './dialogcontroller';
 import defaultProfile from '../defaultProfile.json';
@@ -27,6 +28,25 @@ export default class SettingsDialogController extends DialogController {
       hotkey: ''
     };
 
+    this.defaultChatPreset = {
+      name: 'Chat',
+      icon: {
+        type: 'icon',
+        code: 'chat'
+      },
+      settings: {
+        incognito: false,
+        messageFilters: [
+          'modlogs',
+          'chat',
+          'bots',
+          'mentions',
+          'bits',
+          'automod'
+        ]
+      }
+    };
+
     console.log('Initialized SettingsDialogController', this);
     this.initDefault('style');
     this.initDefault('styleSheet');
@@ -44,5 +64,9 @@ export default class SettingsDialogController extends DialogController {
     if (_.get(this.$scope.settings, setting) === undefined) {
       _.set(this.$scope.settings, setting, this.mainCtrl.getSetting(setting));
     }
+  }
+
+  addChatPreset() {
+    this.$scope.settings.chatPresets.push(angular.copy(this.defaultChatPreset));
   }
 }

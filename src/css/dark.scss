@@ -27,9 +27,14 @@
   overflow-y: scroll;
   background-color: $page-body-dark;
 
+
   .chat-line-mod-button-label {
     color: $text-color-dark;
   }
+}
+
+.chat-settings-menu {
+  background-color: $widget-body-dark;
 }
 
 .chat-input-box {
@@ -49,9 +54,15 @@
 &, .chat-line-wrapper .chat-line-time {
   color: $text-color-dark;
 }
-.chat-line-wrapper.timeout-msg {
-  .chat-line-time, md-icon.md-dark-theme {
-    color: #838383;
+.chat-line-wrapper {
+  &.timeout-msg {
+    .chat-line-time, md-icon.md-dark-theme {
+      color: #838383;
+    }
+  }
+
+  &.automod-msg {
+    background-color: #262626;
   }
 }
 
@@ -84,4 +95,12 @@ md-input-container.md-default-theme .md-input, md-input-container .md-input {
   .mod-card-body {
     background-color: $widget-body-dark;
   }
+}
+
+md-switch.md-dark-theme.md-checked .md-bar {
+  background-color: rgb(158,158,158);
+}
+
+md-switch.md-dark-theme.md-checked .md-thumb {
+  background-color: rgb(255,64,129);
 }

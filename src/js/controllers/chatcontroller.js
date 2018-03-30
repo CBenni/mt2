@@ -31,6 +31,7 @@ export default class ChatController {
     this.chatElement = null;
     this.chatInputContent = '';
     this.showModButtons = true;
+    this.showChatSettings = false;
     this.mouseLastOver = 0;
     this.scrolledUp = false;
     this.lastScrollPos = 0;
@@ -54,7 +55,7 @@ export default class ChatController {
           this.channelObj = channelObj;
           this.systemMessage('Channel joined.');
           this.ChatService.on(`PRIVMSG-#${this.channelObj.name}`, message => {
-            this.addLine(message);
+            this.addChat(message);
           });
           this.ChatService.on(`USERNOTICE-#${this.channelObj.name}`, message => {
             $scope.$apply(() => {
@@ -111,6 +112,22 @@ export default class ChatController {
         classes: ['system-msg']
       },
       system: true,
+      dontDelete: true,
+      prefix: 'jtv!jvt.chat.twitch.tv',
+      command: 'NOTICE',
+      param: [`#${this.channelObj.name}`],
+      trailing: text
+    };
+    this.addLine(line);
+    return line;
+  }
+
+  nonUserMessage(text) {
+    const line = {
+      tags: {
+        'display-name': '',
+        classes: ['system-msg']
+      },
       prefix: 'jtv!jvt.chat.twitch.tv',
       command: 'NOTICE',
       param: [`#${this.channelObj.name}`],
@@ -125,13 +142,36 @@ export default class ChatController {
       if (!line.tags) line.tags = {};
       if (!line.tags.classes) line.classes = [];
 
+      // check if the message passes our filters
+      if (!this.messagePassesFilters(line)) return false;
+
       if (!this.isPaused) {
         this.baseLine = this.chatLines.length;
         this.chatLines.push(line);
       } else {
         this.pausedChatLines.push(line);
       }
+      return true;
     });
+  }
+
+  addChat(line) {
+    line.chat = true;
+    this.addLine(line);
+  }
+
+  messagePassesFilters(line) {
+    // system messages never get swallowed
+    if (line.system) return true;
+    const filters = this.state.settings.messageFilters;
+    // modlogs filter - anything that has .modlogs or is a system message
+    if (filters.includes('modlogs') && line.modlogs) return true;
+    if (filters.includes('automod') && line.automod) return true;
+    if (!filters.includes('bots') && line.chat && this.mainCtrl.getSetting('chatSettings.knownBots').includes(line.user.name)) return false;
+    if (filters.includes('mentions') && line.mention) return true;
+    if (filters.includes('bits') && line.tags.bits) return true;
+    if (filters.includes('chat') && line.chat) return true;
+    return false;
   }
 
   clearChat(message) {
@@ -144,11 +184,11 @@ export default class ChatController {
       const addedMessagesToCheck = Math.min(messagesToCheck - pausedMessagesToCheck, this.chatLines.length);
       for (let i = 1; i <= pausedMessagesToCheck; ++i) {
         const line = this.pausedChatLines[this.pausedChatLines.length - i];
-        if (line.user.id === targetID && !line.system) line.tags.classes.push('chat-line-deleted');
+        if (line.user.id === targetID && !line.dontDelete) line.tags.classes.push('chat-line-deleted');
       }
       for (let i = 1; i <= addedMessagesToCheck; ++i) {
         const line = this.chatLines[this.chatLines.length - i];
-        if (line.user.id === targetID && !line.system) line.tags.classes.push('chat-line-deleted');
+        if (line.user.id === targetID && !line.dontDelete) line.tags.classes.push('chat-line-deleted');
       }
       const duration = parseInt(message.tags['ban-duration'], 10);
       let timeoutNotice = this.recentTimeouts[targetID];
@@ -172,7 +212,7 @@ export default class ChatController {
               'display-name': userName,
               classes: ['action-msg', 'timeout-msg']
             },
-            system: true,
+            dontDelete: true,
             timeout: true,
             prefix: `${userName}!${userName}.chat.twitch.tv`,
             command: 'NOTICE',
@@ -233,8 +273,24 @@ export default class ChatController {
         this.timeoutModlogs(info);
         break;
       default:
-        this.systemMessage(`${info.created_by} used command /${command} ${info.args.join(' ')}`);
+        this.modlogMessage(info);
     }
+  }
+
+  modlogMessage(info) {
+    const msg = {
+      tags: {
+        color: 'inherit',
+        classes: ['system-msg']
+      },
+      dontDelete: true,
+      modlogs: [info],
+      prefix: 'jtv!jtv.chat.twitch.tv',
+      command: 'NOTICE',
+      param: [`#${this.channelObj.name}`],
+      trailing: `${info.created_by} used command /${info.moderation_action} ${info.args.join(' ')}`
+    };
+    this.addLine(msg);
   }
 
   automodMessage(message) {
@@ -247,7 +303,7 @@ export default class ChatController {
         'display-name': userName,
         classes: ['automod-msg']
       },
-      system: true,
+      dontDelete: true,
       automod: true,
       prefix: `${userName}!${userName}.chat.twitch.tv`,
       command: 'NOTICE',

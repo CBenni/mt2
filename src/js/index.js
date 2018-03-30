@@ -6,6 +6,7 @@ import angularAria from 'angular-aria';
 import angularUIRouter from 'angular-ui-router';
 import angularCookies from 'angular-cookies';
 import 'angular-ui-sortable';
+import '@iamadamjowett/angular-click-outside';
 
 import '../css/index.scss';
 
@@ -32,7 +33,7 @@ import ToastService from './services/toastservice';
 import registerDarkMode from './themes/dark';
 import registerLightMode from './themes/light';
 
-const app = angular.module('mtApp', [angularAria, angularAnimate, angularMaterial, angularUIRouter, angularCookies, 'ui.sortable']);
+const app = angular.module('mtApp', [angularAria, angularAnimate, angularMaterial, angularUIRouter, angularCookies, 'ui.sortable', 'angular-click-outside']);
 
 app.controller('MainController', MainController);
 app.controller('HomeController', HomeController);
