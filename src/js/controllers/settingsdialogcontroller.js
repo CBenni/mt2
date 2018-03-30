@@ -69,4 +69,8 @@ export default class SettingsDialogController extends DialogController {
   addChatPreset() {
     this.$scope.settings.chatPresets.push(angular.copy(this.defaultChatPreset));
   }
+
+  deleteChatPreset(preset) {
+    _.pull(this.$scope.settings.chatPresets, preset);
+  }
 }

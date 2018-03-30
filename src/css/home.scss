@@ -32,6 +32,15 @@
         cursor: move;
       }
     }
+
+    .chat-adder {
+      span.chat-adder-label {
+        font-size: 20px;
+        min-width: 24px;
+        text-align: center;
+        display: inline-block;
+      }
+    }
   }
 }
 

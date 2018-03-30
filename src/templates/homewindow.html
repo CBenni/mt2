@@ -31,8 +31,8 @@
               golden-layout-drag-source gl-ds-channel="stream.channel.name" gl-ds-template="'chatTemplate'" gl-ds-layout="mainCtrl.layout" gl-ds-settings-preset="preset.settings">
                 <md-tooltip md-delay="500">{{preset.name}}</md-tooltip>
                 <md-icon ng-if="preset.icon.type === 'icon'">{{preset.icon.code}}</md-icon>
-                <span ng-if="preset.icon.type === 'text'" class="chat-line-mod-button-label">{{preset.icon.text}}</span>
-                <img ng-if="preset.icon.type === 'image'" class="chat-line-mod-button-label" ng-src="{{preset.icon.image}}">
+                <span ng-if="preset.icon.type === 'text'" class="chat-adder-label">{{preset.icon.text}}</span>
+                <img ng-if="preset.icon.type === 'image'" class="chat-adder-label" ng-src="{{preset.icon.image}}">
             </div>
             <div class="stream-add-button stream-adder" golden-layout-drag-source gl-ds-channel="stream.channel.name" gl-ds-template="'streamTemplate'"
               gl-ds-layout="mainCtrl.layout">

@@ -164,7 +164,6 @@ export default class ChatController {
     // system messages never get swallowed
     if (line.system) return true;
     const filters = this.state.settings.messageFilters;
-    // modlogs filter - anything that has .modlogs or is a system message
     if (filters.includes('modlogs') && line.modlogs) return true;
     if (filters.includes('automod') && line.automod) return true;
     if (!filters.includes('bots') && line.chat && this.mainCtrl.getSetting('chatSettings.knownBots').includes(line.user.name)) return false;
