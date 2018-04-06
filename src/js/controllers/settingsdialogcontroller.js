@@ -9,10 +9,10 @@ export default class SettingsDialogController extends DialogController {
 
     super($scope, $mdDialog);
 
-    $scope.settings = this.mainCtrl.getCurrentProfile().settings;
+    $scope.settings = this.mainCtrl.config.settings;
     if (!$scope.settings) {
       $scope.settings = _.extend({}, defaultProfile.settings);
-      this.mainCtrl.getCurrentProfile().settings = $scope.settings;
+      this.mainCtrl.config.settings = $scope.settings;
     }
 
     $scope.defaultButton = {

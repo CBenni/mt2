@@ -126,6 +126,8 @@ export default class HomeController {
         homeCtrl: this
       },
       bindToController: true
+    }).finally(() => {
+      this.mainCtrl.updateConfig();
     });
   }
 }

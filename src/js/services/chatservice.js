@@ -20,11 +20,14 @@ export default class ChatService extends EventEmitter {
 
     this.badges = {};
     this.getBadges();
+
+    this.customEmotes = {};
   }
 
   init(user) {
     console.log('Initializing chat service with user', user);
     this.user = user;
+    this.getGlobalEmotes();
 
     this.chatReceiveConnection = this.connectWebsocket('wss://irc-ws.chat.twitch.tv:443');
     this.chatSendConnection = this.connectWebsocket('wss://irc-ws.chat.twitch.tv:443');
@@ -300,5 +303,21 @@ export default class ChatService extends EventEmitter {
       html += entityMap[charArray[i]] || charArray[i];
     }
     return html;
+  }
+
+  getGlobalEmotes() {
+    this.getGlobalTwitchEmotes();
+    this.getGlobalFFZEmotes();
+    this.getGlobalBTTVEmotes();
+  }
+
+  getGlobalTwitchEmotes() {
+    return this.ApiService.twitchGET(`https://api.twitch.tv/v5/users/${this.user.id}/emotes?on_site=1`).then(response => _.map());
+  }
+
+  getGlobalFFZEmotes() {
+    return this.ApiService.get('https://api.frankerfacez.com/v1/set/global').then(response => {
+
+    });
   }
 }

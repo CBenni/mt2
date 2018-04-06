@@ -11,7 +11,7 @@
     <div flex="none" layout="row" layout-align="space-between center">
       <!-- <span>Profile:</span>
       <md-select class="compact md-no-underline" ng-model="mainCtrl.selectedProfile" ng-change="mainCtrl.updateConfig()">
-        <md-option ng-repeat="(id, profile) in mainCtrl.profiles" ng-value="id">{{profile.name}}</md-option>
+        <md-option ng-repeat="(id, profile) in mainCtrl.config.layouts" ng-value="id">{{profile.name}}</md-option>
       </md-select> -->
       <md-button class="md-primary md-icon-button" ng-click="homeCtrl.openSettings($event)">
         <md-icon>settings</md-icon>

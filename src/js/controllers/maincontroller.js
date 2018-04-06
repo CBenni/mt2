@@ -17,7 +17,7 @@ const windowTemplates = {
 };
 
 export default class MainController {
-  constructor($compile, $scope, $sce, ApiService, ChatService) {
+  constructor($compile, $rootScope, $scope, $sce, ApiService, ChatService) {
     'ngInject';
 
     this.ApiService = ApiService;
@@ -27,17 +27,19 @@ export default class MainController {
 
     this.defaultProfile = defaultProfile;
 
-    this.profiles = [this.defaultProfile];
+    this.config = this.defaultProfile;
     this.modCards = [];
 
     // initialize layout
-    const storedProfiles = localStorage.getItem('mt2-profiles');
-    if (storedProfiles) this.profiles = JSON.parse(storedProfiles);
+    const storedConfig = localStorage.getItem('mt2-config');
+    if (storedConfig) this.config = JSON.parse(storedConfig);
+    // temp "fix" for https://github.com/WolframHempel/golden-layout/issues/418
+    _.each(this.config.layouts, layout => this.fixActiveIndexes(layout));
     const currentProfile = localStorage.getItem('mt2-currentProfile');
     if (currentProfile) this.selectedProfile = parseInt(currentProfile, 10);
     else this.selectedProfile = 0;
 
-    const layout = new GoldenLayout(this.getCurrentProfile().config, $('#layout-container'));
+    const layout = new GoldenLayout(this.getCurrentLayout(), $('#layout-container'));
     this.layout = layout;
 
     const AngularModuleComponent = (container, state) => {
@@ -58,9 +60,11 @@ export default class MainController {
     layout.init();
 
     layout.on('stateChanged', () => {
-      this.getCurrentProfile().config = layout.toConfig();
-      localStorage.setItem('mt2-profiles', angular.toJson(this.profiles));
+      this.updateConfig();
     });
+    $rootScope.updateConfig = () => {
+      this.updateConfig();
+    };
 
     // initialize authentication
     const auth = localStorage.getItem('mt2-auth');
@@ -109,22 +113,32 @@ export default class MainController {
     }
   }
 
+  fixActiveIndexes(layout) {
+    if (layout.activeItemIndex) {
+      if (layout.content) layout.activeItemIndex = Math.max(layout.activeItemIndex, layout.content.length);
+      else layout.activeItemIndex = undefined;
+    }
+    if (layout.content) _.each(layout.content, contentItem => this.fixActiveIndexes(contentItem));
+  }
+
   getTitle() {
     return 'ModTwitch by CBenni';
   }
 
-  getCurrentProfile() {
-    return this.profiles[this.selectedProfile];
+  getCurrentLayout() {
+    return this.config.layouts[this.selectedProfile];
   }
 
   getSetting(key) {
     // we dont use default because we want "" to be interpreted as "use default".
-    const value = _.get(this.getCurrentProfile().settings, key);
+    const value = _.get(this.config.settings, key);
     if (value !== undefined) return value;
     return _.get(this.defaultProfile.settings, key);
   }
 
   updateConfig() {
+    this.config.layouts[this.selectedProfile] = this.layout.toConfig();
+    localStorage.setItem('mt2-config', angular.toJson(this.config));
   }
 
   loginWithTwitch() {
