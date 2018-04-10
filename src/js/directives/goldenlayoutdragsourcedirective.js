@@ -1,4 +1,3 @@
-import angular from 'angular';
 import _ from 'lodash';
 
 export default function goldenLayoutDragSource() {
@@ -9,7 +8,8 @@ export default function goldenLayoutDragSource() {
       glDsLayout: '=',
       glDsChannel: '=',
       glDsTemplate: '=',
-      glDsSettingsPreset: '='
+      glDsPreset: '=',
+      glDsIcon: '='
     },
     link($scope, $element) {
       const config = {
@@ -20,7 +20,8 @@ export default function goldenLayoutDragSource() {
           module: 'mtApp',
           templateId: $scope.glDsTemplate,
           channel: $scope.glDsChannel,
-          settings: angular.copy($scope.glDsSettingsPreset)
+          preset: $scope.glDsPreset,
+          icon: $scope.glDsIcon
         }
       };
 

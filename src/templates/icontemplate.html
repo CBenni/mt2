@@ -1,0 +1,3 @@
+<md-icon ng-if="icon.type === 'icon'">{{icon.code}}</md-icon>
+<span ng-if="icon.type === 'text'">{{icon.text}}</span>
+<img ng-if="icon.type === 'image'" ng-src="{{icon.image}}">

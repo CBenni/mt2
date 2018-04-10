@@ -3,12 +3,14 @@ import GoldenLayout from 'golden-layout';
 import $ from 'jquery';
 import _ from 'lodash';
 
-import defaultProfile from '../defaultProfile.json';
+import defaultConfig from '../defaultConfig.json';
+import defaultLayouts from '../defaultLayouts.json';
 import config from '../config';
 
 import chatTemplate from '../../templates/chatwindow.html';
 import streamTemplate from '../../templates/streamwindow.html';
 import homeTemplate from '../../templates/homewindow.html';
+import iconTemplate from '../../templates/icontemplate.html';
 
 const windowTemplates = {
   chatTemplate,
@@ -25,9 +27,11 @@ export default class MainController {
     this.$scope = $scope;
     this.$sce = $sce;
 
-    this.defaultProfile = defaultProfile;
+    this.defaultConfig = defaultConfig;
+    this.defaultLayouts = defaultLayouts;
 
-    this.config = this.defaultProfile;
+    this.config = this.defaultConfig;
+    this.layouts = this.defaultLayouts;
     this.modCards = [];
 
     // initialize layout
@@ -38,8 +42,13 @@ export default class MainController {
     } else {
       $timeout(() => { $scope.loadingScreenClass = 'hide-first-time'; }, 4000);
     }
+    const storedLayouts = localStorage.getItem('mt2-layouts');
+    if (storedLayouts) {
+      this.layouts = JSON.parse(storedLayouts);
+    }
+
     // temp "fix" for https://github.com/WolframHempel/golden-layout/issues/418
-    _.each(this.config.layouts, layout => this.fixActiveIndexes(layout));
+    _.each(this.layouts, layout => this.fixActiveIndexes(layout));
     const currentProfile = localStorage.getItem('mt2-currentProfile');
     if (currentProfile) this.selectedProfile = parseInt(currentProfile, 10);
     else this.selectedProfile = 0;
@@ -59,6 +68,24 @@ export default class MainController {
       newScope.state = state;
       newScope.mainCtrl = this;
       linkFun(newScope);
+
+      // add icon
+      container.on('tab', tab => {
+        let icon = state.icon;
+        if (!icon) {
+          const preset = this.getChatPreset(state.preset);
+          if (preset) icon = preset.icon;
+        }
+        if (icon) {
+          const iconElement = $('<span class="lm_title tab-icon"></span>');
+          iconElement.html(iconTemplate);
+          tab.element.prepend(iconElement);
+          const iconLinkFun = $compile(iconElement);
+          const iconScope = $scope.$new(true, $scope);
+          iconScope.icon = icon;
+          iconLinkFun(iconScope);
+        }
+      });
     };
 
     layout.registerComponent('angularModule', AngularModuleComponent);
@@ -134,19 +161,24 @@ export default class MainController {
   }
 
   getCurrentLayout() {
-    return this.config.layouts[this.selectedProfile];
+    return this.layouts[this.selectedProfile];
+  }
+
+  getChatPreset(id) {
+    return _.find(this.getSetting('chatPresets'), { id });
   }
 
   getSetting(key) {
     // we dont use default because we want "" to be interpreted as "use default".
     const value = _.get(this.config.settings, key);
     if (value !== undefined) return value;
-    return _.get(this.defaultProfile.settings, key);
+    return _.get(this.defaultConfig.settings, key);
   }
 
   updateConfig() {
-    this.config.layouts[this.selectedProfile] = this.layout.toConfig();
+    this.layouts[this.selectedProfile] = this.layout.toConfig();
     localStorage.setItem('mt2-config', angular.toJson(this.config));
+    localStorage.setItem('mt2-layouts', angular.toJson(this.layouts));
   }
 
   loginWithTwitch() {

@@ -5,7 +5,6 @@ export default function onScrollDirective() {
       onScroll: '&'
     },
     link($scope, $element, attrs) {
-      console.log('Creating onscroll directive!', $scope, $element, attrs);
       const lastScroll = $element[0].scrollTop;
       const onScroll = event => {
         const direction = $element[0].scrollTop - lastScroll;

@@ -30,7 +30,6 @@ export default class ChatService extends EventEmitter {
   }
 
   init(user) {
-    console.log('Initializing chat service with user', user);
     this.user = user;
     this.getGlobalEmotes();
 

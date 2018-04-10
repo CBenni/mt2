@@ -1,5 +1,7 @@
+import _ from 'lodash';
+
 export function genNonce() {
-  const charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._~';
+  const charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz';
   const result = [];
   window.crypto.getRandomValues(new Uint8Array(32)).forEach(c =>
     result.push(charset[c % charset.length]));

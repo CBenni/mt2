@@ -70,8 +70,7 @@ export function colorToRGB(color) {
   if (match) {
     return [parseFloat(match[1], 10), parseFloat(match[2], 10), parseFloat(match[3], 10)];
   }
-  console.error(`Couldnt parse color: ${color}`);
-  return [0, 0, 0];
+  throw new Error(`Couldnt parse color: ${color}`);
 }
 
 // formulae taken from https://www.w3.org/TR/AERT/#color-contrast
@@ -99,9 +98,9 @@ export function fixContrastHSL(bg, fg) {
   }
 
   const extremeL = bgHsl[2] > 0.5 ? 0 : 1;
-  const eps = 3;
+  const eps = 5;
   let count = 0;
-  while ((Math.sqrt(bgBrightness) - Math.sqrt(fgBrightness)) < 25 && count++ < 5) {
+  while ((Math.sqrt(bgBrightness) - Math.sqrt(fgBrightness)) < 4 && count++ < 5) {
     fgHsl[2] = (fgHsl[2] * eps + extremeL) / (1 + eps);
     const newFg = hslToRgb(...fgHsl);
     fgBrightness = getBrightness(newFg);

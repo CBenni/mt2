@@ -80,3 +80,24 @@ md-input-container.compact {
 .md-toast-text {
   white-space: pre-line;
 }
+
+.lm_controls {
+  .lm_popout, .lm_maximize {
+    display: none;
+  }
+}
+
+.lm_tab .tab-icon {
+  font-size: 12px;
+  max-height: 12px;
+  margin-right: 4px;
+  vertical-align: top;
+
+  img {
+    height: 12px;
+  }
+
+  md-icon {
+    font-size: 12px;
+  }
+}

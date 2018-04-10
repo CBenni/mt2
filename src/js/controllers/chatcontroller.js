@@ -22,6 +22,7 @@ export default class ChatController {
     this.ToastService = ToastService;
     this.ApiService = ApiService;
 
+    this.preset = _.find(this.mainCtrl.getSetting('chatPresets'), { id: this.state.preset });
     this.pausedChatLines = [];
     this.chatLines = [];
     this.recentTimeouts = {};
@@ -51,7 +52,6 @@ export default class ChatController {
     $timeout(() => {
       this.user = $scope.mainCtrl.auth;
       if (this.user) {
-        console.log('Creating chat controller with user: ', this.user);
         this.ChatService = ChatService;
         this.ChatService.joinChannel({ name: this.state.channel }).then(channelObj => {
           this.channelObj = channelObj;
@@ -146,7 +146,11 @@ export default class ChatController {
     const colorAdjustment = this.mainCtrl.getSetting('colorAdjustment');
     if (colorAdjustment === 'hsl') {
       const bgColor = window.getComputedStyle(this.chatElement[0])['background-color'];
-      return fixContrastHSL(bgColor, color);
+      try {
+        return fixContrastHSL(bgColor, color);
+      } catch (err) {
+        // do nothing
+      }
     } else if (colorAdjustment === 'mono') {
       const bgColor = window.getComputedStyle(this.chatElement[0])['background-color'];
       const bgBrightness = getBrightness(hexToRGB(bgColor));
@@ -206,7 +210,7 @@ export default class ChatController {
   messagePassesFilters(line) {
     // system messages never get swallowed
     if (line.system) return true;
-    const filters = this.state.settings.messageFilters;
+    const filters = this.preset.settings.messageFilters;
     if (filters.includes('modlogs') && line.modlogs) return true;
     if (filters.includes('automod') && line.automod) return true;
     if (!filters.includes('bots') && line.chat && this.mainCtrl.getSetting('chatSettings.knownBots').includes(line.user.name)) return false;

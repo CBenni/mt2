@@ -1,7 +1,8 @@
 import angular from 'angular';
 import _ from 'lodash';
 import DialogController from './dialogcontroller';
-import defaultProfile from '../defaultProfile.json';
+import { genNonce } from '../helpers';
+import defaultConfig from '../defaultConfig.json';
 import iconCodes from '../iconCodes.json';
 
 export default class SettingsDialogController extends DialogController {
@@ -12,7 +13,7 @@ export default class SettingsDialogController extends DialogController {
 
     $scope.settings = this.mainCtrl.config.settings;
     if (!$scope.settings) {
-      $scope.settings = _.extend({}, defaultProfile.settings);
+      $scope.settings = _.extend({}, defaultConfig.settings);
       this.mainCtrl.config.settings = $scope.settings;
     }
 
@@ -84,7 +85,9 @@ export default class SettingsDialogController extends DialogController {
   }
 
   addChatPreset() {
-    this.$scope.settings.chatPresets.push(angular.copy(this.defaultChatPreset));
+    const newPreset = angular.copy(this.defaultChatPreset);
+    newPreset.id = genNonce();
+    this.$scope.settings.chatPresets.push();
   }
 
   deleteChatPreset(preset) {

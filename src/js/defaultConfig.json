@@ -1,20 +1,4 @@
 {
-  "name": "Default",
-  "layouts": [{
-    "content": [
-      {
-        "title": "Home",
-        "type": "component",
-        "componentName": "angularModule",
-        "isClosable": false,
-        "showPopoutIcon": false,
-        "componentState": {
-          "module": "mtApp",
-          "templateId": "homeTemplate"
-        }
-      }
-    ]
-  }],
   "settings": {
     "style": "dark",
     "styleSheet": "",
@@ -168,6 +152,7 @@
     },
     "chatPresets": [
       {
+        "id": "default-chat",
         "name": "Chat",
         "icon": {
           "type":"icon",
@@ -187,6 +172,7 @@
         }
       },
       {
+        "id": "default-modlogs",
         "name": "Modlogs",
         "icon": {
           "type":"icon",
