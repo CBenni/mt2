@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { EventEmitter } from 'events';
 
-import { parseIRCMessage, jsonParseRecursive, sdbmCode, capitalizeFirst, genNonce, escapeHtml, entityMap } from '../helpers';
+import { parseIRCMessage, jsonParseRecursive, sdbmCode, capitalizeFirst, genNonce, escapeHtml, entityMap, formatTimeout, instantiateRegex } from '../helpers';
 
 const DEFAULTCOLORS = ['#e391b8', '#e091ce', '#da91de', '#c291db', '#ab91d9', '#9691d6', '#91a0d4', '#91b2d1', '#91c2cf', '#91ccc7', '#91c9b4', '#90c7a2', '#90c492', '#9dc290', '#aabf8f', '#b5bd8f', '#bab58f', '#b8a68e', '#b5998e', '#b38d8d'];
 export default class ChatService extends EventEmitter {
@@ -21,7 +21,12 @@ export default class ChatService extends EventEmitter {
     this.badges = {};
     this.getBadges();
 
-    this.customEmotes = {};
+
+    this.emotes = [];
+    this.thirdPartyEmotes = new Map();
+    this.cheermotes = new Map();
+
+    this.channelEmotes = new Map();
   }
 
   init(user) {
@@ -183,6 +188,7 @@ export default class ChatService extends EventEmitter {
     const pubsubJoinedPromise = this.pubsubSend('LISTEN', [`chat_moderator_actions.${this.user.id}.${channelObj.id}`]);
     const channelJoinedPromise = Promise.all([chatJoinedPromise, pubsubJoinedPromise]).then(() => channelObj);
     this.joinedChannels[channelObj.id] = channelJoinedPromise;
+    this.getChannelEmotes(channelObj);
     return channelJoinedPromise;
   }
 
@@ -278,7 +284,7 @@ export default class ChatService extends EventEmitter {
           }
         }
       }
-      html = this.renderEmotes(message.trailing, emotes);
+      html = this.renderEmotes(message, emotes);
     }
     if (message.type === 'timeout' || message.type === 'ban') {
       html += escapeHtml(formatTimeout(message));
@@ -289,19 +295,44 @@ export default class ChatService extends EventEmitter {
     return message;
   }
 
-  renderEmotes(text, emotes) {
+  renderCustomEmotes(message, word) {
+    const holder = this.channelEmotes.get(message.channel.id);
+    const emote = this.thirdPartyEmotes.get(word) || (holder && holder.thirdPartyEmotes.get(word));
+    if (emote) {
+      return `<img class="emote emote-${emote.id}" alt="${emote.code}" title="${emote.code}" src="${emote.url}">`;
+    }
+    const bitMatch = /^(\w+)(\d+)$/.exec(word);
+    if (bitMatch && message.tags.bits) {
+      const cheermote = this.cheermotes.get(bitMatch[1]) || (holder && holder.cheermotes.get(bitMatch[1]));
+      if (cheermote) {
+        const amount = parseInt(bitMatch[2], 10);
+        // find the correct tier
+        const cheerTier = _.findLast(cheermote.tiers, tier => tier.minBits < amount);
+        return `<img class="emote cheermote emote-${cheermote.name}" alt="${cheerTier.name}" title="${cheerTier.name}" src="${cheerTier.url}">`
+          + `<span class="cheer-amount" style="color: ${cheerTier.color}">${amount}</span>`;
+      }
+    }
+    return word;
+  }
+
+  renderEmotes(message, emotes) {
     // replace emotes
-    const charArray = Array.from(text);
-    let html = '';
+    const charArray = Array.from(message.trailing);
     for (let i = 0; i < emotes.length; ++i) {
       const emote = emotes[i];
       const emoteName = charArray.slice(emote.start, emote.end + 1).join('');
       charArray[emote.start] = `<img class="emote emote-${emote.id}" alt="${emoteName}" title="${emoteName}" src="//static-cdn.jtvnw.net/emoticons/v1/${emote.id}/3.0"></img>`;
       for (let k = emote.start + 1; k <= emote.end; ++k) charArray[k] = '';
     }
+    let html = '';
+    let word = '';
     for (let i = 0; i < charArray.length; i++) {
-      html += entityMap[charArray[i]] || charArray[i];
+      if (charArray[i] === ' ') {
+        html += `${this.renderCustomEmotes(message, word)} `;
+        word = '';
+      } else word += entityMap[charArray[i]] || charArray[i];
     }
+    html += this.renderCustomEmotes(message, word);
     return html;
   }
 
@@ -309,14 +340,155 @@ export default class ChatService extends EventEmitter {
     this.getGlobalTwitchEmotes();
     this.getGlobalFFZEmotes();
     this.getGlobalBTTVEmotes();
+    this.getGlobalBits();
+  }
+
+  getChannelEmotes(channelObj) {
+    const emoteHolder = {
+      cheermotes: new Map(),
+      thirdPartyEmotes: new Map(),
+      emotes: []
+    };
+    this.channelEmotes.set(channelObj.id, emoteHolder);
+    this.getChannelBits(channelObj, emoteHolder);
+    this.getChannelFFZEmotes(channelObj, emoteHolder);
+    this.getChannelBTTVEmotes(channelObj, emoteHolder);
   }
 
   getGlobalTwitchEmotes() {
-    return this.ApiService.twitchGET(`https://api.twitch.tv/v5/users/${this.user.id}/emotes?on_site=1`).then(response => _.map());
+    return this.ApiService.twitchGet(`https://api.twitch.tv/v5/users/${this.user.id}/emotes?on_site=1`, null, this.user.token).then(response => {
+      _.each(response.data.emoticon_sets, (emoteSet, emoteSetId) => {
+        _.each(emoteSet, emote => {
+          emote.url = `https://static-cdn.jtvnw.net/emoticons/v1/${emote.id}/1.0`;
+          emote.origin = 'twitch global';
+          emote.setID = emoteSetId;
+          emote.code = instantiateRegex(emote.code);
+          this.emotes.push(emote);
+        });
+      });
+    }).catch(() => {
+
+    });
   }
 
   getGlobalFFZEmotes() {
     return this.ApiService.get('https://api.frankerfacez.com/v1/set/global').then(response => {
+      _.each(response.data.default_sets, setID => {
+        _.each(response.data.sets[setID].emoticons, emote => {
+          const emoteObj = {
+            id: emote.id,
+            url: _.findLast(emote.urls),
+            code: emote.name,
+            origin: 'ffz global',
+            setID
+          };
+          this.emotes.push(emoteObj);
+          this.thirdPartyEmotes.set(emote.name, emoteObj);
+        });
+      });
+    }).catch(() => {
+
+    });
+  }
+
+  getGlobalBTTVEmotes() {
+    return this.ApiService.get('https://api.betterttv.net/2/emotes').then(response => {
+      _.each(response.data.emotes, emote => {
+        const emoteObj = {
+          id: emote.id,
+          url: response.data.urlTemplate.replace('{{id}}', emote.id).replace('{{image}}', '1x'),
+          code: emote.code,
+          origin: 'bttv global',
+          setID: 'global'
+        };
+        this.emotes.push(emoteObj);
+        this.thirdPartyEmotes.set(emote.code, emoteObj);
+      });
+    }).catch(() => {
+
+    });
+  }
+
+  getGlobalBits() {
+    return this.ApiService.twitchGet('https://api.twitch.tv/kraken/bits/actions').then(response => {
+      _.each(response.data.actions, cheermote => {
+        const scale = _.last(cheermote.scales);
+        const background = 'dark';
+        const state = 'animated';
+        const cheerObj = {
+          name: cheermote.prefix,
+          id: cheermote.prefix,
+          tiers: _.map(cheermote.tiers, tier => ({
+            name: `${cheermote.prefix} ${tier.min_bits}`,
+            minBits: tier.min_bits,
+            url: tier.images[background][state][scale]
+          }))
+        };
+        this.cheermotes.set(cheermote.prefix, cheerObj);
+      });
+    }).catch(() => {
+
+    });
+  }
+
+  getChannelFFZEmotes(channelObj, holder) {
+    return this.ApiService.get(`https://api.frankerfacez.com/v1/room/id/${channelObj.id}`).then(response => {
+      _.each(response.data.sets, (set, setID) => {
+        _.each(set.emoticons, emote => {
+          const emoteObj = {
+            id: emote.id,
+            url: _.findLast(emote.urls),
+            code: emote.name,
+            origin: channelObj,
+            setID
+          };
+          holder.emotes.push(emoteObj);
+          holder.thirdPartyEmotes.set(emote.name, emoteObj);
+        });
+      });
+    }).catch(() => {
+
+    });
+  }
+
+  getChannelBTTVEmotes(channelObj, holder) {
+    return this.ApiService.get(`https://api.betterttv.net/2/channels/${channelObj.name}`).then(response => {
+      _.each(response.data.emotes, emote => {
+        const emoteObj = {
+          id: emote.id,
+          url: response.data.urlTemplate.replace('{{id}}', emote.id).replace('{{image}}', '1x'),
+          code: emote.code,
+          origin: channelObj,
+          setID: 'global'
+        };
+        holder.emotes.push(emoteObj);
+        holder.thirdPartyEmotes.set(emote.code, emoteObj);
+      });
+    }).catch(() => {
+
+    });
+  }
+
+  getChannelBits(channelObj, holder) {
+    return this.ApiService.twitchGet(`https://api.twitch.tv/kraken/bits/actions?channel_id=${channelObj.id}`).then(response => {
+      _.each(response.data.actions, cheermote => {
+        if (cheermote.type === 'channel_custom') {
+          const scale = _.last(cheermote.scales);
+          const background = 'dark';
+          const state = 'animated';
+          const cheerObj = {
+            name: cheermote.prefix,
+            id: cheermote.prefix,
+            tiers: _.map(cheermote.tiers, tier => ({
+              name: `${cheermote.prefix} ${tier.min_bits}`,
+              minBits: tier.min_bits,
+              url: tier.images[background][state][scale]
+            }))
+          };
+          holder.cheermotes.set(cheermote.prefix, cheerObj);
+        }
+      });
+    }).catch(() => {
 
     });
   }

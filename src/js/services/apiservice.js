@@ -10,6 +10,10 @@ export default class ApiService {
     this.userPromises = {}; // maps a userID to a promise
   }
 
+  get(url) {
+    return this.$http.get(url);
+  }
+
   twitchGet(endpoint, headers, token, query) {
     this.nothing = false;
     if (!headers) headers = {};

@@ -1,11 +1,12 @@
-<div ng-controller="ChatController as chatCtrl" class="wrapper" ng-mousemove="chatCtrl.mouseMove()" ng-mouseleave="chatCtrl.mouseLeave()">
+<div ng-controller="ChatController as chatCtrl" class="wrapper">
   <iframe ng-src="{{chatCtrl.getEmbedUrl()}}" frameborder="0" allowfullscreen="true" scrolling="no" ng-if="!mainCtrl.auth"></iframe>
   <div ng-if="mainCtrl.auth" class="chat-wrapper wrapper" layout="column">
     <div class="chat-settings-menu" layout="column" ng-if="chatCtrl.showChatSettings" click-outside="chatCtrl.showChatSettings = false">
       <div flex="none" layout="row" class="settings-mod-button-setting-complex">
         <md-input-container class="md-no-underline">
           <label>Show messages containing...</label>
-          <md-select name="style" class="compact md-no-underline" ng-model="chatCtrl.state.settings.messageFilters" placeholder="Filters" multiple="">
+          <md-select name="style" class="compact md-no-underline" ng-model="chatCtrl.state.settings.messageFilters" placeholder="Filters"
+            multiple="">
             <md-option value="chat">Chat</md-option>
             <md-option value="bots">Bots</md-option>
             <md-option value="mentions">Mentions</md-option>
@@ -16,8 +17,11 @@
         </md-input-container>
       </div>
       <div flex="none" layout="row" class="settings-mod-button-setting-very-simple">
-        <md-switch ng-model="chatCtrl.state.settings.incognito" class="md-invert">Incognito</md-switch>
+        <md-switch ng-model="chatCtrl.state.settings.hideChatInput" class="md-invert">Hide chat input</md-switch>
       </div>
+      <!-- <div flex="none" layout="row" class="settings-mod-button-setting-very-simple">
+        <md-switch ng-model="chatCtrl.state.settings.incognito" class="md-invert">Incognito</md-switch>
+      </div> -->
     </div>
     <div class="chat-header" flex="none" layout="row" layout-align="space-between center">
       <div flex="none">
@@ -68,14 +72,35 @@
         </span>
       </div>
     </div>
-    <div class="chat-container column-reverse" layout-align="end stretch" layout="column" flex="100" on-scroll="chatCtrl.onChatScroll($event, $element, scrollPos, direction)">
+    <div class="chat-container column-reverse" layout-align="end stretch" layout="column" flex="100" on-scroll="chatCtrl.onChatScroll($event, $element, scrollPos, direction)"
+      ng-mousemove="chatCtrl.mouseMove()" ng-mouseleave="chatCtrl.mouseLeave()">
       <div class="chat-lines column-reverse" layout-align="end stretch" flex="none">
         <div class="chat-line" ng-repeat="line in chatCtrl.getActiveChatLines()" flex="none"></div>
       </div>
     </div>
-    <div class="chat-input-box">
-      <div class="chat-paused-indicator" ng-click="chatCtrl.resetChatScroll()" ng-show="chatCtrl.isPaused">Chat is paused because of {{chatCtrl.isPaused}}</div>
+    <div class="chat-paused-indicator" ng-click="chatCtrl.resetChatScroll()" ng-show="chatCtrl.isPaused">Chat is paused because of {{chatCtrl.isPaused}}</div>
+    <div class="chat-input-box" ng-if="!chatCtrl.state.settings.hideChatInput" flex="none">
       <textarea class="chat-input" ng-keydown="chatCtrl.chatInputKeyPress($event)" ng-model="chatCtrl.chatInputContent" rows=1></textarea>
+    </div>
+    <div class="emote-menu" ng-if="chatCtrl.showEmoteMenu" layout="column" layout-padding click-outside="chatCtrl.showEmoteMenu = false">
+      <div class="emote-search" flex="none" layout="row">
+        <md-input-container class="compact" flex="100">
+          <input type="text" ng-model="chatCtrl.emoteSearchString" placeholder="Search...">
+        </md-input-container>
+      </div>
+      <div class="emote-menu-list" flex layout="row" layout-wrap>
+        <div ng-repeat="emote in chatCtrl.ChatService.channelEmotes.get(chatCtrl.channelObj.id).emotes | filter: {code: chatCtrl.emoteSearchString}" flex="none">
+          <img class="emote" ng-src="{{emote.url}}" ng-click="chatCtrl.insertEmote(emote)">
+        </div>
+        <div ng-repeat="emote in chatCtrl.ChatService.emotes | filter: {code: chatCtrl.emoteSearchString}" flex="none">
+          <img class="emote" ng-src="{{emote.url}}" ng-click="chatCtrl.insertEmote(emote)">
+        </div>
+      </div>
+    </div>
+    <div class="emote-menu-button" ng-if="!chatCtrl.state.settings.hideChatInput">
+      <md-button class="md-icon-button" ng-click="chatCtrl.showEmoteMenu = !chatCtrl.showEmoteMenu">
+        <md-icon>insert_emoticon</md-icon>
+      </md-button>
     </div>
   </div>
 </div>

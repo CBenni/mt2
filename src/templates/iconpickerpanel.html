@@ -1,0 +1,7 @@
+<div class="icon-picker" layout="row" layout-wrap>
+  <div ng-repeat="icon in iconPickerCtrl.icons" class="icon-picker-icon" flex="none" ng-click="iconPickerCtrl.select(icon)">
+    <md-icon>
+      {{icon}}
+    </md-icon>
+  </div>
+</div>

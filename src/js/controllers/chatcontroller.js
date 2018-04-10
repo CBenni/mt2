@@ -1,6 +1,7 @@
 import _ from 'lodash';
 
 import { stringifyTimeout } from '../helpers';
+import { fixContrastHSL, hexToRGB, getBrightness } from '../colorcorrection';
 import languageTable from '../languages.json';
 
 const templateRegex = /{{((?:\w+)(?:\.\w+)*)}}/g;
@@ -37,6 +38,7 @@ export default class ChatController {
     this.lastScrollPos = 0;
     this.isPaused = false;
     this.chatHoverPauseTime = 750;
+    this.userMentionRegex = null;
     this.indicatorDefaults = {
       'broadcaster-lang': '',
       'emote-only': '0',
@@ -79,6 +81,8 @@ export default class ChatController {
         });
 
         this.container.setTitle(this.state.channel);
+
+        this.userMentionRegex = new RegExp(`\\b${this.user.name}\\b`);
       }
     });
 
@@ -137,6 +141,20 @@ export default class ChatController {
     return line;
   }
 
+  getColor(color) {
+    if (!color) return color;
+    const colorAdjustment = this.mainCtrl.getSetting('colorAdjustment');
+    if (colorAdjustment === 'hsl') {
+      const bgColor = window.getComputedStyle(this.chatElement[0])['background-color'];
+      return fixContrastHSL(bgColor, color);
+    } else if (colorAdjustment === 'mono') {
+      const bgColor = window.getComputedStyle(this.chatElement[0])['background-color'];
+      const bgBrightness = getBrightness(hexToRGB(bgColor));
+      return bgBrightness < 0.5 ? '#F3F3F3' : '#303030';
+    }
+    return color;
+  }
+
   addLine(line) {
     this.ChatService.processMessage(line).then(() => {
       if (!line.tags) line.tags = {};
@@ -151,12 +169,37 @@ export default class ChatController {
       } else {
         this.pausedChatLines.push(line);
       }
+
+      const scrollbackLength = this.mainCtrl.getSetting('scrollbackLength');
+      if (this.chatLines.length >= (scrollbackLength + this.pageSize)) {
+        this.chatLines.splice(0, this.chatLines.length - scrollbackLength);
+      }
       return true;
     });
   }
 
+  checkForMentions(line) {
+    // check for mentions
+    if (this.userMentionRegex.test(line.trailing)) return true;
+    const extraMentions = this.mainCtrl.getSetting('chatSettings.extraMentions');
+    if (!extraMentions) return false;
+    for (let i = 0; i < extraMentions.length; ++i) {
+      const re = new RegExp(extraMentions[i]);
+      if (re.test(line.trailing)) return true;
+    }
+    return false;
+  }
+
   addChat(line) {
     line.chat = true;
+
+    line.mention = this.checkForMentions(line);
+    if (line.mention) {
+      if (!line.tags.classes) line.tags.classes = [];
+      line.tags.classes.push('mention');
+    }
+
+
     this.addLine(line);
   }
 
@@ -469,5 +512,12 @@ export default class ChatController {
 
   openModCard($event, user) {
     this.mainCtrl.openModCard($event, user, this);
+  }
+
+  insertEmote(emote) {
+    if (this.chatInputContent.length > 0 && this.chatInputContent[this.chatInputContent.length - 1] !== ' ') {
+      this.chatInputContent += ' ';
+    }
+    this.chatInputContent += emote.code;
   }
 }

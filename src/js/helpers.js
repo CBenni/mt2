@@ -57,6 +57,7 @@ export const entityMap = {
   "'": '&#39;',
   '/': '&#x2F;'
 };
+export const htmlEntities = _.invert(entityMap);
 
 export function formatTimespan(timespan) {
   let age = Math.round(parseInt(timespan, 10));
@@ -173,3 +174,12 @@ export function stringifyTimeout(timeoutNotice) {
   }
   return res;
 }
+
+// used to turn regex emote codes into proper names
+export function instantiateRegex(regex) {
+  return regex.replace(/\[([^\]])[^\]]*\]/g, '$1')
+  .replace(/\(([^|)]*)(?:\|[^)]*)*\)/g, '$1')
+  .replace(/\\?(.)\??/g, '$1')
+  .replace(/&(\w+);/g, m => htmlEntities[m] || m);
+}
+

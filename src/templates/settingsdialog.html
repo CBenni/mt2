@@ -70,8 +70,14 @@
                 </div>
                 <div class="settings-row" layout="row" layout-align="start center" flex="100">
                   <label for="knownBots" flex="none">Known bots</label>
-                  <div>
+                  <div flex="100">
                     <md-chips ng-model="settings.chatSettings.knownBots"></md-chips>
+                  </div>
+                </div>
+                <div class="settings-row" layout="row" layout-align="start center" flex="100">
+                  <label for="extraMentions" flex="none">Extra mentions</label>
+                  <div flex="100">
+                    <md-chips ng-model="settings.chatSettings.extraMentions"></md-chips>
                   </div>
                 </div>
               </div>
@@ -79,6 +85,12 @@
                 <label for="timeFormat" flex="none">Timestamp format</label>
                 <md-input-container>
                   <input type="text" name="timeFormat" ng-model="settings.timeFormat">
+                </md-input-container>
+              </div>
+              <div class="settings-row" layout="row" layout-align="start center" flex="50">
+                <label for="scrollbackLength" flex="none">Scrollback length</label>
+                <md-input-container>
+                  <input type="number" name="scrollbackLength" ng-model="settings.scrollbackLength">
                 </md-input-container>
               </div>
             </md-content>
@@ -127,11 +139,18 @@
                           <md-option value="image">Custom image</md-option>
                         </md-select>
                       </md-input-container>
-                      <div flex>
+                      <div flex="none">
                         <div ng-if="preset.icon.type === 'icon'">
-                          <md-input-container class="text-input">
+                          <!--<md-input-container class="text-input">
                             <input type="text" ng-model="preset.icon.code" placeholder="Icon code">
-                          </md-input-container>
+                          </md-input-container>-->
+                          <md-select ng-model="preset.icon.code" md-container-class="icon-code-select">
+                            <md-option ng-repeat="iconCode in dialogCtrl.iconCodes" ng-value="iconCode">
+                              <md-icon>
+                                {{iconCode}}
+                              </md-icon>
+                            </md-option>
+                          </md-select>
                         </div>
                         <div ng-if="preset.icon.type === 'text'">
                           <md-input-container class="text-input">
@@ -158,8 +177,11 @@
                         </md-select>
                       </md-input-container>
                     </div>
-                    <div flex="15" layout="row" class="settings-mod-button-setting-very-simple">
+                    <!-- <div flex="15" layout="row" class="settings-mod-button-setting-very-simple">
                       <md-switch ng-model="preset.settings.incognito" class="md-invert">Incognito</md-switch>
+                    </div>-->
+                    <div flex="15" layout="row" class="settings-mod-button-setting-very-simple">
+                      <md-switch ng-model="preset.settings.hideChatInput" class="md-invert">Hide chat input</md-switch>
                     </div>
                   </div>
                 </li>

@@ -94,3 +94,18 @@
     overflow-x: hidden;
   }
 }
+
+
+.icon-code-select {
+
+  md-content {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    max-width: 300px;
+  }
+
+  md-icon {
+    color: inherit;
+  }
+}

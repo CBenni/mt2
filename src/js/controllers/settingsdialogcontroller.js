@@ -2,6 +2,7 @@ import angular from 'angular';
 import _ from 'lodash';
 import DialogController from './dialogcontroller';
 import defaultProfile from '../defaultProfile.json';
+import iconCodes from '../iconCodes.json';
 
 export default class SettingsDialogController extends DialogController {
   constructor($scope, $mdDialog) {
@@ -24,6 +25,19 @@ export default class SettingsDialogController extends DialogController {
       icon: {
         type: 'text',
         text: '60s'
+      },
+      hotkey: ''
+    };
+
+    $scope.defaultChatHeaderButton = {
+      action: {
+        type: 'command',
+        command: '/help'
+      },
+      tooltip: 'New Button',
+      icon: {
+        type: 'text',
+        text: 'Button'
       },
       hotkey: ''
     };
@@ -58,6 +72,9 @@ export default class SettingsDialogController extends DialogController {
     this.initDefault('chatSettings');
     this.initDefault('chatPresets');
     this.initDefault('timeFormat');
+    this.initDefault('scrollbackLength');
+
+    this.iconCodes = iconCodes;
   }
 
   initDefault(setting) {

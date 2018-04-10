@@ -1,7 +1,7 @@
 <div class="chat-line-wrapper" ng-class="line.tags.classes">
   <span class="chat-line-time hide-s" ng-if="$parent.mainCtrl.getSetting('timeFormat')">
     <!-- timestamp -->
-    {{line.time | date : $parent.mainCtrl.getSetting('timeFormat')}}
+    {{::line.time | date : $parent.mainCtrl.getSetting('timeFormat')}}
   </span>
   <span class="chat-line-mod-buttons" ng-if="chatCtrl && chatCtrl.showModButtons">
     <span class="chat-line-mod-button compact" ng-repeat="modButton in $parent.mainCtrl.getSetting('modButtons')" ng-click="chatCtrl.modAction($event, modButton, line)">
@@ -22,16 +22,16 @@
     </span>
   </span>
   <span class="chat-line-badges">
-    <img ng-src="{{badge.url}}" ng-repeat="badge in line.user.badges" class="chat-line-badge" title="{{badge.title}}">
+    <img ng-src="{{badge.url}}" ng-repeat="badge in ::line.user.badges" class="chat-line-badge" title="{{::badge.title}}">
   </span>
-  <span class="chat-line-username" ng-style="{color: line.user.color}" ng-click="chatCtrl.openModCard($event, line.user)">{{line.user.displayName}}</span><span class="chat-line-colon">: </span>
-  <span class="chat-line-text" ng-bind-html="line.html"></span>
+  <span class="chat-line-username" ng-style="::{color: chatCtrl.getColor(line.user.color)}" ng-click="chatCtrl.openModCard($event, line.user)">{{::line.user.displayName}}</span><span class="chat-line-colon">: </span>
+  <span class="chat-line-text" ng-bind-html="line.html" ng-style="::{color: line.action && chatCtrl.getColor(line.user.color)}"></span>
   <span ng-if="line.modlogs | isntEmpty">(By: {{chatCtrl.getModlogList(line)}})
     <md-tooltip md-direction="top" class="large-tooltip">
       <table>
         <tr ng-repeat="modlog in line.modlogs">
-          <td>{{modlog.created_by}}</td>
-          <td>{{chatCtrl.getModlogCommand(modlog)}}</td>
+          <td>{{::modlog.created_by}}</td>
+          <td>{{::chatCtrl.getModlogCommand(modlog)}}</td>
         </tr>
       </table>
     </md-tooltip>

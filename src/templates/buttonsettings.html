@@ -25,11 +25,18 @@
             <md-option value="image">Custom image</md-option>
           </md-select>
         </md-input-container>
-        <div flex>
+        <div flex="none">
           <div ng-if="button.icon.type === 'icon'">
-            <md-input-container class="text-input">
+            <!--<md-input-container class="text-input">
               <input type="text" ng-model="button.icon.code" placeholder="Icon code">
-            </md-input-container>
+            </md-input-container>-->
+            <md-select ng-model="button.icon.code" md-container-class="icon-code-select">
+              <md-option ng-repeat="iconCode in btnsCtrl.iconCodes" ng-value="iconCode">
+                <md-icon>
+                  {{iconCode}}
+                </md-icon>
+              </md-option>
+            </md-select>
           </div>
           <div ng-if="button.icon.type === 'text'">
             <md-input-container class="text-input">

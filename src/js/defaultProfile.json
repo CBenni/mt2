@@ -7,6 +7,7 @@
         "type": "component",
         "componentName": "angularModule",
         "isClosable": false,
+        "showPopoutIcon": false,
         "componentState": {
           "module": "mtApp",
           "templateId": "homeTemplate"
@@ -145,7 +146,6 @@
       }
     ],
     "chatSettings": {
-      "extraMentions": [],
       "knownBots": [
         "drangrybot",
         "gather_bot",
@@ -175,6 +175,7 @@
         },
         "settings": {
           "incognito": false,
+          "hideChatInput": false,
           "messageFilters": [
             "modlogs",
             "chat",
@@ -184,8 +185,25 @@
             "automod"
           ]
         }
+      },
+      {
+        "name": "Modlogs",
+        "icon": {
+          "type":"icon",
+          "code":"gavel"
+        },
+        "settings": {
+          "incognito": false,
+          "hideChatInput": true,
+          "messageFilters": [
+            "modlogs",
+            "automod"
+          ]
+        }
       }
     ],
-    "timeFormat": "hh:mm:ss a"
+    "extraMentions": [],
+    "timeFormat": "HH:mm",
+    "scrollbackLength": 5000
   }
 }

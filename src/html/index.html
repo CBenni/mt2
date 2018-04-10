@@ -5,15 +5,120 @@
   <title ng-bind="mainCtrl.getTitle()">ModTwitch by CBenni</title>
   <meta charset="UTF-8">
   <base href="/">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png?v=xQz9azANQA">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png?v=xQz9azANQA">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png?v=xQz9azANQA">
+  <link rel="manifest" href="/assets/favicon/site.webmanifest?v=xQz9azANQA">
+  <link rel="shortcut icon" href="/assets/favicon/favicon.ico?v=xQz9azANQA">
+  <meta name="msapplication-TileColor" content="#EBEBEB">
+  <meta name="theme-color" content="#ffffff">
+  <meta property="og:image:width" content="1145">
+  <meta property="og:image:height" content="599">
+  <meta property="og:title" content="ModCh.at - A tool by CBenni">
+  <meta property="og:description" content="Watch multiple Twitch channels at the same time!">
+  <meta property="og:url" content="http://modch.at/">
+  <meta property="og:image" content="http://modch.at/assets/og-image.jpg">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    .loading-screen {
+      font-family: Roboto, "Helvetica Neue", sans-serif;
+      color: #dad8de;
+      background-color: #212121;
+      height: 100%;
+      width: 100%;
+      position: absolute;
+      z-index: 200;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .loading-screen h1 {
+      font-size: 96px;
+      font-weight: 100;
+    }
+
+    .loading-screen h2 {
+      font-size: 24px;
+      font-weight: 100;
+    }
+
+    .loading-screen img {
+      height: 300px;
+    }
+
+    .loading-screen span {
+      padding: 8px;
+    }
+
+    .loading-screen blockquote {
+      max-width: 400px;
+    }
+
+    .loading-screen .author {
+      float: right;
+    }
+
+    .loading-screen.hide-first-time {
+      transition: opacity 2s;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .loading-screen.hide-fast {
+      transition: opacity 1s;
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    .loading-screen a, .loading-screen a:visited, .loading-screen a:hover {
+      color: #dad8de !important;
+      text-decoration: none;
+    }
+
+    .loading-screen .stolkie {
+      position: absolute;
+      bottom: 20px;
+    }
+  </style>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-54058329-4"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-54058329-4');
+  </script>
 </head>
 
 <body ng-class="['theme-'+mainCtrl.getSetting('style')]" md-theme="mainCtrl.getSetting('style')">
+  <div class="loading-screen" ng-class="loadingScreenClass">
+    <div>
+      <h1>ModCh.at</h1>
+      <h2>by <a href="https://twitter.com/cbenni_o" target="_blank">@cbenni_o</a></h2>
+    </div>
+    <div>
+      <span>Dedicated to Brian McNulty (1983 - 2018)</span>
+    </div>
+    <div>
+      <img src="/assets/brian.jpg">
+    </div>
+    <div>
+      <blockquote>&quot;Be who you are and say what you feel, because those who mind dont matter and those who matter dont mind&quot;
+        <span class="author">&mdash; Dr. Seuss</span>
+      </blockquote>
+    </div>
+    <div class="stolkie">
+      Logo by <a href="https://twitter.com/StolkieBiz" target="_blank">@StolkieBiz</a>
+    </div>
+  </div>
   <div class="wrapper layout-container" id="layout-container"></div>
   <div class="whisper-container" ng-if="mainCtrl.auth" layout="row" layout-align="end end">
-    <div ng-repeat="conversation in mainCtrl.conversations"
-    class="whisper-conversation md-whiteframe-4dp" ng-class="{'collapse':conversation.collapse}"
-    layout="column" layout-align="start stretch">
+    <div ng-repeat="conversation in mainCtrl.conversations" class="whisper-conversation md-whiteframe-4dp" ng-class="{'collapse':conversation.collapse}"
+      layout="column" layout-align="start stretch">
       <div class="whisper-header" flex="none" ng-click="conversation.collapse = !conversation.collapse" layout="row" layout-align="space-between center">
         <span flex="none">{{conversation.user.displayName}}</span>
         <md-button class="tiny-button" flex="none" ng-click="mainCtrl.closeConversation($event, conversation)">
@@ -21,19 +126,21 @@
         </md-button>
       </div>
       <div class="whisper-body-wrapper" layout="column" layout-align="start stretch" flex="100" ng-show="!conversation.collapse">
-          <div class="whisper-body" layout="column" layout-align="end start" flex="none">
-              <div ng-repeat="line in conversation.lines" chat-line flex="none"></div>
-          </div>
+        <div class="whisper-body" layout="column" layout-align="end start" flex="none">
+          <div ng-repeat="line in conversation.lines" chat-line flex="none"></div>
+        </div>
       </div>
-      <input type="text" ng-model="conversation.whisperText" ng-keyup="mainCtrl.sendWhisper($event, conversation)" flex="none" ng-show="!conversation.collapse" class="whisper-input-field">
+      <input type="text" ng-model="conversation.whisperText" ng-keyup="mainCtrl.sendWhisper($event, conversation)" flex="none"
+        ng-show="!conversation.collapse" class="whisper-input-field">
     </div>
-    <div class="whisper-menu">
+    <!-- <div class="whisper-menu">
       <md-button class="md-icon-button md-primary">
         <md-icon>chat</md-icon>
       </md-button>
-    </div>
+    </div> -->
   </div>
-  <div class="mod-card md-whiteframe-5dp" ng-repeat="modCard in mainCtrl.modCards" layout="column" draggable="{handle: '> .mod-card-header'}" ng-style="{left: modCard.xPos, top: modCard.yPos}">
+  <div class="mod-card md-whiteframe-5dp" ng-repeat="modCard in mainCtrl.modCards" layout="column" draggable="{handle: '> .mod-card-header'}"
+    ng-style="{left: modCard.xPos, top: modCard.yPos}">
     <div class="mod-card-header layout-padding" layout="row" layout-align="space-between stretch" flex="none">
       <div layout="column" flex="none" layout-align="center center">
         <img class="mod-card-profile-picture" flex="none" ng-src="{{modCard.stats.logo}}">
@@ -68,7 +175,8 @@
     </div>
     <div class="mod-card-body layout-padding" flex="100" layout="column">
       <div class="mod-card-mod-buttons">
-        <md-button class="md-primary mod-card-mod-button dynamic-icon-button" ng-class="{'md-icon-button': modButton.icon.type !== 'text'}" ng-repeat="modButton in mainCtrl.getSetting('modCardButtons')" ng-click="modCard.chatCtrl.modAction($event, modButton, modCard)">
+        <md-button class="md-primary mod-card-mod-button dynamic-icon-button" ng-class="{'md-icon-button': modButton.icon.type !== 'text'}"
+          ng-repeat="modButton in mainCtrl.getSetting('modCardButtons')" ng-click="modCard.chatCtrl.modAction($event, modButton, modCard)">
           <md-tooltip md-delay="500">{{modButton.tooltip}}</md-tooltip>
           <md-icon ng-if="modButton.icon.type === 'icon'">{{modButton.icon.code}}</md-icon>
           <span ng-if="modButton.icon.type === 'text'" class="chat-line-mod-button-label">{{modButton.icon.text}}</span>
@@ -77,6 +185,7 @@
       </div>
     </div>
   </div>
+
 </body>
 
 </html>

@@ -17,7 +17,7 @@ const windowTemplates = {
 };
 
 export default class MainController {
-  constructor($compile, $rootScope, $scope, $sce, ApiService, ChatService) {
+  constructor($compile, $rootScope, $scope, $timeout, $sce, $window, ApiService, ChatService) {
     'ngInject';
 
     this.ApiService = ApiService;
@@ -32,7 +32,12 @@ export default class MainController {
 
     // initialize layout
     const storedConfig = localStorage.getItem('mt2-config');
-    if (storedConfig) this.config = JSON.parse(storedConfig);
+    if (storedConfig) {
+      this.config = JSON.parse(storedConfig);
+      $timeout(() => { $scope.loadingScreenClass = 'hide-fast'; }, 1000);
+    } else {
+      $timeout(() => { $scope.loadingScreenClass = 'hide-first-time'; }, 4000);
+    }
     // temp "fix" for https://github.com/WolframHempel/golden-layout/issues/418
     _.each(this.config.layouts, layout => this.fixActiveIndexes(layout));
     const currentProfile = localStorage.getItem('mt2-currentProfile');
@@ -58,6 +63,10 @@ export default class MainController {
 
     layout.registerComponent('angularModule', AngularModuleComponent);
     layout.init();
+
+    angular.element($window).bind('resize', () => {
+      layout.updateSize();
+    });
 
     layout.on('stateChanged', () => {
       this.updateConfig();
@@ -114,15 +123,14 @@ export default class MainController {
   }
 
   fixActiveIndexes(layout) {
-    if (layout.activeItemIndex) {
-      if (layout.content) layout.activeItemIndex = Math.max(layout.activeItemIndex, layout.content.length);
-      else layout.activeItemIndex = undefined;
+    if (layout.content) {
+      layout.activeItemIndex = Math.min(layout.activeItemIndex || 0, layout.content.length - 1);
+      _.each(layout.content, contentItem => this.fixActiveIndexes(contentItem));
     }
-    if (layout.content) _.each(layout.content, contentItem => this.fixActiveIndexes(contentItem));
   }
 
   getTitle() {
-    return 'ModTwitch by CBenni';
+    return 'ModCh.at by CBenni';
   }
 
   getCurrentLayout() {
@@ -142,7 +150,7 @@ export default class MainController {
   }
 
   loginWithTwitch() {
-    window.location.href = `https://id.twitch.tv/oauth2/authorize?client_id=${config.auth.client_id}&redirect_uri=${config.auth.redirect_uri}&response_type=token&scope=chat_login`;
+    window.location.href = `https://id.twitch.tv/oauth2/authorize?client_id=${config.auth.client_id}&redirect_uri=${config.auth.redirect_uri}&response_type=token&scope=chat_login%20user_subscriptions`;
   }
 
   logoutFromTwitch() {
@@ -192,7 +200,7 @@ export default class MainController {
         badges: msg.tags.badges
       },
       isAction,
-      html: this.$sce.trustAsHtml(this.ChatService.renderEmotes(msg.body, msg.tags.emotes)),
+      html: this.$sce.trustAsHtml(this.ChatService.renderEmotes(msg, msg.tags.emotes)),
       recipient: msg.recipient,
       threadID: msg.thread_id
     };

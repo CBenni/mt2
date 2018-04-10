@@ -1,0 +1,19 @@
+{
+    "name": "ModCh.at by CBenni",
+    "short_name": "ModCh.at by CBenni",
+    "icons": [
+        {
+            "src": "/android-chrome-192x192.png?v=xQz9azANQA",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/android-chrome-512x512.png?v=xQz9azANQA",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "theme_color": "#ffffff",
+    "background_color": "#ffffff",
+    "display": "standalone"
+}

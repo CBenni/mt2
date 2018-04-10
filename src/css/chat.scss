@@ -39,14 +39,15 @@
     border-left: 4px solid #ec1313;
   }
 
+  &.mention {
+    background-color: rgba(255,0,0,0.3);
+  }
+
   .chat-line-time {
     color: rgba(0, 0, 0, 0.7);
     font-size: small;
   }
 
-  .emote {
-    height: 2em;
-  }
 
   img.emote {
     vertical-align: middle;
@@ -67,6 +68,10 @@
   }
 }
 
+.emote {
+  max-height: 1.75em;
+}
+
 .chat-container {
   overflow-y: scroll;
   background-color: $page-body;
@@ -83,20 +88,22 @@
   width: 350px
 }
 
-.chat-input-box {
-  height: 4em;
+.chat-paused-indicator {
+  position: absolute;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.5);
+  width: 100%;
+  padding: 2px;
+  cursor: pointer;
+}
 
-  .chat-paused-indicator {
-    position: absolute;
-    background-color: rgba(0,0,0,0.5);
-    width: 100%;
-    padding: 2px;
-    cursor: pointer;
-  }
+.chat-input-box {
+  min-height: 20px;
+
 
   textarea {
     width: 100%;
-    height: 100%;
+    height: 4em;
     border: 0px none;
     resize: none;
     background-color: $widget-body;
@@ -128,7 +135,6 @@
   }
 
   md-icon.material-icons {
-    font-weight: bold;
     height: 19px;
     font-size: 19px;
     min-height: 19px;
@@ -154,4 +160,28 @@
   overflow: visible;
   height: auto;
   transform: translateY(-100%);
+}
+
+.emote-menu-button {
+  position: absolute;
+  bottom: 30px;
+  right: 0;
+}
+
+.emote-menu {
+  position: absolute;
+  bottom: 4em;
+  right: 0;
+  height: 50%;
+  width: 50%;
+  z-index: 65;
+  background-color: $widget-body;
+
+  .emote {
+    cursor: pointer;
+  }
+
+  .emote-menu-list {
+    overflow-y: auto;
+  }
 }
