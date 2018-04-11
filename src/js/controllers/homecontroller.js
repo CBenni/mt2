@@ -97,7 +97,7 @@ export default class HomeController {
           const channels = response.data.channels;
           return _.map(channels, mockStreamFromChannel);
         });
-        return Promise.all([streamsSearch, channelLookup, channelSearch]).then(results => {
+        return Promise.all([channelLookup, streamsSearch, channelSearch]).then(results => {
           console.log(`Search results for ${searchText}: `, results);
           this.searchedStreams = _.uniqBy(_.flatten(results), a => `${a.channel._id}`);
         });

@@ -6,6 +6,7 @@ import _ from 'lodash';
 import defaultConfig from '../defaultConfig.json';
 import defaultLayouts from '../defaultLayouts.json';
 import config from '../config';
+import { genNonce } from '../helpers';
 
 import chatTemplate from '../../templates/chatwindow.html';
 import streamTemplate from '../../templates/streamwindow.html';
@@ -38,6 +39,9 @@ export default class MainController {
     const storedConfig = localStorage.getItem('mt2-config');
     if (storedConfig) {
       this.config = JSON.parse(storedConfig);
+      _.each(this.config.settings.chatPresets, preset => {
+        if (!preset.id) preset.id = genNonce();
+      });
       $timeout(() => { $scope.loadingScreenClass = 'hide-fast'; }, 1000);
     } else {
       $timeout(() => { $scope.loadingScreenClass = 'hide-first-time'; }, 4000);

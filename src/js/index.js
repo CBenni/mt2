@@ -3,7 +3,6 @@ import angular from 'angular';
 import angularMaterial from 'angular-material';
 import angularAnimate from 'angular-animate';
 import angularAria from 'angular-aria';
-import angularUIRouter from 'angular-ui-router';
 import angularCookies from 'angular-cookies';
 import 'angular-ui-sortable';
 import '@iamadamjowett/angular-click-outside';
@@ -33,7 +32,7 @@ import ToastService from './services/toastservice';
 import registerDarkMode from './themes/dark';
 import registerLightMode from './themes/light';
 
-const app = angular.module('mtApp', [angularAria, angularAnimate, angularMaterial, angularUIRouter, angularCookies, 'ui.sortable', 'angular-click-outside']);
+const app = angular.module('mtApp', [angularAria, angularAnimate, angularMaterial, angularCookies, 'ui.sortable', 'angular-click-outside']);
 
 app.controller('MainController', MainController);
 app.controller('HomeController', HomeController);
@@ -64,10 +63,9 @@ app.run($q => {
 
   window.Promise = $q;
 });
-app.config(($locationProvider, $mdThemingProvider) => {
+app.config($mdThemingProvider => {
   'ngInject';
 
-  $locationProvider.html5Mode(true);
   $mdThemingProvider.alwaysWatchTheme(true);
   registerDarkMode($mdThemingProvider);
   registerLightMode($mdThemingProvider);

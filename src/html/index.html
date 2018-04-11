@@ -94,7 +94,7 @@
   </script>
 </head>
 
-<body ng-class="['theme-'+mainCtrl.getSetting('style')]" md-theme="mainCtrl.getSetting('style')">
+<body ng-class="['theme-'+mainCtrl.getSetting('style')]" md-theme="mainCtrl.getSetting('style')" ng-keydown="mainCtrl.keydown($event)">
   <div class="loading-screen" ng-class="loadingScreenClass">
     <div>
       <h1>ModCh.at</h1>
