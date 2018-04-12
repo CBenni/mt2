@@ -29,6 +29,7 @@ export default class HomeController {
     this.globalStreams = [];
     this.followedStreams = [];
     this.searchedStreams = null;
+    this.selectedStreamsTab = 0;
 
     this.searchForStreamsThrottled = _.throttle(searchText => this.searchForStreams(searchText), 500);
     this.currentStreamSearch = null;
@@ -100,6 +101,7 @@ export default class HomeController {
         return Promise.all([channelLookup, streamsSearch, channelSearch]).then(results => {
           console.log(`Search results for ${searchText}: `, results);
           this.searchedStreams = _.uniqBy(_.flatten(results), a => `${a.channel._id}`);
+          this.selectedStreamsTab = 2;
         });
       }
       this.searchedStreams = null;

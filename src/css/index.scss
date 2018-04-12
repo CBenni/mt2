@@ -50,6 +50,13 @@ md-input-container.compact {
   padding: 0;
 }
 
+md-input-container.no-error-spacer {
+  margin-bottom: 0;
+  &::after, .md-errors-spacer {
+    display: none;
+  }
+}
+
 .footer {
   padding: 0 8px;
 }

@@ -433,6 +433,7 @@ export default class ChatController {
   }
 
   getActiveChatLines() {
+    console.log('Getting active chat lines');
     const basePage = Math.ceil(this.baseLine / this.pageSize);
     return this.chatLines.slice(Math.max(0, (basePage - this.pagesToShow) * this.pageSize), basePage * this.pageSize);
   }
