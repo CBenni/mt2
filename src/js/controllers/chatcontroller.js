@@ -171,7 +171,7 @@ export default class ChatController {
       if (!this.isPaused) {
         this.baseLine = this.chatLines.length;
         this.chatLines.push(line);
-        if (this.activeChatLines.length > this.pageSize * (this.pagesToShow + 1)) this.markActiveChatLinesDirty();
+        if (!this.activeChatLines || this.activeChatLines.length > this.pageSize * (this.pagesToShow + 1)) this.markActiveChatLinesDirty();
         else this.activeChatLines.push(line);
       } else {
         this.pausedChatLines.push(line);

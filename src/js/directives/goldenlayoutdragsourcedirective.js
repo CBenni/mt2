@@ -35,8 +35,9 @@ export default function goldenLayoutDragSource() {
       const dragSource = $scope.glDsLayout.createDragSource($element[0], config);
 
       $scope.$on('$destroy', () => {
+        console.log('Destroying drag source');
         dragSource._dragListener.destroy();
-        _.pull($scope.glDsLayout, dragSource);
+        _.pull($scope.glDsLayout._dragSources, dragSource);
       });
     }
   };
