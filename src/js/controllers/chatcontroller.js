@@ -61,19 +61,13 @@ export default class ChatController {
             this.addChat(message);
           });
           this.ChatService.on(`USERNOTICE-#${this.channelObj.name}`, message => {
-            $scope.$apply(() => {
-              this.addUsernotice(message);
-            });
+            this.addUsernotice(message);
           });
           this.ChatService.on(`CLEARCHAT-#${this.channelObj.name}`, message => {
-            $scope.$apply(() => {
-              this.clearChat(message);
-            });
+            this.clearChat(message);
           });
           this.ChatService.on(`NOTICE-#${this.channelObj.name}`, message => {
-            $scope.$apply(() => {
-              this.systemMessage(message.trailing);
-            });
+            this.systemMessage(message.trailing);
           });
 
           this.ChatService.on('chat_login_moderation', message => {
@@ -161,28 +155,32 @@ export default class ChatController {
   }
 
   addLine(line) {
-    this.ChatService.processMessage(line).then(() => {
-      if (!line.tags) line.tags = {};
-      if (!line.tags.classes) line.classes = [];
+    const processedMessageOrPromise = this.ChatService.processMessage(line);
+    if (processedMessageOrPromise.then) processedMessageOrPromise.then(processedLine => this._addLine(processedLine));
+    else this._addLine(processedMessageOrPromise);
+  }
 
-      // check if the message passes our filters
-      if (!this.messagePassesFilters(line)) return false;
+  _addLine(line) {
+    if (!line.tags) line.tags = {};
+    if (!line.tags.classes) line.classes = [];
 
-      if (!this.isPaused) {
-        this.baseLine = this.chatLines.length;
-        this.chatLines.push(line);
-        if (!this.activeChatLines || this.activeChatLines.length > this.pageSize * (this.pagesToShow + 1)) this.markActiveChatLinesDirty();
-        else this.activeChatLines.push(line);
-      } else {
-        this.pausedChatLines.push(line);
-      }
+    // check if the message passes our filters
+    if (!this.messagePassesFilters(line)) return false;
 
-      const scrollbackLength = this.mainCtrl.getSetting('scrollbackLength');
-      if (this.chatLines.length >= (scrollbackLength + this.pageSize)) {
-        this.chatLines.splice(0, this.chatLines.length - scrollbackLength);
-      }
-      return true;
-    });
+    if (!this.isPaused) {
+      this.baseLine = this.chatLines.length;
+      this.chatLines.push(line);
+      if (!this.activeChatLines || this.activeChatLines.length > this.pageSize * (this.pagesToShow + 1)) this.markActiveChatLinesDirty();
+      else this.activeChatLines.push(line);
+    } else {
+      this.pausedChatLines.push(line);
+    }
+
+    const scrollbackLength = this.mainCtrl.getSetting('scrollbackLength');
+    if (this.chatLines.length >= (scrollbackLength + this.pageSize)) {
+      this.chatLines.splice(0, this.chatLines.length - scrollbackLength);
+    }
+    return true;
   }
 
   checkForMentions(line) {

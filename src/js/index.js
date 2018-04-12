@@ -62,11 +62,6 @@ app.filter('timeAgo', timeAgoFilter);
 app.filter('largeNumber', largeNumberFilter);
 app.filter('duration', durationFilter);
 
-app.run($q => {
-  'ngInject';
-
-  window.Promise = $q;
-});
 app.config($mdThemingProvider => {
   'ngInject';
 
