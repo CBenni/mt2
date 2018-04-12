@@ -1,16 +1,16 @@
 <div class="chat-line-wrapper" ng-class="line.tags.classes">
-  <span class="chat-line-time hide-s" ng-if="$parent.mainCtrl.getSetting('timeFormat')">
+  <span class="chat-line-time hide-s" ng-if="::$parent.mainCtrl.getSetting('timeFormat')">
     <!-- timestamp -->
     {{::line.time | date : $parent.mainCtrl.getSetting('timeFormat')}}
   </span>
-  <span class="chat-line-mod-buttons" ng-if="chatCtrl && chatCtrl.showModButtons">
-    <span class="chat-line-mod-button compact" ng-repeat="modButton in $parent.mainCtrl.getSetting('modButtons')" ng-click="chatCtrl.modAction($event, modButton, line)">
-      <md-tooltip md-delay="500">{{modButton.tooltip}}</md-tooltip>
-      <md-icon ng-if="modButton.icon.type === 'icon'">{{modButton.icon.code}}</md-icon>
-      <span ng-if="modButton.icon.type === 'text'" class="chat-line-mod-button-label">{{modButton.icon.text}}</span>
-      <img ng-if="modButton.icon.type === 'image'" class="chat-line-mod-button-label" ng-src="{{modButton.icon.image}}">
+  <span class="chat-line-mod-buttons" ng-if="::chatCtrl && chatCtrl.showModButtons">
+    <span class="chat-line-mod-button compact" ng-repeat="modButton in ::$parent.mainCtrl.getSetting('modButtons')" ng-click="chatCtrl.modAction($event, modButton, line)">
+      <md-tooltip md-delay="500">{{::modButton.tooltip}}</md-tooltip>
+      <md-icon ng-if="::modButton.icon.type === 'icon'">{{::modButton.icon.code}}</md-icon>
+      <span ng-if="::modButton.icon.type === 'text'" class="chat-line-mod-button-label">{{::modButton.icon.text}}</span>
+      <img ng-if="::modButton.icon.type === 'image'" class="chat-line-mod-button-label" ng-src="{{::modButton.icon.image}}">
     </span>
-    <span ng-if="line.automod">
+    <span ng-if="::line.automod">
       <span class="chat-line-mod-button compact automod-deny" ng-click="chatCtrl.resolveAutomodMessage('deny',line)">
         <md-tooltip md-delay="500">Deny</md-tooltip>
         <md-icon>block</md-icon>
@@ -22,7 +22,7 @@
     </span>
   </span>
   <span class="chat-line-badges">
-    <img ng-src="{{badge.url}}" ng-repeat="badge in ::line.user.badges" class="chat-line-badge" title="{{::badge.title}}">
+    <img ng-src="{{::badge.url}}" ng-repeat="badge in ::line.user.badges" class="chat-line-badge" title="{{::badge.title}}">
   </span>
   <span class="chat-line-username" ng-style="::{color: chatCtrl.getColor(line.user.color)}" ng-click="chatCtrl.openModCard($event, line.user)">{{::line.user.displayName}}</span><span class="chat-line-colon">: </span>
   <span class="chat-line-text" ng-bind-html="line.html" ng-style="::{color: line.action && chatCtrl.getColor(line.user.color)}"></span>

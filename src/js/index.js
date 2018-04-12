@@ -24,12 +24,14 @@ import onScrollDirective from './directives/onscrolldirective';
 import buttonSettingsDirective from './directives/buttonsettingsdirective';
 import streamListDirective from './directives/streamlistdirective';
 import draggableDirective from './directives/draggabledirective';
+import throttledMousemoveDirective from './directives/throttledmousemovedirective';
 import { timeAgoFilter, largeNumberFilter, durationFilter } from './directives/filters';
 
 import ApiService from './services/apiservice';
 import ChatService from './services/chatservice';
 import KeyPressService from './services/keypressservice';
 import ToastService from './services/toastservice';
+import ThrottledDigestService from './services/throttleddigestservice';
 
 import registerDarkMode from './themes/dark';
 import registerLightMode from './themes/light';
@@ -51,11 +53,13 @@ app.directive('onScroll', onScrollDirective);
 app.directive('buttonSettings', buttonSettingsDirective);
 app.directive('streamList', streamListDirective);
 app.directive('draggable', draggableDirective);
+app.directive('throttledMousemove', throttledMousemoveDirective);
 
 app.service('ApiService', ApiService);
 app.service('ChatService', ChatService);
 app.service('KeyPressService', KeyPressService);
 app.service('ToastService', ToastService);
+app.service('ThrottledDigestService', ThrottledDigestService);
 
 app.filter('isntEmpty', isntEmptyFilter);
 app.filter('timeAgo', timeAgoFilter);

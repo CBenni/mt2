@@ -45,8 +45,8 @@
       </div>
     </div>
     <div class="chat-container column-reverse" layout-align="end stretch" layout="column" flex="100" on-scroll="chatCtrl.onChatScroll($event, $element, scrollPos, direction)"
-      ng-mousemove="chatCtrl.mouseMove()" ng-mouseleave="chatCtrl.mouseLeave()">
-      <div class="chat-lines column-reverse" layout-align="end stretch" flex="none">
+      ng-mouseleave="chatCtrl.mouseLeave()">
+      <div class="chat-lines column-reverse" layout-align="end stretch" flex="none" throttled-mousemove="chatCtrl.mouseMove()">
         <div class="chat-line" ng-repeat="line in chatCtrl.getActiveChatLines()" flex="none"></div>
       </div>
     </div>

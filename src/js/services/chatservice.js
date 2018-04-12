@@ -5,13 +5,13 @@ import { parseIRCMessage, jsonParseRecursive, sdbmCode, capitalizeFirst, genNonc
 
 const DEFAULTCOLORS = ['#e391b8', '#e091ce', '#da91de', '#c291db', '#ab91d9', '#9691d6', '#91a0d4', '#91b2d1', '#91c2cf', '#91ccc7', '#91c9b4', '#90c7a2', '#90c492', '#9dc290', '#aabf8f', '#b5bd8f', '#bab58f', '#b8a68e', '#b5998e', '#b38d8d'];
 export default class ChatService extends EventEmitter {
-  constructor(ApiService, $sce, $rootScope) {
+  constructor(ApiService, $sce, ThrottledDigestService) {
     'ngInject';
 
     super();
     this.ApiService = ApiService;
     this.$sce = $sce;
-    this.$rootScope = $rootScope;
+    this.ThrottledDigestService = ThrottledDigestService;
 
     this.chatReceiveConnection = null;
     this.chatSendConnection = null;
@@ -45,11 +45,9 @@ export default class ChatService extends EventEmitter {
       conn.send(`NICK ${user.name}`);
       conn.name = 'chatReceiveConnection';
 
-      const throttledApply = _.throttle(() => this.$rootScope.$apply(), 100);
-
       conn.addEventListener('message', event => {
         this.handleIRCMessage(conn, event.data);
-        throttledApply();
+        this.ThrottledDigestService.$apply();
       });
     });
     this.chatSendConnection.then(conn => {
@@ -72,7 +70,7 @@ export default class ChatService extends EventEmitter {
       this.pubsubSend('LISTEN', [`whispers.${user.id}`]);
 
       conn.addEventListener('message', event => {
-        this.$rootScope.$apply(() => {
+        this.ThrottledDigestService.$apply(() => {
           this.handlePubSubMessage(conn, event.data);
         });
       });
