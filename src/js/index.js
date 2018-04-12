@@ -24,7 +24,7 @@ import onScrollDirective from './directives/onscrolldirective';
 import buttonSettingsDirective from './directives/buttonsettingsdirective';
 import streamListDirective from './directives/streamlistdirective';
 import draggableDirective from './directives/draggabledirective';
-import throttledMousemoveDirective from './directives/throttledmousemovedirective';
+import { throttledMousemoveDirective, throttledClickDirective, throttledKeydownDirective } from './directives/throttledevents';
 import { timeAgoFilter, largeNumberFilter, durationFilter } from './directives/filters';
 
 import ApiService from './services/apiservice';
@@ -54,6 +54,8 @@ app.directive('buttonSettings', buttonSettingsDirective);
 app.directive('streamList', streamListDirective);
 app.directive('draggable', draggableDirective);
 app.directive('throttledMousemove', throttledMousemoveDirective);
+app.directive('throttledClick', throttledClickDirective);
+app.directive('throttledKeydown', throttledKeydownDirective);
 
 app.service('ApiService', ApiService);
 app.service('ChatService', ChatService);

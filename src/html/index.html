@@ -130,7 +130,7 @@
           <div ng-repeat="line in conversation.lines" chat-line flex="none"></div>
         </div>
       </div>
-      <input type="text" ng-model="conversation.whisperText" ng-keyup="mainCtrl.sendWhisper($event, conversation)" flex="none"
+      <input type="text" ng-model="conversation.whisperText" throttled-keydown="mainCtrl.sendWhisper($event, conversation)" flex="none"
         ng-show="!conversation.collapse" class="whisper-input-field">
     </div>
     <!-- <div class="whisper-menu">
