@@ -82,7 +82,7 @@ export default class ChatController {
 
         this.container.setTitle(this.state.channel);
 
-        this.userMentionRegex = new RegExp(`\\b${this.user.name}\\b`);
+        this.userMentionRegex = new RegExp(`\\b${this.user.name}\\b`, 'gi');
       }
     });
 
@@ -188,7 +188,7 @@ export default class ChatController {
     const extraMentions = this.mainCtrl.getSetting('chatSettings.extraMentions');
     if (!extraMentions) return false;
     for (let i = 0; i < extraMentions.length; ++i) {
-      const re = new RegExp(extraMentions[i]);
+      const re = new RegExp(extraMentions[i], 'gi');
       if (re.test(line.trailing)) return true;
     }
     return false;
