@@ -45,10 +45,11 @@ export default class ChatService extends EventEmitter {
       conn.send(`NICK ${user.name}`);
       conn.name = 'chatReceiveConnection';
 
+      const throttledApply = _.throttle(() => this.$rootScope.$apply(), 100);
+
       conn.addEventListener('message', event => {
-        this.$rootScope.$apply(() => {
-          this.handleIRCMessage(conn, event.data);
-        });
+        this.handleIRCMessage(conn, event.data);
+        throttledApply();
       });
     });
     this.chatSendConnection.then(conn => {
@@ -227,7 +228,6 @@ export default class ChatService extends EventEmitter {
     };
     const badgesOrPromise = this.getBadges(channelID);
     if (badgesOrPromise.then) return badgesOrPromise.then(badges => this._processMessage(message, badges));
-    console.log('Using cached badges');
     return this._processMessage(message, badgesOrPromise);
   }
 
