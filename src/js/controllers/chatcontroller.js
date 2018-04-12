@@ -28,6 +28,7 @@ export default class ChatController {
     this.recentTimeouts = {};
     this.pagesToShow = 10;
     this.pageSize = 10;
+    this.activeChatLines = null;
     this.baseLine = 0;
     this.isScrolledToBottom = true;
     this.chatElement = null;
@@ -170,6 +171,8 @@ export default class ChatController {
       if (!this.isPaused) {
         this.baseLine = this.chatLines.length;
         this.chatLines.push(line);
+        if (this.activeChatLines.length > this.pageSize * (this.pagesToShow + 1)) this.markActiveChatLinesDirty();
+        else this.activeChatLines.push(line);
       } else {
         this.pausedChatLines.push(line);
       }
@@ -395,6 +398,7 @@ export default class ChatController {
       this.chatLines.push(...this.pausedChatLines);
       this.pausedChatLines = [];
       this.baseLine = this.chatLines.length;
+      this.markActiveChatLinesDirty();
       this.scrollToBottom();
     }
 
@@ -433,9 +437,15 @@ export default class ChatController {
   }
 
   getActiveChatLines() {
-    console.log('Getting active chat lines');
+    if (this.activeChatLines) return this.activeChatLines;
+    console.log('Recalculating active chat lines');
     const basePage = Math.ceil(this.baseLine / this.pageSize);
-    return this.chatLines.slice(Math.max(0, (basePage - this.pagesToShow) * this.pageSize), basePage * this.pageSize);
+    this.activeChatLines = this.chatLines.slice(Math.max(0, (basePage - this.pagesToShow) * this.pageSize), basePage * this.pageSize);
+    return this.activeChatLines;
+  }
+
+  markActiveChatLinesDirty() {
+    this.activeChatLines = null;
   }
 
   onChatScroll($event, $element, scrollPos) {
@@ -450,10 +460,12 @@ export default class ChatController {
     const isNearBottom = scrollPos + $element.innerHeight() >= $element[0].scrollHeight - scrollLenience;
     if (isNearBottom) {
       this.baseLine = Math.min(this.chatLines.length - 1, this.baseLine + this.pageSize);
+      this.markActiveChatLinesDirty();
     }
     const isNearTop = scrollPos <= scrollLenience;
     if (isNearTop) {
       this.baseLine = Math.max(this.pagesToShow * this.pageSize, this.baseLine - this.pageSize);
+      this.markActiveChatLinesDirty();
     }
 
     const direction = scrollPos - this.lastScrollPos;
