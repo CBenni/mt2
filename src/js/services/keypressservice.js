@@ -7,9 +7,9 @@ export default class KeyDownService extends EventEmitter {
     super();
     this.keysPressed = {};
 
-    $document.on('keyup keydown', e => {
+    /* $document.on('keyup keydown', e => {
       this.keysPressed[window.event.code] = e.type === 'keydown';
       this.emit(window.event.type, window.event, e);
-    });
+    }); */
   }
 }

@@ -18,33 +18,30 @@
       </md-button>
     </div>
   </div>
-  <md-input-container flex="none">
+  <md-input-container flex="none" class="no-error-spacer">
     <input type="text" placeholder="Search..." ng-model="homeCtrl.streamSearchText" ng-change="homeCtrl.getSearchedStreams()">
   </md-input-container>
 
-  <div class="stream-list" layout="row" layout-align="start start" layout-wrap flex="100">
-    <div ng-repeat="stream in homeCtrl.getStreams()" class="stream-list-item" flex="none" layout="column" layout-align="start stretch">
-      <div class="stream-preview-wrapper">
-          <img class="stream-preview" ng-src="{{stream.preview.medium}}">
-          <div class="stream-add-buttons" layout="row" layout-align="start start" layout-wrap>
-            <div class="stream-add-button chat-adder" ng-repeat="preset in mainCtrl.getSetting('chatPresets')"
-              golden-layout-drag-source gl-ds-channel="stream.channel.name" gl-ds-template="'chatTemplate'" gl-ds-layout="mainCtrl.layout" gl-ds-preset="preset.id">
-                <md-tooltip md-delay="500">{{preset.name}}</md-tooltip>
-                <md-icon ng-if="preset.icon.type === 'icon'">{{preset.icon.code}}</md-icon>
-                <span ng-if="preset.icon.type === 'text'" class="chat-adder-label">{{preset.icon.text}}</span>
-                <img ng-if="preset.icon.type === 'image'" class="chat-adder-label" ng-src="{{preset.icon.image}}">
-            </div>
-            <div class="stream-add-button stream-adder" golden-layout-drag-source gl-ds-channel="stream.channel.name" gl-ds-template="'streamTemplate'"
-              gl-ds-layout="mainCtrl.layout" gl-ds-icon="{'type': 'icon', 'code': 'videocam'}">
-              <md-icon>videocam</md-icon>
-            </div>
-          </div>
-      </div>
-      <div class="stream-title" flex="none">{{stream.channel.status}}</div>
-      <div class="stream-meta" flex="none" ng-if="stream.viewers"><strong>{{stream.viewers}}</strong> watching <strong>{{stream.channel.display_name}}</strong> playing <strong>{{stream.game}}</strong></div>
-      <div class="stream-meta" flex="none" ng-if="!stream.viewers"><strong>{{stream.channel.display_name}}</strong></div>
-      <div class="spacer" flex="100"></div>
-    </div>
-    <div ng-hide="homeCtrl.getStreams().length">No streams found</div>
-  </div>
+  <md-tabs flex="100" md-selected="homeCtrl.selectedStreamsTab" class="md-dark-theme">
+      <md-tab label="Top" ng-disabled="!homeCtrl.globalStreams">
+        <md-tab-content>
+          <div stream-list="homeCtrl.globalStreams"></div>
+        </md-tab-content>
+      </md-tab>
+      <md-tab label="Followed" ng-disabled="!homeCtrl.followedStreams">
+        <md-tab-content>
+          <div stream-list="homeCtrl.followedStreams"></div>
+        </md-tab-content>
+      </md-tab>
+      <md-tab label="Search" ng-disabled="!homeCtrl.searchedStreams">
+        <md-tab-content>
+          <div stream-list="homeCtrl.searchedStreams"></div>
+        </md-tab-content>
+      </md-tab>
+      <md-tab ng-disabled="true">
+        <md-tab-label>
+          Channels I mod (soon™)
+        </md-tab-label>
+      </md-tab>
+  </md-tabs>
 </div>

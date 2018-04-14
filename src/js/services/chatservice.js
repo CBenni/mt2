@@ -5,12 +5,13 @@ import { parseIRCMessage, jsonParseRecursive, sdbmCode, capitalizeFirst, genNonc
 
 const DEFAULTCOLORS = ['#e391b8', '#e091ce', '#da91de', '#c291db', '#ab91d9', '#9691d6', '#91a0d4', '#91b2d1', '#91c2cf', '#91ccc7', '#91c9b4', '#90c7a2', '#90c492', '#9dc290', '#aabf8f', '#b5bd8f', '#bab58f', '#b8a68e', '#b5998e', '#b38d8d'];
 export default class ChatService extends EventEmitter {
-  constructor(ApiService, $sce) {
+  constructor(ApiService, $sce, ThrottledDigestService) {
     'ngInject';
 
     super();
     this.ApiService = ApiService;
     this.$sce = $sce;
+    this.ThrottledDigestService = ThrottledDigestService;
 
     this.chatReceiveConnection = null;
     this.chatSendConnection = null;
@@ -46,6 +47,7 @@ export default class ChatService extends EventEmitter {
 
       conn.addEventListener('message', event => {
         this.handleIRCMessage(conn, event.data);
+        this.ThrottledDigestService.$apply();
       });
     });
     this.chatSendConnection.then(conn => {
@@ -68,7 +70,9 @@ export default class ChatService extends EventEmitter {
       this.pubsubSend('LISTEN', [`whispers.${user.id}`]);
 
       conn.addEventListener('message', event => {
-        this.handlePubSubMessage(conn, event.data);
+        this.ThrottledDigestService.$apply(() => {
+          this.handlePubSubMessage(conn, event.data);
+        });
       });
 
       setInterval(() => {
@@ -196,7 +200,7 @@ export default class ChatService extends EventEmitter {
   getBadges(channelID) {
     let resource = 'global';
     if (channelID) resource = `channels/${channelID}`;
-    if (this.badges[resource]) return Promise.resolve(this.badges[resource]);
+    if (this.badges[resource]) return this.badges[resource];
     const channelBadgesPromise = this.ApiService.twitchGet(`https://badges.twitch.tv/v1/badges/${resource}/display?language=en`).then(response => {
       if (response.data) return response.data.badge_sets;
       console.error(`Couldnt load badges for channel ${channelID}`, response);
@@ -206,9 +210,11 @@ export default class ChatService extends EventEmitter {
       this.badges[resource] = channelBadgesPromise;
       return channelBadgesPromise;
     }
-    const mergedBadgesPromise = Promise.all([this.badges.global, channelBadgesPromise]).then(([globalBadges, channelBadges]) => _.merge({}, globalBadges, channelBadges));
-    this.badges[resource] = mergedBadgesPromise;
-    return mergedBadgesPromise;
+    this.badges[resource] = Promise.all([this.badges.global, channelBadgesPromise]).then(([globalBadges, channelBadges]) => {
+      this.badges[resource] = _.merge({}, globalBadges, channelBadges);
+      return this.badges[resource];
+    });
+    return this.badges[resource];
   }
 
   processMessage(message) {
@@ -218,7 +224,9 @@ export default class ChatService extends EventEmitter {
       id: channelID,
       name: channelName
     };
-    return this.getBadges(channelID).then(badges => this._processMessage(message, badges));
+    const badgesOrPromise = this.getBadges(channelID);
+    if (badgesOrPromise.then) return badgesOrPromise.then(badges => this._processMessage(message, badges));
+    return this._processMessage(message, badgesOrPromise);
   }
 
   _processMessage(message, badges) {

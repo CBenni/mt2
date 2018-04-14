@@ -4,7 +4,7 @@
     <div class="chat-header" flex="none" layout="row" layout-align="space-between center">
       <div flex="none" class="chat-header-buttons">
         <md-button class="chat-header-button compact md-primary" ng-repeat="chatHeaderButton in chatCtrl.mainCtrl.getSetting('chatHeaderButtons')"
-          ng-click="chatCtrl.modAction($event, chatHeaderButton, {})">
+          throttled-click="chatCtrl.modAction($event, chatHeaderButton, {})">
           <md-tooltip md-delay="500">{{chatHeaderButton.tooltip}}</md-tooltip>
           <md-icon ng-if="chatHeaderButton.icon.type === 'icon'">{{chatHeaderButton.icon.code}}</md-icon>
           <span ng-if="chatHeaderButton.icon.type === 'text'" class="chat-header-button-label">{{chatHeaderButton.icon.text}}</span>
@@ -45,14 +45,15 @@
       </div>
     </div>
     <div class="chat-container column-reverse" layout-align="end stretch" layout="column" flex="100" on-scroll="chatCtrl.onChatScroll($event, $element, scrollPos, direction)"
-      ng-mousemove="chatCtrl.mouseMove()" ng-mouseleave="chatCtrl.mouseLeave()">
+      ng-mouseleave="chatCtrl.mouseLeave()" throttled-mousemove="chatCtrl.mouseMove()">
       <div class="chat-lines column-reverse" layout-align="end stretch" flex="none">
         <div class="chat-line" ng-repeat="line in chatCtrl.getActiveChatLines()" flex="none"></div>
       </div>
     </div>
-    <div class="chat-paused-indicator" ng-click="chatCtrl.resetChatScroll()" ng-show="chatCtrl.isPaused">Chat is paused because of {{chatCtrl.isPaused}}</div>
+    <div class="chat-paused-indicator" throttled-click="chatCtrl.resetChatScroll()" ng-show="chatCtrl.isPaused">Chat is paused because of {{chatCtrl.isPaused}}</div>
     <div class="chat-input-box" ng-if="!chatCtrl.preset.settings.hideChatInput" flex="none">
-      <textarea class="chat-input" ng-keydown="chatCtrl.chatInputKeyPress($event)" ng-model="chatCtrl.chatInputContent" rows=1></textarea>
+      <textarea class="chat-input" throttled-keydown="chatCtrl.chatInputKeyPress($event)" ng-model="chatCtrl.chatInputContent"
+        rows=1></textarea>
     </div>
     <div class="emote-menu" ng-if="chatCtrl.showEmoteMenu" layout="column" layout-padding click-outside="chatCtrl.showEmoteMenu = false">
       <div class="emote-search" flex="none" layout="row">
@@ -61,16 +62,17 @@
         </md-input-container>
       </div>
       <div class="emote-menu-list" flex layout="row" layout-wrap>
-        <div ng-repeat="emote in chatCtrl.ChatService.channelEmotes.get(chatCtrl.channelObj.id).emotes | filter: {code: chatCtrl.emoteSearchString}" flex="none">
-          <img class="emote" ng-src="{{emote.url}}" ng-click="chatCtrl.insertEmote(emote)">
+        <div ng-repeat="emote in chatCtrl.ChatService.channelEmotes.get(chatCtrl.channelObj.id).emotes | filter: {code: chatCtrl.emoteSearchString}"
+          flex="none">
+          <img class="emote" ng-src="{{emote.url}}" throttled-click="chatCtrl.insertEmote(emote)">
         </div>
         <div ng-repeat="emote in chatCtrl.ChatService.emotes | filter: {code: chatCtrl.emoteSearchString}" flex="none">
-          <img class="emote" ng-src="{{emote.url}}" ng-click="chatCtrl.insertEmote(emote)">
+          <img class="emote" ng-src="{{emote.url}}" throttled-click="chatCtrl.insertEmote(emote)">
         </div>
       </div>
     </div>
     <div class="emote-menu-button" ng-if="!chatCtrl.preset.settings.hideChatInput">
-      <md-button class="md-icon-button" ng-click="chatCtrl.showEmoteMenu = !chatCtrl.showEmoteMenu">
+      <md-button class="md-icon-button" throttled-click="chatCtrl.showEmoteMenu = !chatCtrl.showEmoteMenu">
         <md-icon>insert_emoticon</md-icon>
       </md-button>
     </div>

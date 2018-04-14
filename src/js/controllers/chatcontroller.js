@@ -28,6 +28,7 @@ export default class ChatController {
     this.recentTimeouts = {};
     this.pagesToShow = 10;
     this.pageSize = 10;
+    this.activeChatLines = null;
     this.baseLine = 0;
     this.isScrolledToBottom = true;
     this.chatElement = null;
@@ -60,19 +61,13 @@ export default class ChatController {
             this.addChat(message);
           });
           this.ChatService.on(`USERNOTICE-#${this.channelObj.name}`, message => {
-            $scope.$apply(() => {
-              this.addUsernotice(message);
-            });
+            this.addUsernotice(message);
           });
           this.ChatService.on(`CLEARCHAT-#${this.channelObj.name}`, message => {
-            $scope.$apply(() => {
-              this.clearChat(message);
-            });
+            this.clearChat(message);
           });
           this.ChatService.on(`NOTICE-#${this.channelObj.name}`, message => {
-            $scope.$apply(() => {
-              this.systemMessage(message.trailing);
-            });
+            this.systemMessage(message.trailing);
           });
 
           this.ChatService.on('chat_login_moderation', message => {
@@ -160,26 +155,32 @@ export default class ChatController {
   }
 
   addLine(line) {
-    this.ChatService.processMessage(line).then(() => {
-      if (!line.tags) line.tags = {};
-      if (!line.tags.classes) line.classes = [];
+    const processedMessageOrPromise = this.ChatService.processMessage(line);
+    if (processedMessageOrPromise.then) processedMessageOrPromise.then(processedLine => this._addLine(processedLine));
+    else this._addLine(processedMessageOrPromise);
+  }
 
-      // check if the message passes our filters
-      if (!this.messagePassesFilters(line)) return false;
+  _addLine(line) {
+    if (!line.tags) line.tags = {};
+    if (!line.tags.classes) line.classes = [];
 
-      if (!this.isPaused) {
-        this.baseLine = this.chatLines.length;
-        this.chatLines.push(line);
-      } else {
-        this.pausedChatLines.push(line);
-      }
+    // check if the message passes our filters
+    if (!this.messagePassesFilters(line)) return false;
 
-      const scrollbackLength = this.mainCtrl.getSetting('scrollbackLength');
-      if (this.chatLines.length >= (scrollbackLength + this.pageSize)) {
-        this.chatLines.splice(0, this.chatLines.length - scrollbackLength);
-      }
-      return true;
-    });
+    if (!this.isPaused) {
+      this.baseLine = this.chatLines.length;
+      this.chatLines.push(line);
+      if (!this.activeChatLines || this.activeChatLines.length > this.pageSize * (this.pagesToShow + 1)) this.markActiveChatLinesDirty();
+      else this.activeChatLines.push(line);
+    } else {
+      this.pausedChatLines.push(line);
+    }
+
+    const scrollbackLength = this.mainCtrl.getSetting('scrollbackLength');
+    if (this.chatLines.length >= (scrollbackLength + this.pageSize)) {
+      this.chatLines.splice(0, this.chatLines.length - scrollbackLength);
+    }
+    return true;
   }
 
   checkForMentions(line) {
@@ -395,6 +396,7 @@ export default class ChatController {
       this.chatLines.push(...this.pausedChatLines);
       this.pausedChatLines = [];
       this.baseLine = this.chatLines.length;
+      this.markActiveChatLinesDirty();
       this.scrollToBottom();
     }
 
@@ -433,8 +435,14 @@ export default class ChatController {
   }
 
   getActiveChatLines() {
+    if (this.activeChatLines) return this.activeChatLines;
     const basePage = Math.ceil(this.baseLine / this.pageSize);
-    return this.chatLines.slice(Math.max(0, (basePage - this.pagesToShow) * this.pageSize), basePage * this.pageSize);
+    this.activeChatLines = this.chatLines.slice(Math.max(0, (basePage - this.pagesToShow) * this.pageSize), basePage * this.pageSize);
+    return this.activeChatLines;
+  }
+
+  markActiveChatLinesDirty() {
+    this.activeChatLines = null;
   }
 
   onChatScroll($event, $element, scrollPos) {
@@ -449,10 +457,12 @@ export default class ChatController {
     const isNearBottom = scrollPos + $element.innerHeight() >= $element[0].scrollHeight - scrollLenience;
     if (isNearBottom) {
       this.baseLine = Math.min(this.chatLines.length - 1, this.baseLine + this.pageSize);
+      this.markActiveChatLinesDirty();
     }
     const isNearTop = scrollPos <= scrollLenience;
     if (isNearTop) {
       this.baseLine = Math.max(this.pagesToShow * this.pageSize, this.baseLine - this.pageSize);
+      this.markActiveChatLinesDirty();
     }
 
     const direction = scrollPos - this.lastScrollPos;
