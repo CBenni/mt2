@@ -114,13 +114,11 @@ export default class MainController {
 
       this.conversations = [];
       ChatService.on('whisper_received', pubsubMessage => {
-        console.log('Received whisper: ', pubsubMessage);
         this.addWhisper(pubsubMessage.data.message.data).then(() => {
           $scope.$apply(() => { });
         });
       });
       ChatService.on('whisper_sent', pubsubMessage => {
-        console.log('Sent whisper: ', pubsubMessage);
         this.addWhisper(pubsubMessage.data.message.data).then(() => {
           $scope.$apply(() => { });
         });
@@ -145,6 +143,7 @@ export default class MainController {
               this.removeHash();
               window.location.reload(true);
             } else {
+              // TODO: dont use alert here.
               alert('Invalid token');
             }
           });
@@ -186,7 +185,8 @@ export default class MainController {
   }
 
   loginWithTwitch() {
-    window.location.href = `https://id.twitch.tv/oauth2/authorize?client_id=${config.auth.client_id}&redirect_uri=${config.auth.redirect_uri}&response_type=token&scope=chat_login%20user_subscriptions`;
+    window.location.href = `https://id.twitch.tv/oauth2/authorize?client_id=${config.auth.client_id}`
+    + `&redirect_uri=${config.auth.redirect_uri}&response_type=token&scope=chat_login%20user_subscriptions`;
   }
 
   logoutFromTwitch() {
@@ -243,7 +243,6 @@ export default class MainController {
 
     const conversation = this.findConversation(transformedMessage);
     conversation.lines.push(transformedMessage);
-    console.log('Conversations: ', this.conversations);
   }
 
   openConversation(user) {
