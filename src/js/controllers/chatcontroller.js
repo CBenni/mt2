@@ -100,11 +100,11 @@ export default class ChatController {
     this.KeyPressService.on('keydown', event => {
       const pauseSettings = this.mainCtrl.getSetting('chatSettings.pauseOn');
       if (pauseSettings.indexOf(event.code) >= 0) event.preventDefault();
-      this.$scope.$apply(() => this.throttledUpdateChatPaused());
+      this.throttledUpdateChatPaused();
     });
     this.KeyPressService.on('keyup', () => {
       this.resetChatScroll();
-      this.$scope.$apply(() => this.throttledUpdateChatPaused());
+      this.throttledUpdateChatPaused();
     });
   }
 
