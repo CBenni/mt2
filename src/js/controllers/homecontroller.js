@@ -13,6 +13,14 @@ function mockStreamFromChannel(channel) {
   };
 }
 
+function setPriority(array, basePriority = 0) {
+  let cnt = 0;
+  _.each(array, item => {
+    item.priority = basePriority + (cnt++);
+  });
+  return array;
+}
+
 export default class HomeController {
   constructor($scope, $timeout, ApiService, $mdDialog) {
     'ngInject';
@@ -91,19 +99,19 @@ export default class HomeController {
       if (searchText.length > 0) {
         console.log(`Starting search for ${searchText}`);
         const streamsSearch = this.ApiService.twitchGet(`https://api.twitch.tv/kraken/search/streams?query=${window.encodeURIComponent(searchText)}&limit=25`)
-        .then(response => response.data.streams);
+        .then(response => setPriority(response.data.streams, 1000));
         const channelLookup = this.ApiService.twitchGetUserByName(searchText).then(user => {
-          if (user) return this.ApiService.twitchGet(`https://api.twitch.tv/kraken/channels/${user._id}`).then(response => [mockStreamFromChannel(response.data)]);
+          if (user) return this.ApiService.twitchGet(`https://api.twitch.tv/kraken/channels/${user._id}`).then(response => setPriority([mockStreamFromChannel(response.data)], 10000));
           return [];
         });
         const channelSearch = this.ApiService.twitchGet(`https://api.twitch.tv/kraken/search/channels?query=${window.encodeURIComponent(searchText)}&limit=25`)
         .then(response => {
           const channels = response.data.channels;
-          return _.map(channels, mockStreamFromChannel);
+          return setPriority(_.map(channels, mockStreamFromChannel), 0);
         });
-        return Promise.all([channelLookup, streamsSearch, channelSearch]).then(results => {
+        return Promise.all([streamsSearch, channelLookup, channelSearch]).then(results => {
           console.log(`Search results for ${searchText}: `, results);
-          this.searchedStreams = _.uniqBy(_.flatten(results), a => `${a.channel._id}`);
+          this.searchedStreams = _.orderBy(_.uniqBy(_.flatten(results), a => `${a.channel._id}`), ['priority'], ['desc']);
           this.selectedStreamsTab = 2;
         });
       }
