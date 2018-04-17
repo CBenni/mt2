@@ -20,7 +20,7 @@ function getCurrentWord(element) {
   };
 }
 
-export default function autocompleteDirective($mdPanel, ThrottledDigestService) {
+export default function autocompleteDirective($mdPanel, KeyPressService, ThrottledDigestService) {
   'ngInject';
 
   return {
@@ -90,6 +90,7 @@ export default function autocompleteDirective($mdPanel, ThrottledDigestService) 
       }
 
       function onKey(event) {
+        if (event.target !== element[0]) return false;
         const word = getCurrentWord(element);
 
         if (event.key === 'Tab' || (event.key === 'Enter' && panelInfo.selectedItem)) {
@@ -176,12 +177,13 @@ export default function autocompleteDirective($mdPanel, ThrottledDigestService) 
         return true;
       }
 
-      element.on('keydown', onKey);
-      element.on('keyup', onKey);
+      const keyEvents = [
+        KeyPressService.on('keydown', onKey, 200),
+        KeyPressService.on('keyup', onKey, 200)
+      ];
 
       $scope.$on('$destroy', () => {
-        element.off('keydown', onKey);
-        element.off('keyup', onKey);
+        _.each(keyEvents, keyEvent => keyEvent());
       });
 
       /* ctrl.$viewChangeListeners.push(() => {

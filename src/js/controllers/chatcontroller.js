@@ -97,14 +97,22 @@ export default class ChatController {
       this.updateChatPaused();
     }, 100);
 
-    this.KeyPressService.on('keydown', event => {
-      const pauseSettings = this.mainCtrl.getSetting('chatSettings.pauseOn');
-      if (pauseSettings.indexOf(event.code) >= 0) event.preventDefault();
-      this.throttledUpdateChatPaused();
-    });
-    this.KeyPressService.on('keyup', () => {
-      this.resetChatScroll();
-      this.throttledUpdateChatPaused();
+    const keyWatchers = [
+      this.KeyPressService.on('keydown', event => {
+        const pauseSettings = this.mainCtrl.getSetting('chatSettings.pauseOn');
+        if (pauseSettings.indexOf(event.code) >= 0) event.preventDefault();
+        this.throttledUpdateChatPaused();
+        return false;
+      }, 1),
+      this.KeyPressService.on('keyup', () => {
+        this.resetChatScroll();
+        this.throttledUpdateChatPaused();
+        return false;
+      }, 1)
+    ];
+
+    this.$scope.$on('$destroy', () => {
+      _.each(keyWatchers, keyWatcher => keyWatcher());
     });
   }
 
@@ -427,7 +435,7 @@ export default class ChatController {
 
   indicatorActive(indicator) {
     return this.channelObj && this.channelObj.roomState[indicator]
-    && this.channelObj.roomState[indicator] !== this.indicatorDefaults[indicator];
+      && this.channelObj.roomState[indicator] !== this.indicatorDefaults[indicator];
   }
 
   getLanguageName(languageCode) {

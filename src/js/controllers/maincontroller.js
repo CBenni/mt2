@@ -20,11 +20,12 @@ const windowTemplates = {
 };
 
 export default class MainController {
-  constructor($compile, $rootScope, $scope, $timeout, $sce, $window, ApiService, ChatService) {
+  constructor($compile, $rootScope, $scope, $timeout, $sce, $window, ApiService, ChatService, KeyPressService) {
     'ngInject';
 
     this.ApiService = ApiService;
     this.ChatService = ChatService;
+    this.KeyPressService = KeyPressService;
     this.$scope = $scope;
     this.$sce = $sce;
 
@@ -150,6 +151,16 @@ export default class MainController {
         }
       }
     }
+
+    // initialize mod card key hooks
+
+    const keyWatchers = [
+      this.KeyPressService.on('keydown', event => this.keydown(event), 10)
+    ];
+
+    this.$scope.$on('$destroy', () => {
+      _.each(keyWatchers, keyWatcher => keyWatcher());
+    });
   }
 
   fixActiveIndexes(layout) {
@@ -290,6 +301,15 @@ export default class MainController {
     $event.preventDefault();
   }
 
+  togglePinned(modCard) {
+    if (modCard.pinned) {
+      _.remove(this.modCards, card => !card.pinned);
+      modCard.pinned = false;
+    } else {
+      modCard.pinned = true;
+    }
+  }
+
   openModCard($event, user, chatCtrl) {
     const cardWidth = 400;
     const cardHeight = 250;
@@ -309,12 +329,8 @@ export default class MainController {
       yPos: `${yPos}px`
     };
 
-    const replaceCard = _.findIndex(this.modCards, card => !card.pinned);
-    if (replaceCard >= 0) {
-      this.modCards[replaceCard] = modCard;
-    } else {
-      this.modCards.push(modCard);
-    }
+    _.remove(this.modCards, card => !card.pinned);
+    this.modCards.push(modCard);
 
     this.ApiService.twitchGet(`https://api.twitch.tv/helix/users/follows?from_id=${user.id}&to_id=${chatCtrl.channelObj.id}`).then(response => {
       modCard.followedAt = new Date(response.data.data.followed_at);
@@ -329,5 +345,22 @@ export default class MainController {
 
   closeModCard(card) {
     _.pull(this.modCards, card);
+  }
+
+  keydown(event) {
+    const modCard = _.find(this.modCards, { pinned: false });
+    if (!modCard) return false;
+    const modCardButtons = this.getSetting('modCardButtons');
+    if (modCardButtons) {
+      for (let i = 0; i < modCardButtons.length; ++i) {
+        const button = modCardButtons[i];
+        if (button.hotkey === event.code) {
+          modCard.chatCtrl.modAction(event, button, modCard);
+          this.closeModCard(modCard);
+          return true;
+        }
+      }
+    }
+    return false;
   }
 }

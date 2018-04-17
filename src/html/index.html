@@ -148,7 +148,7 @@
       <div class="mod-card-header-info" layout="column" flex="100">
         <div flex="50" layout="row" layout-align="space-between center">
           <div class="mod-card-username">{{modCard.stats.display_name || modCard.user.displayName}}</div>
-          <div class="mod-card-controls" flex="none" ng-click="modCard.pinned = !modCard.pinned">
+          <div class="mod-card-controls" flex="none" ng-click="mainCtrl.togglePinned(modCard)">
             <md-button class="md-icon-button md-primary">
               <md-icon md-svg-src="/assets/pin.svg" ng-class="{'mod-card-pin': true, 'mod-card-pinned': modCard.pinned}"></md-icon>
             </md-button>
