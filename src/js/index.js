@@ -17,6 +17,7 @@ import DialogController from './controllers/dialogcontroller';
 import SettingsDialogController from './controllers/settingsdialogcontroller';
 import ButtonSettingsController from './controllers/buttonsettingscontroller';
 import StreamListController from './controllers/streamlistcontroller';
+import AutocompletePanelController from './controllers/autocompletepanelcontroller';
 
 import goldenLayoutDragSource from './directives/goldenlayoutdragsourcedirective';
 import { chatLineDirective, isntEmptyFilter } from './directives/chatlinedirective';
@@ -24,6 +25,8 @@ import onScrollDirective from './directives/onscrolldirective';
 import buttonSettingsDirective from './directives/buttonsettingsdirective';
 import streamListDirective from './directives/streamlistdirective';
 import draggableDirective from './directives/draggabledirective';
+import simpleScrollbarDirective from './directives/simplescrolldirective';
+import autocompleteDirective from './directives/autocompletedirective';
 import { throttledMousemoveDirective, throttledClickDirective, throttledKeydownDirective } from './directives/throttledevents';
 import { timeAgoFilter, largeNumberFilter, durationFilter } from './directives/filters';
 
@@ -46,6 +49,7 @@ app.controller('DialogController', DialogController);
 app.controller('SettingsDialogController', SettingsDialogController);
 app.controller('ButtonSettingsController', ButtonSettingsController);
 app.controller('StreamListController', StreamListController);
+app.controller('AutocompletePanelController', AutocompletePanelController);
 
 app.directive('goldenLayoutDragSource', goldenLayoutDragSource);
 app.directive('chatLine', chatLineDirective);
@@ -56,6 +60,8 @@ app.directive('draggable', draggableDirective);
 app.directive('throttledMousemove', throttledMousemoveDirective);
 app.directive('throttledClick', throttledClickDirective);
 app.directive('throttledKeydown', throttledKeydownDirective);
+app.directive('simple-scrollbar', simpleScrollbarDirective);
+app.directive('autocomplete', autocompleteDirective);
 
 app.service('ApiService', ApiService);
 app.service('ChatService', ChatService);
@@ -74,4 +80,6 @@ app.config($mdThemingProvider => {
   $mdThemingProvider.alwaysWatchTheme(true);
   registerDarkMode($mdThemingProvider);
   registerLightMode($mdThemingProvider);
+
+  // $mdPanel.newPanelGroup('autocomplete', { maxOpen: 1 });
 });

@@ -93,7 +93,7 @@
       {
         "action": {
           "type": "url",
-          "url": "https://cbenni.com/{{channel.name}}/"
+          "url": "https://cbenni.com/{{channel.name}}/?user={{user.name}}"
         },
         "tooltip": "Logviewer",
         "icon": {

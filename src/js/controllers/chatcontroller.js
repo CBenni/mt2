@@ -7,7 +7,7 @@ import languageTable from '../languages.json';
 const templateRegex = /{{((?:\w+)(?:\.\w+)*)}}/g;
 
 export default class ChatController {
-  constructor($sce, $scope, $timeout, $http, ChatService, ApiService, KeyPressService, ToastService) {
+  constructor($sce, $scope, $timeout, $http, $mdPanel, ChatService, ApiService, KeyPressService, ToastService) {
     'ngInject';
 
     this.layout = $scope.layout;
@@ -17,6 +17,7 @@ export default class ChatController {
     this.$scope = $scope;
     this.$timeout = $timeout;
     this.$http = $http;
+    this.$mdPanel = $mdPanel;
     this.mainCtrl = $scope.mainCtrl;
     this.KeyPressService = KeyPressService;
     this.ToastService = ToastService;
@@ -26,6 +27,12 @@ export default class ChatController {
     this.pausedChatLines = [];
     this.chatLines = [];
     this.recentTimeouts = {};
+    this.autocompleteData = {
+      users: {},
+      commands: {},
+      emotes: {}
+    };
+    this.relevanceCounter = 0;
     this.pagesToShow = 10;
     this.pageSize = 10;
     this.activeChatLines = null;
@@ -73,6 +80,11 @@ export default class ChatController {
           this.ChatService.on('chat_login_moderation', message => {
             this.addModLogs(message);
           });
+
+          Promise.all([ChatService.emotesPromise.global, ChatService.emotesPromise[channelObj.id]]).then(() => {
+            this.autocompleteData.emotes.global = ChatService.emotes;
+            this.autocompleteData.emotes.local = ChatService.channelEmotes.get(channelObj.id).emotes;
+          });
         });
 
         this.container.setTitle(this.state.channel);
@@ -97,6 +109,7 @@ export default class ChatController {
   }
 
   getEmbedUrl() {
+    console.log('Loading native twitch chat embed.');
     return this.$sce.trustAsResourceUrl(`https://www.twitch.tv/embed/${this.state.channel}/chat`);
   }
 
@@ -180,6 +193,16 @@ export default class ChatController {
     if (this.chatLines.length >= (scrollbackLength + this.pageSize)) {
       this.chatLines.splice(0, this.chatLines.length - scrollbackLength);
     }
+
+    if (line.user) {
+      if (!this.autocompleteData.users[line.user.id]) {
+        this.autocompleteData.users[line.user.id] = {
+          user: line.user
+        };
+      }
+      this.autocompleteData.users[line.user.id].relevance = line.mention ? this.relevanceCounter + 100 : this.relevanceCounter;
+      this.relevanceCounter++;
+    }
     return true;
   }
 
@@ -203,7 +226,6 @@ export default class ChatController {
       if (!line.tags.classes) line.tags.classes = [];
       line.tags.classes.push('mention');
     }
-
 
     this.addLine(line);
   }

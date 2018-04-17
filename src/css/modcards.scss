@@ -29,4 +29,14 @@
   .mod-card-body {
     background-color: $widget-body;
   }
+
+  button.md-button.mod-card-mod-button {
+    font-size: 1.5em;
+    text-transform: none;
+    margin: 0 6px;
+
+    img {
+      vertical-align: middle;
+    }
+  }
 }

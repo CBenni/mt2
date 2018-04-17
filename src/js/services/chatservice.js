@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { EventEmitter } from 'events';
 
-import { parseIRCMessage, jsonParseRecursive, sdbmCode, capitalizeFirst, genNonce, escapeHtml, entityMap, formatTimeout, instantiateRegex } from '../helpers';
+import { parseIRCMessage, jsonParseRecursive, sdbmCode, capitalizeFirst, genNonce, escapeHtml, entityMap, formatTimeout, instantiateRegex, alwaysResolve } from '../helpers';
 
 const DEFAULTCOLORS = ['#e391b8', '#e091ce', '#da91de', '#c291db', '#ab91d9', '#9691d6', '#91a0d4', '#91b2d1', '#91c2cf', '#91ccc7', '#91c9b4', '#90c7a2', '#90c492', '#9dc290', '#aabf8f', '#b5bd8f', '#bab58f', '#b8a68e', '#b5998e', '#b38d8d'];
 export default class ChatService extends EventEmitter {
@@ -28,11 +28,12 @@ export default class ChatService extends EventEmitter {
     this.cheermotes = new Map();
 
     this.channelEmotes = new Map();
+    this.emotesPromise = {};
   }
 
   init(user) {
     this.user = user;
-    this.getGlobalEmotes();
+    this.emotesPromise.global = this.getGlobalEmotes();
 
     this.chatReceiveConnection = this.connectWebsocket('wss://irc-ws.chat.twitch.tv:443');
     this.chatSendConnection = this.connectWebsocket('wss://irc-ws.chat.twitch.tv:443');
@@ -191,7 +192,7 @@ export default class ChatService extends EventEmitter {
     const pubsubJoinedPromise = this.pubsubSend('LISTEN', [`chat_moderator_actions.${this.user.id}.${channelObj.id}`]);
     const channelJoinedPromise = Promise.all([chatJoinedPromise, pubsubJoinedPromise]).then(() => channelObj);
     this.joinedChannels[channelObj.id] = channelJoinedPromise;
-    this.getChannelEmotes(channelObj);
+    this.emotesPromise[channelObj.id] = this.getChannelEmotes(channelObj);
     return channelJoinedPromise;
   }
 
@@ -344,10 +345,12 @@ export default class ChatService extends EventEmitter {
   }
 
   getGlobalEmotes() {
-    this.getGlobalTwitchEmotes();
-    this.getGlobalFFZEmotes();
-    this.getGlobalBTTVEmotes();
-    this.getGlobalBits();
+    return Promise.all([
+      alwaysResolve(this.getGlobalTwitchEmotes()),
+      alwaysResolve(this.getGlobalFFZEmotes()),
+      alwaysResolve(this.getGlobalBTTVEmotes()),
+      alwaysResolve(this.getGlobalBits())
+    ]);
   }
 
   getChannelEmotes(channelObj) {
@@ -357,9 +360,11 @@ export default class ChatService extends EventEmitter {
       emotes: []
     };
     this.channelEmotes.set(channelObj.id, emoteHolder);
-    this.getChannelBits(channelObj, emoteHolder);
-    this.getChannelFFZEmotes(channelObj, emoteHolder);
-    this.getChannelBTTVEmotes(channelObj, emoteHolder);
+    return Promise.all([
+      alwaysResolve(this.getChannelBits(channelObj, emoteHolder)),
+      alwaysResolve(this.getChannelFFZEmotes(channelObj, emoteHolder)),
+      alwaysResolve(this.getChannelBTTVEmotes(channelObj, emoteHolder))
+    ]);
   }
 
   getGlobalTwitchEmotes() {
@@ -370,9 +375,12 @@ export default class ChatService extends EventEmitter {
           emote.origin = 'twitch global';
           emote.setID = emoteSetId;
           emote.code = instantiateRegex(emote.code);
+          const prefixMatch = /([A-Z]\w*)/.exec(emote.code);
+          if (prefixMatch) emote.prefixless = prefixMatch[0].toLowerCase();
           this.emotes.push(emote);
         });
       });
+      this.emotes = _.sortBy(this.emotes, 'code');
     }).catch(() => {
 
     });

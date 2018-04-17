@@ -185,3 +185,8 @@ export function instantiateRegex(regex) {
   .replace(/&(\w+);/g, m => htmlEntities[m] || m);
 }
 
+export function alwaysResolve(promise) {
+  return new Promise(resolve => {
+    promise.then(resolve).catch(resolve);
+  });
+}

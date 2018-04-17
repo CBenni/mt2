@@ -108,3 +108,9 @@ md-switch.md-dark-theme.md-checked .md-thumb {
 .emote-menu {
   background-color: $widget-body-dark;
 }
+
+.md-panel.autocomplete-panel {
+  .autocomplete-panel-content {
+    background-color: $widget-body-dark;
+  }
+}

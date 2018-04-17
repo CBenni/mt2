@@ -52,8 +52,7 @@
     </div>
     <div class="chat-paused-indicator" throttled-click="chatCtrl.resetChatScroll()" ng-show="chatCtrl.isPaused">Chat is paused because of {{chatCtrl.isPaused}}</div>
     <div class="chat-input-box" ng-if="!chatCtrl.preset.settings.hideChatInput" flex="none">
-      <textarea class="chat-input" throttled-keydown="chatCtrl.chatInputKeyPress($event)" ng-model="chatCtrl.chatInputContent"
-        rows=1></textarea>
+      <textarea class="chat-input" ng-model="chatCtrl.chatInputContent" rows=1 autocomplete="chatCtrl.autocompleteData" throttled-keydown="!chatCtrl.autocompleteData.status.selectedItem && chatCtrl.chatInputKeyPress($event)"></textarea>
     </div>
     <div class="emote-menu" ng-if="chatCtrl.showEmoteMenu" layout="column" layout-padding click-outside="chatCtrl.showEmoteMenu = false">
       <div class="emote-search" flex="none" layout="row">

@@ -121,7 +121,6 @@
   cursor: pointer;
 
   span.chat-line-mod-button-label {
-    font-size: 1.5em;
     font-weight: bold;
     text-transform: none;
     vertical-align: middle;
@@ -183,5 +182,29 @@
 
   .emote-menu-list {
     overflow-y: auto;
+  }
+}
+
+.md-panel.autocomplete-panel {
+  width: 300px;
+  height: 20px;
+  position: relative;
+  overflow: visible;
+
+  .autocomplete-panel-content {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background-color: $widget-body;
+
+    .autocomplete-selected {
+      background-color: #7d5bbe;
+      color: white;
+    }
+
+    img {
+      max-height: 32px;
+      margin-right: 6px;
+    }
   }
 }
