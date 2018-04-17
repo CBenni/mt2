@@ -18,27 +18,47 @@
       overflow: hidden;
     }
 
-    .stream-add-buttons {
+    .stream-preview-overlay {
       position: absolute;
       top: 0;
       left: 0;
       padding: 2px;
+      width: 100%;
 
-      .stream-add-button {
-        background-color: #e7e7e7;
-        border-radius: 5px;
-        padding: 2px;
-        margin: 2px;
-        cursor: move;
+      .stream-add-buttons {
+
+        .stream-add-button {
+          background-color: #e7e7e7;
+          border-radius: 5px;
+          padding: 2px;
+          margin: 2px;
+          cursor: move;
+        }
       }
-    }
 
-    .chat-adder {
-      span.chat-adder-label {
-        font-size: 20px;
-        min-width: 24px;
-        text-align: center;
-        display: inline-block;
+      .stream-live-indicator {
+        .circle {
+          background-color: red;
+          border-radius: 12px;
+          height: 16px;
+          width: 16px;
+          margin-right: 2px;
+        }
+        .live-text {
+          padding-bottom: 1px;
+        }
+        background-color: rgba(0,0,0,0.7);
+        padding: 4px 6px;
+        margin: 2px;
+      }
+
+      .chat-adder {
+        span.chat-adder-label {
+          font-size: 20px;
+          min-width: 24px;
+          text-align: center;
+          display: inline-block;
+        }
       }
     }
   }

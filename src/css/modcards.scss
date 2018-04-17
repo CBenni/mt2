@@ -1,6 +1,6 @@
 .mod-card {
   width: 400px;
-  height: 250px;
+  min-height: 250px;
   position: absolute;
   z-index: 50;
 
@@ -31,7 +31,7 @@
   }
 
   button.md-button.mod-card-mod-button {
-    font-size: 1.5em;
+    font-size: 20px;
     text-transform: none;
     margin: 0 6px;
 

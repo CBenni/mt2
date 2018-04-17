@@ -2,17 +2,22 @@
   <div ng-repeat="stream in streamsCtrl.streamList" class="stream-list-item" flex="none" layout="column" layout-align="start stretch">
     <div class="stream-preview-wrapper">
       <img class="stream-preview" ng-src="{{stream.preview.medium}}">
-      <div class="stream-add-buttons" layout="row" layout-align="start start" layout-wrap>
-        <div class="stream-add-button chat-adder" ng-repeat="preset in mainCtrl.getSetting('chatPresets')" golden-layout-drag-source
-          gl-ds-channel="stream.channel.name" gl-ds-template="'chatTemplate'" gl-ds-layout="mainCtrl.layout" gl-ds-preset="preset.id">
-          <md-tooltip md-delay="500">{{preset.name}}</md-tooltip>
-          <md-icon ng-if="preset.icon.type === 'icon'">{{preset.icon.code}}</md-icon>
-          <span ng-if="preset.icon.type === 'text'" class="chat-adder-label">{{preset.icon.text}}</span>
-          <img ng-if="preset.icon.type === 'image'" class="chat-adder-label" ng-src="{{preset.icon.image}}">
+      <div class="stream-preview-overlay" layout="row" layout-align="space-between start">
+        <div class="stream-add-buttons" layout="row" layout-align="start start" layout-wrap>
+          <div class="stream-add-button chat-adder" ng-repeat="preset in mainCtrl.getSetting('chatPresets')" golden-layout-drag-source
+            gl-ds-channel="stream.channel.name" gl-ds-template="'chatTemplate'" gl-ds-layout="mainCtrl.layout" gl-ds-preset="preset.id">
+            <md-tooltip md-delay="500">{{preset.name}}</md-tooltip>
+            <md-icon ng-if="preset.icon.type === 'icon'">{{preset.icon.code}}</md-icon>
+            <span ng-if="preset.icon.type === 'text'" class="chat-adder-label">{{preset.icon.text}}</span>
+            <img ng-if="preset.icon.type === 'image'" class="chat-adder-label" ng-src="{{preset.icon.image}}">
+          </div>
+          <div class="stream-add-button stream-adder" golden-layout-drag-source gl-ds-channel="stream.channel.name" gl-ds-template="'streamTemplate'"
+            gl-ds-layout="mainCtrl.layout" gl-ds-icon="{'type': 'icon', 'code': 'videocam'}">
+            <md-icon>videocam</md-icon>
+          </div>
         </div>
-        <div class="stream-add-button stream-adder" golden-layout-drag-source gl-ds-channel="stream.channel.name" gl-ds-template="'streamTemplate'"
-          gl-ds-layout="mainCtrl.layout" gl-ds-icon="{'type': 'icon', 'code': 'videocam'}">
-          <md-icon>videocam</md-icon>
+        <div class="stream-live-indicator" ng-if="stream.viewers" layout="row" layout-align="center center" flex="none">
+          <div class="circle" flex="none"></div><span class="live-text">LIVE</span>
         </div>
       </div>
     </div>
