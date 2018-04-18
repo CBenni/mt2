@@ -74,6 +74,7 @@ export default class SettingsDialogController extends DialogController {
     this.initDefault('chatPresets');
     this.initDefault('timeFormat');
     this.initDefault('scrollbackLength');
+    this.initDefault('chatSettings.extraMentions');
 
     this.iconCodes = iconCodes;
   }

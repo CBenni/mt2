@@ -516,7 +516,7 @@ export default class ChatController {
   }
 
   chatInputKeyPress(event) {
-    if (event.keyCode === 13) {
+    if (!this.autocompleteData.status.selectedItem && event.keyCode === 13) {
       if (this.chatInputContent) {
         this.sendLine(this.chatInputContent);
         this.chatInputContent = '';

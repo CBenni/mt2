@@ -130,6 +130,7 @@
       }
     ],
     "chatSettings": {
+      "extraMentions": [],
       "knownBots": [
         "drangrybot",
         "gather_bot",
@@ -189,7 +190,6 @@
         }
       }
     ],
-    "extraMentions": [],
     "timeFormat": "HH:mm",
     "scrollbackLength": 5000
   }

@@ -1,3 +1,4 @@
+import $ from 'jquery';
 import _ from 'lodash';
 
 export default class KeyPressService {
@@ -8,6 +9,9 @@ export default class KeyPressService {
     this.keyWatchers = {};
 
     $document.on('keyup keydown', () => {
+      if (window.event.target) {
+        if ($(window.event.target).parents('.no-global-hotkeys').length > 0) return;
+      }
       this.emit(window.event);
       ThrottledDigestService.$apply();
     });
@@ -22,12 +26,13 @@ export default class KeyPressService {
   }
 
   emit(event) {
+    if (!event.code) return;
     let handledBy = null;
-    if (event.type === 'keyup') this.keysPressed[window.event.code] = undefined;
-    else if (event.type === 'keydown') this.keysPressed[window.event.code] = 0;
+    if (event.type === 'keyup') this.keysPressed[event.code] = undefined;
+    else if (event.type === 'keydown') this.keysPressed[event.code] = 0;
     _.each(this.keyWatchers[event.code], watcher => {
       if (watcher.callback(event)) {
-        if (event.type === 'keydown') this.keysPressed[window.event.code] = watcher.priority;
+        if (event.type === 'keydown') this.keysPressed[event.code] = watcher.priority;
         handledBy = watcher.priority;
         return false;
       }
@@ -36,7 +41,7 @@ export default class KeyPressService {
     if (handledBy === null) {
       _.each(this.keyWatchers[event.type], watcher => {
         if (watcher.callback(event)) {
-          if (event.type === 'keydown') this.keysPressed[window.event.code] = watcher.priority;
+          if (event.type === 'keydown') this.keysPressed[event.code] = watcher.priority;
           return false;
         }
         return true;
