@@ -19,6 +19,11 @@
       vertical-align: middle;
     }
 
+    .mod-card-username {
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
     md-icon.mod-card-pin {
       transform: rotate(45deg);
     }

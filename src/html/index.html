@@ -146,9 +146,9 @@
       <div layout="column" flex="none" layout-align="center center">
         <img class="mod-card-profile-picture" flex="none" ng-src="{{modCard.stats.logo}}">
       </div>
-      <div class="mod-card-header-info" layout="column" flex="100">
+      <div class="mod-card-header-info" layout="column" flex>
         <div flex="50" layout="row" layout-align="space-between center">
-          <div class="mod-card-username">{{modCard.stats.display_name || modCard.user.displayName}}</div>
+          <div class="mod-card-username" flex>{{modCard.stats.display_name || modCard.user.displayName}}</div>
           <div class="mod-card-controls" flex="none" ng-click="mainCtrl.togglePinned(modCard)">
             <md-button class="md-icon-button md-primary">
               <md-icon md-svg-src="/assets/pin.svg" ng-class="{'mod-card-pin': true, 'mod-card-pinned': modCard.pinned}"></md-icon>
