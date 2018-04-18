@@ -7,8 +7,7 @@ export default class KeyPressService {
     this.keysPressed = {};
     this.keyWatchers = {};
 
-    $document.on('keyup keydown', e => {
-      this.keysPressed[window.event.code] = e.type === 'keydown';
+    $document.on('keyup keydown', () => {
       this.emit(window.event);
       ThrottledDigestService.$apply();
     });
@@ -23,7 +22,25 @@ export default class KeyPressService {
   }
 
   emit(event) {
-    _.each(this.keyWatchers[event.code], watcher => !watcher.callback(event));
-    _.each(this.keyWatchers[event.type], watcher => !watcher.callback(event));
+    let handledBy = null;
+    if (event.type === 'keyup') this.keysPressed[window.event.code] = undefined;
+    else if (event.type === 'keydown') this.keysPressed[window.event.code] = 0;
+    _.each(this.keyWatchers[event.code], watcher => {
+      if (watcher.callback(event)) {
+        if (event.type === 'keydown') this.keysPressed[window.event.code] = watcher.priority;
+        handledBy = watcher.priority;
+        return false;
+      }
+      return true;
+    });
+    if (handledBy === null) {
+      _.each(this.keyWatchers[event.type], watcher => {
+        if (watcher.callback(event)) {
+          if (event.type === 'keydown') this.keysPressed[window.event.code] = watcher.priority;
+          return false;
+        }
+        return true;
+      });
+    }
   }
 }

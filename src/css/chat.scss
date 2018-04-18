@@ -208,3 +208,16 @@
     }
   }
 }
+
+.chat-line {
+  outline: none;
+}
+
+.chat-lines.has-custom-cursor {
+  .chat-line:hover {
+    background-color: rgba(128,128,128, 0.5);
+  }
+  .chat-line-wrapper .chat-line-username {
+    cursor: inherit;
+  }
+}

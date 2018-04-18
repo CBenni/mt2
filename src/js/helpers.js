@@ -190,3 +190,28 @@ export function alwaysResolve(promise) {
     promise.then(resolve).catch(resolve);
   });
 }
+
+const textToCursorCache = new Map();
+export function textToCursor(text, size, font) {
+  const cacheKey = JSON.stringify([text, size, font]);
+  const cached = textToCursorCache.get(cacheKey);
+  if (cached) return cached;
+  const canvas = document.createElement('canvas');
+  canvas.height = size;
+  let ctx = canvas.getContext('2d');
+  ctx.font = `${size || 24}px '${font || 'Arial'}'`;
+  canvas.width = ctx.measureText(text).width;
+  ctx = canvas.getContext('2d');
+  ctx.font = `${size || 24}px '${font || 'Arial'}'`;
+  ctx.fillStyle = 'white';
+  ctx.strokeStyle = 'black';
+  ctx.strokeWidth = 5;
+  ctx.fillText(text, 0, size);
+  ctx.moveTo(0, 0);
+  ctx.lineTo(5, 0);
+  ctx.lineTo(0, 5);
+  ctx.fill();
+  const result = canvas.toDataURL();
+  textToCursorCache.set(cacheKey, result);
+  return result;
+}

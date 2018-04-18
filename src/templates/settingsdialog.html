@@ -21,13 +21,15 @@
                     <md-select name="style" class="compact md-no-underline" ng-model="settings.style">
                       <md-option value="dark">dark mode</md-option>
                       <md-option value="light">light mode</md-option>
-                      <md-option value="custom">custom style</md-option>
                     </md-select>
-                    <div ng-if="settings.style === 'custom'">
-                      <md-input-container>
-                        <input type="text" ng-model="settings.styleSheet" placeholder="style sheet url">
-                      </md-input-container>
-                    </div>
+                  </div>
+                </div>
+                <div class="settings-row" layout="row" layout-align="start center" flex="50">
+                  <label for="style" flex="none">Custom style sheet</label>
+                  <div flex>
+                    <md-input-container class="compact no-error-spacer">
+                      <input type="text" ng-model="settings.styleSheet" placeholder="style sheet url">
+                    </md-input-container>
                   </div>
                 </div>
                 <div class="settings-row" layout="row" layout-align="start center" flex="50">
@@ -59,6 +61,7 @@
                   <div>
                     <md-select name="pauseOn" class="compact md-no-underline" ng-model="settings.chatSettings.pauseOn" multiple="">
                       <md-option value="hover">hover</md-option>
+                      <md-option value="hotkey">in-line hotkey</md-option>
                       <md-option value="ControlLeft">ctrl</md-option>
                       <md-option value="AltLeft">alt</md-option>
                       <md-option value="ShiftLeft">shift</md-option>

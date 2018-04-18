@@ -15,7 +15,7 @@
           "type": "icon",
           "code": "remove_circle_outline"
         },
-        "hotkey": "KeyP"
+        "hotkey": ""
       },
       {
         "action": {
@@ -27,7 +27,7 @@
           "type": "icon",
           "code": "hourglass_empty"
         },
-        "hotkey": "KeyT"
+        "hotkey": ""
       },
       {
         "action": {
@@ -39,7 +39,7 @@
           "type": "icon",
           "code": "block"
         },
-        "hotkey": "KeyB"
+        "hotkey": ""
       }
     ],
     "modCardButtons": [
@@ -147,7 +147,8 @@
         "xanbot"
       ],
       "pauseOn": [
-        "hover"
+        "hover",
+        "hotkey"
       ]
     },
     "chatPresets": [

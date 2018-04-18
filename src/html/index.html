@@ -19,6 +19,7 @@
   <meta property="og:url" content="http://modch.at/">
   <meta property="og:image" content="http://modch.at/assets/og-image.jpg">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" dynamic-stylesheet="mainCtrl.getSetting('styleSheet')">
   <style>
     .loading-screen {
       font-family: Roboto, "Helvetica Neue", sans-serif;
@@ -139,7 +140,7 @@
       </md-button>
     </div> -->
   </div>
-  <div class="mod-card md-whiteframe-5dp" ng-repeat="modCard in mainCtrl.modCards" layout="column" draggable="{handle: '> .mod-card-header'}"
+  <div class="mod-card md-whiteframe-5dp" ng-repeat="modCard in mainCtrl.modCards" layout="column" draggable="{handle: '> .mod-card-header', containment: 'window'}"
     ng-style="{left: modCard.xPos, top: modCard.yPos}">
     <div class="mod-card-header layout-padding" layout="row" layout-align="space-between stretch" flex="none">
       <div layout="column" flex="none" layout-align="center center">

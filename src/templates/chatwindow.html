@@ -46,8 +46,8 @@
     </div>
     <div class="chat-container column-reverse" layout-align="end stretch" layout="column" flex="100" on-scroll="chatCtrl.onChatScroll($event, $element, scrollPos, direction)"
       ng-mouseleave="chatCtrl.mouseLeave()" throttled-mousemove="chatCtrl.mouseMove()">
-      <div class="chat-lines column-reverse" layout-align="end stretch" flex="none">
-        <div class="chat-line" ng-repeat="line in chatCtrl.getActiveChatLines()" flex="none"></div>
+      <div class="chat-lines column-reverse" layout-align="end stretch" flex="none" ng-style="{cursor: chatCtrl.cursorStyle}" ng-class="{'has-custom-cursor': chatCtrl.cursorStyle}">
+        <div class="chat-line" ng-repeat="line in chatCtrl.getActiveChatLines()" ng-click="chatCtrl.clickChatLine($event, line)" flex="none"></div>
       </div>
     </div>
     <div class="chat-paused-indicator" throttled-click="chatCtrl.resetChatScroll()" ng-show="chatCtrl.isPaused">Chat is paused because of {{chatCtrl.isPaused}}</div>

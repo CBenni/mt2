@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-import { stringifyTimeout } from '../helpers';
+import { stringifyTimeout, textToCursor } from '../helpers';
 import { fixContrastHSL, hexToRGB, getBrightness } from '../colorcorrection';
 import languageTable from '../languages.json';
 
@@ -56,6 +56,7 @@ export default class ChatController {
       slow: '0',
       'subs-only': '0'
     };
+    this.buttonCursor = null;
 
     $timeout(() => {
       this.user = $scope.mainCtrl.auth;
@@ -90,30 +91,32 @@ export default class ChatController {
         this.container.setTitle(this.state.channel);
 
         this.userMentionRegex = new RegExp(`\\b${this.user.name}\\b`, 'gi');
+
+        const keyWatchers = [
+          this.KeyPressService.on('keydown', event => {
+            const pauseSettings = this.mainCtrl.getSetting('chatSettings.pauseOn');
+            if (pauseSettings.indexOf(event.code) >= 0) event.preventDefault();
+            else if (this.checkHotkeys(event)) event.preventDefault();
+            this.throttledUpdateChatPaused();
+            return false;
+          }, 1),
+          this.KeyPressService.on('keyup', () => {
+            this.setButtonCursor(null);
+            this.resetChatScroll();
+            this.throttledUpdateChatPaused();
+            return false;
+          }, 1)
+        ];
+
+        this.$scope.$on('$destroy', () => {
+          _.each(keyWatchers, keyWatcher => keyWatcher());
+        });
       }
     });
 
     this.throttledUpdateChatPaused = _.throttle(() => {
       this.updateChatPaused();
-    }, 100);
-
-    const keyWatchers = [
-      this.KeyPressService.on('keydown', event => {
-        const pauseSettings = this.mainCtrl.getSetting('chatSettings.pauseOn');
-        if (pauseSettings.indexOf(event.code) >= 0) event.preventDefault();
-        this.throttledUpdateChatPaused();
-        return false;
-      }, 1),
-      this.KeyPressService.on('keyup', () => {
-        this.resetChatScroll();
-        this.throttledUpdateChatPaused();
-        return false;
-      }, 1)
-    ];
-
-    this.$scope.$on('$destroy', () => {
-      _.each(keyWatchers, keyWatcher => keyWatcher());
-    });
+    }, 10);
   }
 
   getEmbedUrl() {
@@ -419,8 +422,12 @@ export default class ChatController {
     if (this.isScrolledUp) isPaused = 'chat scroll';
     const pauseSettings = this.mainCtrl.getSetting('chatSettings.pauseOn');
     if (this.isMouseOver() && pauseSettings.indexOf('hover') >= 0) isPaused = 'mouse hover';
-    const pressedKey = _.find(pauseSettings, pauseCondition => this.KeyPressService.keysPressed[pauseCondition]);
+    const pressedKey = _.find(pauseSettings, pauseCondition => {
+      const handledByLower = this.KeyPressService.keysPressed[pauseCondition] <= 1;
+      return handledByLower;
+    });
     if (!isPaused && pressedKey) isPaused = `${pressedKey} pressed`;
+    if (pauseSettings.indexOf('hotkey') >= 0 && this.buttonCursor) isPaused = 'in-line hotkey';
 
     if (this.isPaused && !isPaused) {
       this.chatLines.push(...this.pausedChatLines);
@@ -555,7 +562,7 @@ export default class ChatController {
   }
 
   openModCard($event, user) {
-    this.mainCtrl.openModCard($event, user, this);
+    if (!this.buttonCursor) this.mainCtrl.openModCard($event, user, this);
   }
 
   insertEmote(emote) {
@@ -563,5 +570,50 @@ export default class ChatController {
       this.chatInputContent += ' ';
     }
     this.chatInputContent += emote.code;
+  }
+
+  setButtonCursor(button) {
+    this.buttonCursor = button;
+    if (button) {
+      if (!this.cursorStyle) {
+        let imageUrl;
+        if (button.icon.type === 'image') imageUrl = button.icon.image;
+        else if (button.icon.type === 'icon') imageUrl = textToCursor(button.icon.code, 24, 'Material Icons');
+        else if (button.icon.type === 'text') imageUrl = textToCursor(button.icon.text, 24, 'Arial');
+        this.cursorStyle = `url(${imageUrl}), not-allowed`;
+      }
+    } else {
+      this.cursorStyle = null;
+    }
+  }
+
+  checkHotkeys(event) {
+    const headerButtons = this.mainCtrl.getSetting('chatHeaderButtons');
+    if (headerButtons) {
+      for (let i = 0; i < headerButtons.length; ++i) {
+        const button = headerButtons[i];
+        if (button.hotkey === event.code) {
+          this.modAction(event, button, {});
+          return true;
+        }
+      }
+    }
+    const modButtons = this.mainCtrl.getSetting('modButtons');
+    if (modButtons && this.showModButtons) {
+      for (let i = 0; i < modButtons.length; ++i) {
+        const button = modButtons[i];
+        if (button.hotkey === event.code) {
+          this.setButtonCursor(button);
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  clickChatLine($event, line) {
+    if (this.buttonCursor) {
+      this.modAction($event, this.buttonCursor, line);
+    }
   }
 }

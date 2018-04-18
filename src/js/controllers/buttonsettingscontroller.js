@@ -18,4 +18,10 @@ export default class ButtonSettingsController {
   addButton() {
     this.buttons.push(angular.copy(this.defaultButton));
   }
+
+  setHotkey(button, $event) {
+    button.hotkey = window.event.code;
+    $event.preventDefault();
+    $event.stopImmediatePropagation();
+  }
 }
