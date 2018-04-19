@@ -284,7 +284,7 @@ export default class ChatController {
         timeoutNotice.duration = duration;
         if (message.tags['ban-reason']) timeoutNotice.reasons.push(message.tags['ban-reason']);
         // update the html
-        timeoutNotice.message.html = this.$sce.trustAsHtml(stringifyTimeout(timeoutNotice));
+        timeoutNotice.message.html = stringifyTimeout(timeoutNotice);
       } else {
         const userName = message.trailing;
         const userID = message.tags['target-user-id'];
