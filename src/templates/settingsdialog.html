@@ -4,7 +4,7 @@
       <div class="md-toolbar-tools" layout="row">
         <h2 flex="none">Settings</h2>
         <span flex></span>
-        <md-button class="md-icon-button" ng-click="cancel()" flex="none">
+        <md-button class="md-icon-button" throttled-click="cancel()" flex="none">
           <md-icon>close</md-icon>
         </md-button>
       </div>
@@ -122,7 +122,7 @@
                       <md-icon>reorder</md-icon>
                     </div>
                     <div flex="none">
-                      <md-button class="compact" ng-click="dialogCtrl.deleteChatPreset(preset)">
+                      <md-button class="compact" throttled-click="dialogCtrl.deleteChatPreset(preset)">
                         <md-icon>delete</md-icon>
                       </md-button>
                     </div>
@@ -189,7 +189,7 @@
                   </div>
                 </li>
               </ul>
-              <md-button class="md-primary md-raised" ng-click="dialogCtrl.addChatPreset()">Add</md-button>
+              <md-button class="md-primary md-raised" throttled-click="dialogCtrl.addChatPreset()">Add</md-button>
             </md-content>
           </md-tab>
         </md-tabs>

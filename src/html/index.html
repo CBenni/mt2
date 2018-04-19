@@ -95,7 +95,7 @@
   </script>
 </head>
 
-<body ng-class="['theme-'+mainCtrl.getSetting('style')]" md-theme="mainCtrl.getSetting('style')" ng-keydown="mainCtrl.keydown($event)">
+<body ng-class="['theme-'+mainCtrl.getSetting('style')]" md-theme="mainCtrl.getSetting('style')" throttled-keydown="mainCtrl.keydown($event)">
   <div class="loading-screen" ng-class="loadingScreenClass">
     <div>
       <h1>ModCh.at</h1>
@@ -120,9 +120,9 @@
   <div class="whisper-container" ng-if="mainCtrl.auth" layout="row" layout-align="end end">
     <div ng-repeat="conversation in mainCtrl.conversations" class="whisper-conversation md-whiteframe-4dp" ng-class="{'collapse':conversation.collapse}"
       layout="column" layout-align="start stretch">
-      <div class="whisper-header" flex="none" ng-click="conversation.collapse = !conversation.collapse" layout="row" layout-align="space-between center">
+      <div class="whisper-header" flex="none" throttled-click="conversation.collapse = !conversation.collapse" layout="row" layout-align="space-between center">
         <span flex="none">{{conversation.user.displayName}}</span>
-        <md-button class="tiny-button" flex="none" ng-click="mainCtrl.closeConversation($event, conversation)">
+        <md-button class="tiny-button" flex="none" throttled-click="mainCtrl.closeConversation($event, conversation)">
           <md-icon>close</md-icon>
         </md-button>
       </div>
@@ -149,11 +149,11 @@
       <div class="mod-card-header-info" layout="column" flex>
         <div flex="50" layout="row" layout-align="space-between center">
           <div class="mod-card-username" flex>{{modCard.stats.display_name || modCard.user.displayName}}</div>
-          <div class="mod-card-controls" flex="none" ng-click="mainCtrl.togglePinned(modCard)">
+          <div class="mod-card-controls" flex="none" throttled-click="mainCtrl.togglePinned(modCard)">
             <md-button class="md-icon-button md-primary">
               <md-icon md-svg-src="/assets/pin.svg" ng-class="{'mod-card-pin': true, 'mod-card-pinned': modCard.pinned}"></md-icon>
             </md-button>
-            <md-button class="md-icon-button md-primary" ng-click="mainCtrl.closeModCard(modCard)">
+            <md-button class="md-icon-button md-primary" throttled-click="mainCtrl.closeModCard(modCard)">
               <md-icon>close</md-icon>
             </md-button>
           </div>
@@ -176,7 +176,7 @@
     </div>
     <div class="mod-card-body layout-padding" flex="100" layout="column">
       <div class="mod-card-mod-buttons">
-        <md-button class="md-primary mod-card-mod-button dynamic-icon-button" ng-repeat="modButton in mainCtrl.getSetting('modCardButtons')" ng-click="modCard.chatCtrl.modAction($event, modButton, modCard)">
+        <md-button class="md-primary mod-card-mod-button dynamic-icon-button" ng-repeat="modButton in mainCtrl.getSetting('modCardButtons')" throttled-click="modCard.chatCtrl.modAction($event, modButton, modCard)">
           <md-tooltip md-delay="500">{{modButton.tooltip}}</md-tooltip>
           <md-icon ng-if="modButton.icon.type === 'icon'">{{modButton.icon.code}}</md-icon>
           <span ng-if="modButton.icon.type === 'text'" class="chat-line-mod-button-label">{{modButton.icon.text}}</span>

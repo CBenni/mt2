@@ -116,12 +116,12 @@ export default class MainController {
       this.conversations = [];
       ChatService.on('whisper_received', pubsubMessage => {
         this.addWhisper(pubsubMessage.data.message.data).then(() => {
-          $scope.$apply(() => { });
+          this.ThrottledDigestService.$scope.$apply(() => { });
         });
       });
       ChatService.on('whisper_sent', pubsubMessage => {
         this.addWhisper(pubsubMessage.data.message.data).then(() => {
-          $scope.$apply(() => { });
+          this.ThrottledDigestService.$scope.$apply(() => { });
         });
       });
     }

@@ -2,7 +2,7 @@ import _ from 'lodash';
 
 function throttledEventDirective(eventName) {
   const directiveName = _.camelCase(['throttled', eventName]);
-  return ($parse, $rootScope, ThrottledDigestService) => {
+  return ($parse, ThrottledDigestService) => {
     'ngInject';
 
     return {
@@ -19,6 +19,26 @@ function throttledEventDirective(eventName) {
         };
       }
     };
+  };
+}
+
+export function throttledUserScrollDirective($parse, ThrottledDigestService) {
+  'ngInject';
+
+  return {
+    restrict: 'A',
+    compile($element, attr) {
+      const fn = $parse(attr.throttledUserScroll);
+      return (scope, element) => {
+        fn(scope, { $event: null, $element: element });
+        element.on('mousedown wheel DOMMouseScroll mousewheel keyup', event => {
+          const callback = () => {
+            fn(scope, { $event: event, $element: element });
+          };
+          ThrottledDigestService.$apply(callback);
+        });
+      };
+    }
   };
 }
 
