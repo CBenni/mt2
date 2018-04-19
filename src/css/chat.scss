@@ -43,6 +43,12 @@
     background-color: rgba(255,0,0,0.3);
   }
 
+  .chat-mention {
+    background-color: rgba(0,0,0,0.3);
+    padding: 2px 4px;
+    cursor: pointer;
+  }
+
   .chat-line-time {
     color: rgba(0, 0, 0, 0.7);
     font-size: small;
@@ -215,7 +221,9 @@
   .chat-line:hover {
     background-color: rgba(128,128,128, 0.5);
   }
-  .chat-line-wrapper .chat-line-username {
-    cursor: inherit;
+  .chat-line-wrapper {
+    .chat-line-username, .chat-mention {
+      cursor: inherit;
+    }
   }
 }

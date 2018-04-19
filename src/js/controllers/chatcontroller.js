@@ -572,6 +572,18 @@ export default class ChatController {
     if (!this.buttonCursor) this.mainCtrl.openModCard($event, user, this);
   }
 
+  openModCardByName($event, name) {
+    if (!this.buttonCursor) {
+      this.ApiService.twitchGetUserByName(name).then(user => {
+        this.mainCtrl.openModCard($event, {
+          name: user.name,
+          displayName: user.display_name,
+          id: user._id
+        }, this);
+      });
+    }
+  }
+
   insertEmote(emote) {
     if (this.chatInputContent.length > 0 && this.chatInputContent[this.chatInputContent.length - 1] !== ' ') {
       this.chatInputContent += ' ';

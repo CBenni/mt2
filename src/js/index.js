@@ -20,7 +20,7 @@ import StreamListController from './controllers/streamlistcontroller';
 import AutocompletePanelController from './controllers/autocompletepanelcontroller';
 
 import goldenLayoutDragSource from './directives/goldenlayoutdragsourcedirective';
-import { chatLineDirective, isntEmptyFilter } from './directives/chatlinedirective';
+import { chatLineDirective, isntEmptyFilter, compileDirective } from './directives/chatlinedirective';
 import onScrollDirective from './directives/onscrolldirective';
 import buttonSettingsDirective from './directives/buttonsettingsdirective';
 import streamListDirective from './directives/streamlistdirective';
@@ -63,6 +63,7 @@ app.directive('throttledKeydown', throttledKeydownDirective);
 app.directive('throttledUserScroll', throttledUserScrollDirective);
 app.directive('simple-scrollbar', simpleScrollbarDirective);
 app.directive('autocomplete', autocompleteDirective);
+app.directive('compile', compileDirective);
 
 app.service('ApiService', ApiService);
 app.service('ChatService', ChatService);

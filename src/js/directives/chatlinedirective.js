@@ -11,15 +11,15 @@ export function onScrollDirective() {
   };
 }
 
-export function scrollToBottomDirective() {
+export function compileDirective($compile) {
+  'ngInject';
+
   return {
     restrict: 'A',
-    link($scope, $element) {
-      const scrollToBottomFirst = setInterval(() => {
-        $element[0].scrollTop = $element[0].scrollHeight;
-      }, 10);
-      $element.one('scroll', () => {
-        clearInterval(scrollToBottomFirst);
+    link: ($scope, $element, attrs) => {
+      $scope.$watch(scope => scope.$eval(attrs.compile), value => {
+        $element.html(value);
+        $compile($element.contents())($scope);
       });
     }
   };

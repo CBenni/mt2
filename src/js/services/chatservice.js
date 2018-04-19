@@ -5,12 +5,11 @@ import { parseIRCMessage, jsonParseRecursive, sdbmCode, capitalizeFirst, genNonc
 
 const DEFAULTCOLORS = ['#e391b8', '#e091ce', '#da91de', '#c291db', '#ab91d9', '#9691d6', '#91a0d4', '#91b2d1', '#91c2cf', '#91ccc7', '#91c9b4', '#90c7a2', '#90c492', '#9dc290', '#aabf8f', '#b5bd8f', '#bab58f', '#b8a68e', '#b5998e', '#b38d8d'];
 export default class ChatService extends EventEmitter {
-  constructor(ApiService, $sce, ThrottledDigestService) {
+  constructor(ApiService, ThrottledDigestService) {
     'ngInject';
 
     super();
     this.ApiService = ApiService;
-    this.$sce = $sce;
     this.ThrottledDigestService = ThrottledDigestService;
 
     this.chatReceiveConnection = null;
@@ -298,7 +297,7 @@ export default class ChatService extends EventEmitter {
       html += escapeHtml(formatTimeout(message));
     }
 
-    message.html = this.$sce.trustAsHtml(html);
+    message.html = html;
 
     return message;
   }
@@ -309,16 +308,20 @@ export default class ChatService extends EventEmitter {
     if (emote) {
       return `<img class="emote emote-${emote.id}" alt="${emote.code}" title="${emote.code}" src="${emote.url}">`;
     }
-    const bitMatch = /^(\w+)(\d+)$/.exec(word);
+    const bitMatch = /^(\w+?)(\d+)$/.exec(word);
     if (bitMatch && message.tags.bits) {
       const cheermote = this.cheermotes.get(bitMatch[1]) || (holder && holder.cheermotes.get(bitMatch[1]));
       if (cheermote) {
         const amount = parseInt(bitMatch[2], 10);
         // find the correct tier
-        const cheerTier = _.findLast(cheermote.tiers, tier => tier.minBits < amount);
+        const cheerTier = _.findLast(cheermote.tiers, tier => tier.minBits <= amount);
         return `<img class="emote cheermote emote-${cheermote.name}" alt="${cheerTier.name}" title="${cheerTier.name}" src="${cheerTier.url}">`
           + `<span class="cheer-amount" style="color: ${cheerTier.color}">${amount}</span>`;
       }
+    }
+    const mentionMatch = /^@(\w+)$/.exec(word);
+    if (mentionMatch) {
+      return `<span class="chat-mention" ng-click="chatCtrl.openModCardByName($event, '${mentionMatch[1]}')">${word}</span>`;
     }
     return word;
   }
@@ -432,14 +435,15 @@ export default class ChatService extends EventEmitter {
         const state = 'animated';
         const cheerObj = {
           name: cheermote.prefix,
-          id: cheermote.prefix,
-          tiers: _.map(cheermote.tiers, tier => ({
+          id: cheermote.prefix.toLowerCase(),
+          tiers: _.sortBy(_.map(cheermote.tiers, tier => ({
             name: `${cheermote.prefix} ${tier.min_bits}`,
             minBits: tier.min_bits,
-            url: tier.images[background][state][scale]
-          }))
+            url: tier.images[background][state][scale],
+            color: tier.color
+          })), 'minBits')
         };
-        this.cheermotes.set(cheermote.prefix, cheerObj);
+        this.cheermotes.set(cheerObj.id, cheerObj);
       });
     }).catch(() => {
 
@@ -493,14 +497,15 @@ export default class ChatService extends EventEmitter {
           const state = 'animated';
           const cheerObj = {
             name: cheermote.prefix,
-            id: cheermote.prefix,
-            tiers: _.map(cheermote.tiers, tier => ({
+            id: cheermote.prefix.toLowerCase(),
+            tiers: _.sortBy(_.map(cheermote.tiers, tier => ({
               name: `${cheermote.prefix} ${tier.min_bits}`,
               minBits: tier.min_bits,
-              url: tier.images[background][state][scale]
-            }))
+              url: tier.images[background][state][scale],
+              color: tier.color
+            })), 'minBits')
           };
-          holder.cheermotes.set(cheermote.prefix, cheerObj);
+          holder.cheermotes.set(cheerObj.id, cheerObj);
         }
       });
     }).catch(() => {
