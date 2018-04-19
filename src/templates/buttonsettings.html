@@ -78,9 +78,14 @@
           </div>
         </div>
       </div>
-      <div flex="5" layout="row" class="settings-mod-button-setting-very-simple">
-        <md-input-container class="text-input">
+      <div flex="10" layout="row" class="settings-mod-button-setting-very-simple">
+        <md-input-container class="text-input" flex>
           <input type="text" ng-model="button.hotkey" placeholder="Hotkey" throttled-keydown="btnsCtrl.setHotkey(button, $event)">
+        </md-input-container>
+        <md-input-container flex="none">
+          <md-button class="md-icon-button md-primary" throttled-click="btnsCtrl.setHotkey(button, null)" >
+            <md-icon>close</md-icon>
+          </md-button>
         </md-input-container>
       </div>
     </div>
