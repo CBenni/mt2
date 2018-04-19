@@ -5,7 +5,7 @@
         <md-icon>reorder</md-icon>
       </div>
       <div flex="none">
-        <md-button class="compact" ng-click="btnsCtrl.deleteButton(button)">
+        <md-button class="compact" throttled-click="btnsCtrl.deleteButton(button)">
           <md-icon>delete</md-icon>
         </md-button>
       </div>
@@ -86,4 +86,4 @@
     </div>
   </li>
 </ul>
-<md-button class="md-primary md-raised" ng-click="btnsCtrl.addButton()">Add</md-button>
+<md-button class="md-primary md-raised" throttled-click="btnsCtrl.addButton()">Add</md-button>

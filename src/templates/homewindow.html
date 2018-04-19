@@ -1,10 +1,10 @@
 <div ng-controller="HomeController as homeCtrl" layout="column" layout-align="start stretch" class="wrapper">
   <div class="home-controls" layout="row" flex="none">
     <div class="login-button" flex="none">
-      <md-button class="loginWithTwitch md-primary md-raised" ng-click="mainCtrl.loginWithTwitch()" ng-if="!mainCtrl.auth">
+      <md-button class="loginWithTwitch md-primary md-raised" throttled-click="mainCtrl.loginWithTwitch()" ng-if="!mainCtrl.auth">
         Log in with twitch
       </md-button>
-      <md-button class="loginWithTwitch md-primary md-raised" ng-click="mainCtrl.logoutFromTwitch()" ng-if="mainCtrl.auth">
+      <md-button class="loginWithTwitch md-primary md-raised" throttled-click="mainCtrl.logoutFromTwitch()" ng-if="mainCtrl.auth">
         Log out ({{mainCtrl.auth.name}})
       </md-button>
     </div>
@@ -13,7 +13,7 @@
       <md-select class="compact md-no-underline" ng-model="mainCtrl.selectedProfile" ng-change="mainCtrl.updateConfig()">
         <md-option ng-repeat="(id, profile) in mainCtrl.layouts" ng-value="id">{{profile.name}}</md-option>
       </md-select> -->
-      <md-button class="md-primary md-icon-button" ng-click="homeCtrl.openSettings($event)">
+      <md-button class="md-primary md-icon-button" throttled-click="homeCtrl.openSettings($event)">
         <md-icon>settings</md-icon>
       </md-button>
     </div>

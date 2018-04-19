@@ -20,14 +20,14 @@ import StreamListController from './controllers/streamlistcontroller';
 import AutocompletePanelController from './controllers/autocompletepanelcontroller';
 
 import goldenLayoutDragSource from './directives/goldenlayoutdragsourcedirective';
-import { chatLineDirective, isntEmptyFilter } from './directives/chatlinedirective';
+import { chatLineDirective, isntEmptyFilter, compileDirective } from './directives/chatlinedirective';
 import onScrollDirective from './directives/onscrolldirective';
 import buttonSettingsDirective from './directives/buttonsettingsdirective';
 import streamListDirective from './directives/streamlistdirective';
 import draggableDirective from './directives/draggabledirective';
 import simpleScrollbarDirective from './directives/simplescrolldirective';
 import autocompleteDirective from './directives/autocompletedirective';
-import { throttledMousemoveDirective, throttledClickDirective, throttledKeydownDirective } from './directives/throttledevents';
+import { throttledMousemoveDirective, throttledClickDirective, throttledKeydownDirective, throttledUserScrollDirective } from './directives/throttledevents';
 import { timeAgoFilter, largeNumberFilter, durationFilter } from './directives/filters';
 
 import ApiService from './services/apiservice';
@@ -60,8 +60,10 @@ app.directive('draggable', draggableDirective);
 app.directive('throttledMousemove', throttledMousemoveDirective);
 app.directive('throttledClick', throttledClickDirective);
 app.directive('throttledKeydown', throttledKeydownDirective);
+app.directive('throttledUserScroll', throttledUserScrollDirective);
 app.directive('simple-scrollbar', simpleScrollbarDirective);
 app.directive('autocomplete', autocompleteDirective);
+app.directive('compile', compileDirective);
 
 app.service('ApiService', ApiService);
 app.service('ChatService', ChatService);

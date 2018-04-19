@@ -7,7 +7,7 @@ import languageTable from '../languages.json';
 const templateRegex = /{{((?:\w+)(?:\.\w+)*)}}/g;
 
 export default class ChatController {
-  constructor($sce, $scope, $timeout, $http, $mdPanel, ChatService, ApiService, KeyPressService, ToastService) {
+  constructor($sce, $scope, $timeout, $http, $mdPanel, ChatService, ApiService, ThrottledDigestService, KeyPressService, ToastService) {
     'ngInject';
 
     this.layout = $scope.layout;
@@ -20,6 +20,7 @@ export default class ChatController {
     this.$mdPanel = $mdPanel;
     this.mainCtrl = $scope.mainCtrl;
     this.KeyPressService = KeyPressService;
+    this.ThrottledDigestService = ThrottledDigestService;
     this.ToastService = ToastService;
     this.ApiService = ApiService;
 
@@ -213,6 +214,12 @@ export default class ChatController {
       }
       this.autocompleteData.users[line.user.id].relevance = line.mention ? this.relevanceCounter + 100 : this.relevanceCounter;
       this.relevanceCounter++;
+    }
+
+    if (!this.isPaused) {
+      setTimeout(() => {
+        this.scrollToBottom();
+      }, 1);
     }
     return true;
   }
@@ -482,7 +489,7 @@ export default class ChatController {
     this.activeChatLines = null;
   }
 
-  onChatScroll($event, $element, scrollPos) {
+  onChatScroll($event, $element) {
     if ($event === null) {
       // when the directive is created, it calls this event handler with $event = null once
       this.chatElement = $element;
@@ -490,6 +497,7 @@ export default class ChatController {
       return;
     }
 
+    const scrollPos = $element[0].scrollTop;
     const scrollLenience = $element.innerHeight() / 4;
     const isNearBottom = scrollPos + $element.innerHeight() >= $element[0].scrollHeight - scrollLenience;
     if (isNearBottom) {
@@ -502,17 +510,16 @@ export default class ChatController {
       this.markActiveChatLinesDirty();
     }
 
-    const direction = scrollPos - this.lastScrollPos;
-    this.lastScrollPos = scrollPos;
-    if (direction < 0) {
-      this.isScrolledUp = true;
-    }
+    const isVeryCloseToBottom = scrollPos + $element.innerHeight() >= $element[0].scrollHeight - 30;
+    if (!isVeryCloseToBottom && this.baseLine === this.chatLines.length - 1) this.isScrolledUp = true;
+
     this.throttledUpdateChatPaused();
-    this.$scope.$apply();
   }
 
   scrollToBottom() {
-    this.chatElement.scrollTop(this.chatElement[0].scrollHeight);
+    this.ThrottledDigestService.scheduleOnce('scrollToBottom', () => {
+      this.chatElement.scrollTop(this.chatElement[0].scrollHeight);
+    });
   }
 
   chatInputKeyPress(event) {
@@ -563,6 +570,18 @@ export default class ChatController {
 
   openModCard($event, user) {
     if (!this.buttonCursor) this.mainCtrl.openModCard($event, user, this);
+  }
+
+  openModCardByName($event, name) {
+    if (!this.buttonCursor) {
+      this.ApiService.twitchGetUserByName(name).then(user => {
+        this.mainCtrl.openModCard($event, {
+          name: user.name,
+          displayName: user.display_name,
+          id: user._id
+        }, this);
+      });
+    }
   }
 
   insertEmote(emote) {
