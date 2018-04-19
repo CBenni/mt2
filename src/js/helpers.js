@@ -57,7 +57,9 @@ export const entityMap = {
   '>': '&gt;',
   '"': '&quot;',
   "'": '&#39;',
-  '/': '&#x2F;'
+  '/': '&#x2F;',
+  '{': '&#123;',
+  '}': '&#125;'
 };
 export const htmlEntities = _.invert(entityMap);
 

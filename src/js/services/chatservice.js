@@ -5,12 +5,13 @@ import { parseIRCMessage, jsonParseRecursive, sdbmCode, capitalizeFirst, genNonc
 
 const DEFAULTCOLORS = ['#e391b8', '#e091ce', '#da91de', '#c291db', '#ab91d9', '#9691d6', '#91a0d4', '#91b2d1', '#91c2cf', '#91ccc7', '#91c9b4', '#90c7a2', '#90c492', '#9dc290', '#aabf8f', '#b5bd8f', '#bab58f', '#b8a68e', '#b5998e', '#b38d8d'];
 export default class ChatService extends EventEmitter {
-  constructor(ApiService, ThrottledDigestService) {
+  constructor(ApiService, ThrottledDigestService, $sce) {
     'ngInject';
 
     super();
     this.ApiService = ApiService;
     this.ThrottledDigestService = ThrottledDigestService;
+    this.$sce = $sce;
 
     this.chatReceiveConnection = null;
     this.chatSendConnection = null;
@@ -321,7 +322,7 @@ export default class ChatService extends EventEmitter {
     }
     const mentionMatch = /^@(\w+)$/.exec(word);
     if (mentionMatch) {
-      return `<span class="chat-mention" ng-click="chatCtrl.openModCardByName($event, '${mentionMatch[1]}')">${word}</span>`;
+      return `<span class="compile chat-mention" ng-click="chatCtrl.openModCardByName($event, '${mentionMatch[1]}')">${word}</span>`;
     }
     return word;
   }
