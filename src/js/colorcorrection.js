@@ -102,6 +102,8 @@ export function fixContrastHSL(bg, fg) {
   let count = 0;
   while ((Math.sqrt(bgBrightness) - Math.sqrt(fgBrightness)) < 4 && count++ < 5) {
     fgHsl[2] = (fgHsl[2] * eps + extremeL) / (1 + eps);
+    // chromatic abberation is a thing. Fix it.
+    fgHsl[1] = Math.min(1, fgHsl[1] * 3);
     const newFg = hslToRgb(...fgHsl);
     fgBrightness = getBrightness(newFg);
   }
