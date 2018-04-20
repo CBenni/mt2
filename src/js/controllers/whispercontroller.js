@@ -47,7 +47,7 @@ export default class WhisperController {
           fullName: getFullName(otherUser.username, otherUser.display_name),
           color: otherUser.color,
           badges: otherUser.badges,
-          profileImage: otherUser.profile_image['50x50'].url
+          profileImage: otherUser.profile_image && otherUser.profile_image['50x50'].url
         };
         const lastMessage = {
           trailing: conversation.last_message.body,
