@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { EventEmitter } from 'events';
 
-import { parseIRCMessage, jsonParseRecursive, sdbmCode, capitalizeFirst, genNonce, escapeHtml, entityMap, formatTimeout, instantiateRegex, alwaysResolve } from '../helpers';
+import { parseIRCMessage, jsonParseRecursive, sdbmCode, capitalizeFirst, genNonce, escapeHtml, entityMap, formatTimeout, instantiateRegex, alwaysResolve, getFullName } from '../helpers';
 
 const DEFAULTCOLORS = ['#e391b8', '#e091ce', '#da91de', '#c291db', '#ab91d9', '#9691d6', '#91a0d4', '#91b2d1', '#91c2cf', '#91ccc7', '#91c9b4', '#90c7a2', '#90c492', '#9dc290', '#aabf8f', '#b5bd8f', '#bab58f', '#b8a68e', '#b5998e', '#b38d8d'];
 export default class ChatService extends EventEmitter {
@@ -238,10 +238,15 @@ export default class ChatService extends EventEmitter {
 
     if (message.prefix) {
       const [username] = message.prefix.split('!');
+
+      const displayName = message.tags['display-name'] || capitalizeFirst(username);
+      const fullName = getFullName(username, displayName);
+
       message.user = {
         name: username,
         id: message.tags['user-id'],
-        displayName: message.tags['display-name'] || capitalizeFirst(username)
+        displayName,
+        fullName
       };
       let color = message.tags.color;
       if (!color || color === '') {
@@ -304,7 +309,7 @@ export default class ChatService extends EventEmitter {
   }
 
   renderCustomEmotes(message, word) {
-    const holder = this.channelEmotes.get(message.channel.id);
+    const holder = message.channel && this.channelEmotes.get(message.channel.id);
     const emote = this.thirdPartyEmotes.get(word) || (holder && holder.thirdPartyEmotes.get(word));
     if (emote) {
       return `<img class="emote emote-${emote.id}" alt="${emote.code}" title="${emote.code}" src="${emote.url}">`;

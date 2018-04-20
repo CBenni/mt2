@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { formatDuration } from '../helpers';
 
 export function timeAgoFilter() {
@@ -43,6 +44,10 @@ export function largeNumberFilter() {
     }
     return `${Math.floor(number / 1e6)}M`;
   };
+}
+
+export function uniqueFilter() {
+  return (list, by) => _.uniqBy(list, by);
 }
 
 /*

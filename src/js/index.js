@@ -11,6 +11,7 @@ import '../css/index.scss';
 
 import MainController from './controllers/maincontroller';
 import HomeController from './controllers/homecontroller';
+import WhisperController from './controllers/whispercontroller';
 import ChatController from './controllers/chatcontroller';
 import StreamController from './controllers/streamcontroller';
 import DialogController from './controllers/dialogcontroller';
@@ -18,6 +19,7 @@ import SettingsDialogController from './controllers/settingsdialogcontroller';
 import ButtonSettingsController from './controllers/buttonsettingscontroller';
 import StreamListController from './controllers/streamlistcontroller';
 import AutocompletePanelController from './controllers/autocompletepanelcontroller';
+import WhisperToastController from './controllers/whispertoastcontroller';
 
 import goldenLayoutDragSource from './directives/goldenlayoutdragsourcedirective';
 import { chatLineDirective, isntEmptyFilter, compileDirective } from './directives/chatlinedirective';
@@ -28,7 +30,7 @@ import draggableDirective from './directives/draggabledirective';
 import simpleScrollbarDirective from './directives/simplescrolldirective';
 import autocompleteDirective from './directives/autocompletedirective';
 import { throttledMousemoveDirective, throttledClickDirective, throttledKeydownDirective, throttledUserScrollDirective } from './directives/throttledevents';
-import { timeAgoFilter, largeNumberFilter, durationFilter } from './directives/filters';
+import { timeAgoFilter, largeNumberFilter, durationFilter, uniqueFilter } from './directives/filters';
 
 import ApiService from './services/apiservice';
 import ChatService from './services/chatservice';
@@ -43,6 +45,7 @@ const app = angular.module('mtApp', [angularAria, angularAnimate, angularMateria
 
 app.controller('MainController', MainController);
 app.controller('HomeController', HomeController);
+app.controller('WhisperController', WhisperController);
 app.controller('ChatController', ChatController);
 app.controller('StreamController', StreamController);
 app.controller('DialogController', DialogController);
@@ -50,6 +53,7 @@ app.controller('SettingsDialogController', SettingsDialogController);
 app.controller('ButtonSettingsController', ButtonSettingsController);
 app.controller('StreamListController', StreamListController);
 app.controller('AutocompletePanelController', AutocompletePanelController);
+app.controller('WhisperToastController', WhisperToastController);
 
 app.directive('goldenLayoutDragSource', goldenLayoutDragSource);
 app.directive('chatLine', chatLineDirective);
@@ -75,6 +79,7 @@ app.filter('isntEmpty', isntEmptyFilter);
 app.filter('timeAgo', timeAgoFilter);
 app.filter('largeNumber', largeNumberFilter);
 app.filter('duration', durationFilter);
+app.filter('unique', uniqueFilter);
 
 app.config($mdThemingProvider => {
   'ngInject';

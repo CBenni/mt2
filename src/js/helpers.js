@@ -217,3 +217,8 @@ export function textToCursor(text, size, font) {
   textToCursorCache.set(cacheKey, result);
   return result;
 }
+
+export function getFullName(name, displayName) {
+  if(name === displayName.toLowerCase()) return displayName;
+  return `${displayName} (${name})`;
+}

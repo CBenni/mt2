@@ -31,7 +31,7 @@ export function throttledUserScrollDirective($parse, ThrottledDigestService) {
       const fn = $parse(attr.throttledUserScroll);
       return (scope, element) => {
         fn(scope, { $event: null, $element: element });
-        element.on('mousedown wheel DOMMouseScroll mousewheel keyup', event => {
+        element.on('wheel DOMMouseScroll mousewheel keyup', event => {
           const callback = () => {
             fn(scope, { $event: event, $element: element });
           };

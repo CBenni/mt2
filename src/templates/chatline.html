@@ -24,7 +24,7 @@
   <span class="chat-line-badges">
     <img ng-src="{{::badge.url}}" ng-repeat="badge in ::line.user.badges" class="chat-line-badge" title="{{::badge.title}}">
   </span>
-  <span class="chat-line-username" ng-style="::{color: chatCtrl.getColor(line.user.color)}" throttled-click="chatCtrl.openModCard($event, line.user)">{{::line.user.displayName}}</span><span class="chat-line-colon">: </span>
+  <span class="chat-line-username" ng-style="::{color: chatCtrl.getColor(line.user.color)}" throttled-click="chatCtrl.openModCard($event, line.user)">{{::line.user.fullName}}</span><span class="chat-line-colon">: </span>
   <span class="chat-line-text" compile="line.html" ng-style="::{color: line.action && chatCtrl.getColor(line.user.color)}"></span>
   <span ng-if="line.modlogs | isntEmpty">(By: {{chatCtrl.getModlogList(line)}})
     <md-tooltip md-direction="top" class="large-tooltip">

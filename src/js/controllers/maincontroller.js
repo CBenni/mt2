@@ -12,12 +12,16 @@ import chatTemplate from '../../templates/chatwindow.html';
 import streamTemplate from '../../templates/streamwindow.html';
 import homeTemplate from '../../templates/homewindow.html';
 import iconTemplate from '../../templates/icontemplate.html';
+import whisperTemplate from '../../templates/whisperwindow.html';
 
 const windowTemplates = {
   chatTemplate,
   streamTemplate,
-  homeTemplate
+  homeTemplate,
+  whisperTemplate
+
 };
+
 
 export default class MainController {
   constructor($compile, $rootScope, $scope, $timeout, $sce, $window, ApiService, ChatService, KeyPressService) {
@@ -35,6 +39,7 @@ export default class MainController {
     this.config = this.defaultConfig;
     this.layouts = this.defaultLayouts;
     this.modCards = [];
+    this.chatControllers = [];
 
     // initialize layout
     const storedConfig = localStorage.getItem('mt2-config');
@@ -112,18 +117,7 @@ export default class MainController {
     if (auth) {
       this.auth = JSON.parse(auth);
       ChatService.init(this.auth);
-
-      this.conversations = [];
-      ChatService.on('whisper_received', pubsubMessage => {
-        this.addWhisper(pubsubMessage.data.message.data).then(() => {
-          this.ThrottledDigestService.$scope.$apply(() => { });
-        });
-      });
-      ChatService.on('whisper_sent', pubsubMessage => {
-        this.addWhisper(pubsubMessage.data.message.data).then(() => {
-          this.ThrottledDigestService.$scope.$apply(() => { });
-        });
-      });
+      this.initWhisperWindow();
     }
 
     if (window.location.hash) {
@@ -197,7 +191,7 @@ export default class MainController {
 
   loginWithTwitch() {
     window.location.href = `https://id.twitch.tv/oauth2/authorize?client_id=${config.auth.client_id}`
-    + `&redirect_uri=${config.auth.redirect_uri}&response_type=token&scope=chat_login%20user_subscriptions`;
+      + `&redirect_uri=${config.auth.redirect_uri}&response_type=token&scope=chat_login%20user_subscriptions`;
   }
 
   logoutFromTwitch() {
@@ -209,97 +203,6 @@ export default class MainController {
     window.history.pushState('', document.title, window.location.pathname + window.location.search);
   }
 
-  async upgradeBadges(badgeList) {
-    const badges = await this.ChatService.getBadges();
-    _.each(badgeList, badge => {
-      const badgeSet = badges[badge.id];
-      if (badgeSet) {
-        const versionInfo = badgeSet.versions[badge.version];
-        if (versionInfo) {
-          badge.url = versionInfo.image_url_1x;
-          badge.title = versionInfo.title;
-          badge.name = badge.id;
-        }
-      }
-    });
-  }
-
-  async addWhisper(msg) {
-    if (msg.tags.badges && msg.tags.badges.length > 0) await this.upgradeBadges(msg.tags.badges);
-
-    let isAction = false;
-    const actionmatch = /^\u0001ACTION (.*)\u0001$/.exec(msg.body);
-    if (actionmatch != null) {
-      isAction = true;
-      msg.body = actionmatch[1];
-    }
-
-
-    const transformedMessage = {
-      time: msg.sent_ts ? new Date(msg.sent_ts) : new Date(),
-      tags: msg.tags,
-      trailing: msg.body,
-      user: {
-        id: msg.from_id,
-        name: msg.tags.login,
-        displayName: msg.tags.display_name,
-        color: msg.tags.login,
-        badges: msg.tags.badges
-      },
-      isAction,
-      html: this.$sce.trustAsHtml(this.ChatService.renderEmotes(msg, msg.tags.emotes)),
-      recipient: msg.recipient,
-      threadID: msg.thread_id
-    };
-
-    const conversation = this.findConversation(transformedMessage);
-    conversation.lines.push(transformedMessage);
-  }
-
-  openConversation(user) {
-    const threadID = `${this.auth.id}_${user.id}`;
-    const convo = this.findConversation({ user, threadID });
-    convo.collapse = false;
-  }
-
-  findConversation(msg) {
-    let convo = _.find(this.conversations, conversation => conversation.id === msg.threadID);
-    if (!convo) {
-      let otherUser = msg.user;
-      if (`${otherUser.id}` === this.auth.id) {
-        // we sent the message ourselves, find the other user
-        otherUser = {
-          id: msg.recipient.id,
-          name: msg.recipient.username,
-          displayName: msg.recipient.display_name,
-          color: msg.recipient.color,
-          badges: msg.recipient.badges
-        };
-        this.upgradeBadges(otherUser.badges);
-      }
-      convo = {
-        user: otherUser,
-        lines: [],
-        whisperText: '',
-        collapse: false,
-        id: msg.threadID
-      };
-      this.conversations.push(convo);
-    }
-    return convo;
-  }
-
-  sendWhisper($event, conversation) {
-    if ($event.keyCode === 13 && conversation.whisperText.length > 0) {
-      this.ChatService.chatSend(`PRIVMSG #jtv :/w ${conversation.user.name} ${conversation.whisperText}`);
-      conversation.whisperText = '';
-    }
-  }
-
-  closeConversation($event, conversation) {
-    _.pull(this.conversations, conversation);
-    $event.preventDefault();
-  }
 
   togglePinned(modCard) {
     if (modCard.pinned) {
@@ -362,5 +265,47 @@ export default class MainController {
       }
     }
     return false;
+  }
+
+  findTab(configItem, templateId) {
+    return this.layout.root.getItemsByFilter(item => item.config.componentState && item.config.componentState.templateId === templateId);
+  }
+
+  initWhisperWindow() {
+    console.log(this.layout);
+    // find whisper window
+    if (this.findTab(this.layout.config, 'whisperTemplate').length === 0) {
+      console.log('No whisper tab found, locating home tab');
+      const homeTab = this.findTab(this.layout.config, 'homeTemplate')[0];
+      if (homeTab) {
+        const parent = homeTab.parent;
+        console.log('Adding whisper tab.');
+        parent.addChild({
+          title: 'Whispers',
+          type: 'component',
+          componentName: 'angularModule',
+          isClosable: false,
+          componentState: {
+            module: 'mtApp',
+            templateId: 'whisperTemplate',
+            icon: {
+              type: 'icon',
+              code: 'chat_bubble_outline'
+            }
+          }
+        });
+      } else console.error('No home tab found!');
+    }
+  }
+
+  registerChatController(chatCtrl) {
+    this.chatControllers.push(chatCtrl);
+    return () => {
+      _.pull(this.chatControllers, chatCtrl);
+    };
+  }
+
+  openMenu($mdMenu, ev) {
+    $mdMenu.open(ev);
   }
 }

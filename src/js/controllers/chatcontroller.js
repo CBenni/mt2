@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-import { stringifyTimeout, textToCursor } from '../helpers';
+import { stringifyTimeout, textToCursor, getFullName } from '../helpers';
 import { fixContrastHSL, hexToRGB, getBrightness } from '../colorcorrection';
 import languageTable from '../languages.json';
 
@@ -106,7 +106,8 @@ export default class ChatController {
             this.resetChatScroll();
             this.throttledUpdateChatPaused();
             return false;
-          }, 1)
+          }, 1),
+          this.mainCtrl.registerChatController(this)
         ];
 
         this.$scope.$on('$destroy', () => {
@@ -578,6 +579,7 @@ export default class ChatController {
         this.mainCtrl.openModCard($event, {
           name: user.name,
           displayName: user.display_name,
+          fullName: getFullName(user.name, user.display_name),
           id: user._id
         }, this);
       });

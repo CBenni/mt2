@@ -1,36 +1,69 @@
-.whisper-container {
-  position: absolute;
-  bottom: 0;
-  max-height: 0px;
-  width: 100%;
+.whisper-window {
+  height: 100%;
+}
 
-  .whisper-conversation {
-    max-height: 350px;
-    height: 350px;
-    width: 350px;
-    margin-right: 5px;
-
-    &.collapse {
-      height: initial;
-    }
-
-    .whisper-header {
-      padding: 8px;
-      background-color: $widget-header;
-    }
-    .whisper-body-wrapper {
-      overflow-y: auto;
-      height: 100%;
-      max-height: 100%;
-      flex-direction: column-reverse;
-      background-color: $widget-body;
-    }
-    .whisper-body {
-      padding-bottom: 5px;
-    }
-    .whisper-input-field {
-      border: 0px none;
-      border-top: 1px #444 solid;
-    }
+.whisper-user-list, .whisper-content {
+  max-height: 100%;
+  min-width: 250px;
+  overflow-y: auto;
+  .whisper-user-name {
+    font-weight: bold;
   }
+  .chat-line-time {
+    color: rgba(0, 0, 0, 0.7);
+    font-size: small;
+  }
+}
+
+.whisper-lines-wrapper {
+  overflow-y: auto;
+  line-height: 1.5;
+}
+
+.whisper-last-message, .whisper-user-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  .emote {
+    max-height: 1em;
+    vertical-align: middle;
+  }
+}
+
+.whisper-text {
+  line-height: 1.5;
+  img.emote {
+    vertical-align: middle;
+    margin: -1em 0 -1em 0;
+  }
+}
+
+md-toast.whisper-toast .md-toast-content {
+  max-width: 400px;
+}
+
+.whisper-date, .whisper-header-name {
+  width: 100%;
+  text-align: center;
+}
+
+.whisper-toast-message-user-name {
+  font-weight: bold;
+}
+
+.whisper-toast-message-header {
+  font-size: large;
+  img.emote {
+    vertical-align: middle;
+    margin: -1em 0 -1em 0;
+  }
+}
+
+.whisper-toast-text {
+  padding: 8px;
+}
+
+.whisper-toast-profile-pic {
+  height: 50px;
 }

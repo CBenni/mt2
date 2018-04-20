@@ -128,7 +128,7 @@ export default function autocompleteDirective($mdPanel, KeyPressService, Throttl
                 )
                 , 5
               )
-              , item => ({ text: `@${item.user.displayName}`, value: `@${item.user.name}`, color: item.user.color })
+              , item => ({ text: `@${item.user.fullName}`, value: `@${item.user.name}`, color: item.user.color })
             );
             if (panelInfo.items.length > 0) {
               selectItem(0);
