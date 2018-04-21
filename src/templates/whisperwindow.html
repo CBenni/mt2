@@ -1,0 +1,61 @@
+<div class="whisper-window no-global-hotkeys" layout="row" ng-controller="WhisperController as whisperCtrl">
+  <md-sidenav class="md-sidenav-left whisper-user-list md-whiteframe-4dp" md-component-id="left" md-is-open="whisperCtrl.isSidenavOpen" md-is-locked-open="!whisperCtrl.selectedConversation">
+    <md-list>
+      <md-list-item ng-repeat="conversation in whisperCtrl.conversations | orderBy:'lastMessage.time':true" layout="row" layout-align="start center" ng-click="whisperCtrl.selectConversation(conversation)">
+        <img ng-src="{{conversation.user.profileImage}}" class="md-avatar" flex="none">
+        <div class="md-list-item-text" flex>
+          <div class="whisper-user-name">{{conversation.user.fullName}}</div>
+          <div ng-bind-html="conversation.lastMessage.html" class="whisper-last-message"></div>
+        </div>
+      </md-list-item>
+    </md-list>
+  </md-sidenav>
+  <div class="whisper-content" flex layout="column" ng-if="whisperCtrl.selectedConversation">
+    <div class="whisper-header" flex="none" layout="row" layout-align="space-between center">
+      <div flex="30">
+        <md-button class="md-icon-button md-primary" ng-click="whisperCtrl.isSidenavOpen = !whisperCtrl.isSidenavOpen">
+          <md-icon>menu</md-icon>
+        </md-button>
+      </div>
+      <div flex="30" class="whisper-header-name">
+        <h3>{{whisperCtrl.selectedConversation.user.fullName}}</h3>
+      </div>
+      <div flex="30" layout="row" layout-align="end center">
+        <md-menu md-position-mode="target-right target">
+          <md-button class="md-icon-button" ng-click="whisperCtrl.openMenu($mdMenu, $event)">
+            <md-icon>settings</md-icon>
+          </md-button>
+          <md-menu-content width="4">
+            <md-menu-item layout="row" layout-align="start center">
+              <span class="menu-item-header">
+                Open mod card in channel:
+              </span>
+            </md-menu-item>
+            <md-menu-item ng-repeat="chatCtrl in $parent.mainCtrl.chatControllers | unique:'channelObj.id'">
+              <md-button ng-click="$parent.mainCtrl.openModCard($event, whisperCtrl.selectedConversation.user, chatCtrl)">
+                {{chatCtrl.channelObj.name}}
+              </md-button>
+            </md-menu-item>
+          </md-menu-content>
+        </md-menu>
+      </div>
+    </div>
+    <div class="whisper-lines-wrapper" flex>
+        <div ng-if="whisperCtrl.selectedConversation" ng-repeat="line in whisperCtrl.selectedConversation.lines">
+          <div ng-if="::line.date" class="whisper-date">{{line.date}}</div>
+          <span class="chat-line-time hide-s" ng-if="::$parent.mainCtrl.getSetting('timeFormat')">
+            <!-- timestamp -->
+            {{::line.time | date : $parent.mainCtrl.getSetting('timeFormat')}}
+          </span>
+          <span class="chat-line-badges">
+            <img ng-src="{{::badge.url}}" ng-repeat="badge in ::line.user.badges" class="chat-line-badge" title="{{::badge.title}}">
+          </span>
+          <span class="chat-line-username" ng-style="::{color: line.user.color}">{{::line.user.fullName}}</span><span class="chat-line-colon">: </span>
+          <span class="chat-line-text whisper-text" ng-bind-html="line.html" ng-style="::{color: line.action && line.user.color}"></span>
+        </div>
+    </div>
+    <div class="chat-input-box" flex="none">
+      <textarea class="chat-input" ng-model="whisperCtrl.selectedConversation.whisperText" rows=1 throttled-keydown="whisperCtrl.sendWhisper($event, whisperCtrl.selectedConversation)"></textarea>
+    </div>
+  </div>
+</div>

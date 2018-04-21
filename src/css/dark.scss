@@ -51,7 +51,7 @@
   }
 }
 
-&, .chat-line-wrapper .chat-line-time {
+&, .chat-line-wrapper .chat-line-time, .whisper-lines-wrapper .chat-line-time {
   color: $text-color-dark;
 }
 .chat-line-wrapper {
@@ -112,5 +112,17 @@ md-switch.md-dark-theme.md-checked .md-thumb {
 .md-panel.autocomplete-panel {
   .autocomplete-panel-content {
     background-color: $widget-body-dark;
+  }
+}
+
+md-sidenav {
+  background-color: $widget-body-dark;
+}
+
+md-menu-content.md-dark-theme {
+  background-color: $widget-body-dark;
+
+  md-menu-item {
+    color: $text-color-dark;
   }
 }

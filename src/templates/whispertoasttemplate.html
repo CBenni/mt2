@@ -1,0 +1,7 @@
+<md-toast ng-click="whisperToastCtrl.goToWhisper()" class="whisper-toast">
+  <img class="whisper-toast-profile-pic md-avatar" ng-src="{{whisperToastCtrl.conversation.user.profileImage}}">
+  <span class="whisper-toast-text md-toast-text" flex layout="column" layout-align="center start">
+    <span class="whisper-toast-message-header">New whisper from <span class="whisper-toast-message-user-name">{{whisperToastCtrl.conversation.user.fullName}}</span>!</span>
+    <span class="whisper-toast-message-content" ng-bind-html="whisperToastCtrl.message.html"></span>
+  </span>
+</md-toast>

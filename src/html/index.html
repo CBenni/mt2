@@ -74,7 +74,9 @@
       opacity: 0;
     }
 
-    .loading-screen a, .loading-screen a:visited, .loading-screen a:hover {
+    .loading-screen a,
+    .loading-screen a:visited,
+    .loading-screen a:hover {
       color: #dad8de !important;
       text-decoration: none;
     }
@@ -88,7 +90,7 @@
   <script async src="https://www.googletagmanager.com/gtag/js?id=UA-54058329-4"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
+    function gtag() { dataLayer.push(arguments); }
     gtag('js', new Date());
 
     gtag('config', 'UA-54058329-4');
@@ -99,7 +101,9 @@
   <div class="loading-screen" ng-class="loadingScreenClass">
     <div>
       <h1>ModCh.at</h1>
-      <h2>by <a href="https://twitter.com/cbenni_o" target="_blank">@cbenni_o</a></h2>
+      <h2>by
+        <a href="https://twitter.com/cbenni_o" target="_blank">@cbenni_o</a>
+      </h2>
     </div>
     <div>
       <span>Dedicated to Brian McNulty (1983 - 2018)</span>
@@ -113,7 +117,8 @@
       </blockquote>
     </div>
     <div class="stolkie">
-      Logo by <a href="https://twitter.com/StolkieBiz" target="_blank">@StolkieBiz</a>
+      Logo by
+      <a href="https://twitter.com/StolkieBiz" target="_blank">@StolkieBiz</a>
     </div>
   </div>
   <div class="wrapper layout-container" id="layout-container"></div>
@@ -121,7 +126,7 @@
     <div ng-repeat="conversation in mainCtrl.conversations" class="whisper-conversation md-whiteframe-4dp" ng-class="{'collapse':conversation.collapse}"
       layout="column" layout-align="start stretch">
       <div class="whisper-header" flex="none" throttled-click="conversation.collapse = !conversation.collapse" layout="row" layout-align="space-between center">
-        <span flex="none">{{conversation.user.displayName}}</span>
+        <span flex="none">{{conversation.user.fullName}}</span>
         <md-button class="tiny-button" flex="none" throttled-click="mainCtrl.closeConversation($event, conversation)">
           <md-icon>close</md-icon>
         </md-button>
@@ -147,10 +152,27 @@
         <img class="mod-card-profile-picture" flex="none" ng-src="{{modCard.stats.logo}}">
       </div>
       <div class="mod-card-header-info" layout="column" flex>
-        <div flex="50" layout="row" layout-align="space-between center">
-          <div class="mod-card-username" flex>{{modCard.stats.display_name || modCard.user.displayName}}</div>
-          <div class="mod-card-controls" flex="none" throttled-click="mainCtrl.togglePinned(modCard)">
-            <md-button class="md-icon-button md-primary">
+        <div flex="none" layout="row" layout-align="space-between center">
+          <div class="mod-card-username" flex>{{modCard.user.fullName}}</div>
+          <div class="mod-card-controls" flex="none">
+            <md-menu md-position-mode="target-right target">
+              <md-button class="md-icon-button" ng-click="mainCtrl.openMenu($mdMenu, $event)">
+                <md-icon>settings</md-icon>
+              </md-button>
+              <md-menu-content width="4">
+                <md-menu-item layout="row" layout-align="start center">
+                  <span class="menu-item-header">
+                    Open mod card in channel:
+                  </span>
+                </md-menu-item>
+                <md-menu-item ng-repeat="chatCtrl in mainCtrl.chatControllers | unique:'channelObj.id'">
+                  <md-button ng-click="mainCtrl.openModCard($event, modCard.user, chatCtrl)">
+                    {{chatCtrl.channelObj.name}}
+                  </md-button>
+                </md-menu-item>
+              </md-menu-content>
+            </md-menu>
+            <md-button class="md-icon-button md-primary" throttled-click="mainCtrl.togglePinned(modCard)">
               <md-icon md-svg-src="/assets/pin.svg" ng-class="{'mod-card-pin': true, 'mod-card-pinned': modCard.pinned}"></md-icon>
             </md-button>
             <md-button class="md-icon-button md-primary" throttled-click="mainCtrl.closeModCard(modCard)">
@@ -158,7 +180,10 @@
             </md-button>
           </div>
         </div>
-        <div class="mod-card-user-info" flex="50">
+        <div class="mod-card-channel-info" flex>
+          {{modCard.chatCtrl.channelObj.name}}
+        </div>
+        <div class="mod-card-user-info" flex>
           <md-icon>
             remove_red_eye
           </md-icon>
@@ -176,7 +201,8 @@
     </div>
     <div class="mod-card-body layout-padding" flex="100" layout="column">
       <div class="mod-card-mod-buttons">
-        <md-button class="md-primary mod-card-mod-button dynamic-icon-button" ng-repeat="modButton in mainCtrl.getSetting('modCardButtons')" throttled-click="modCard.chatCtrl.modAction($event, modButton, modCard)">
+        <md-button class="md-primary mod-card-mod-button dynamic-icon-button" ng-repeat="modButton in mainCtrl.getSetting('modCardButtons')"
+          throttled-click="modCard.chatCtrl.modAction($event, modButton, modCard)">
           <md-tooltip md-delay="500">{{modButton.tooltip}}</md-tooltip>
           <md-icon ng-if="modButton.icon.type === 'icon'">{{modButton.icon.code}}</md-icon>
           <span ng-if="modButton.icon.type === 'text'" class="chat-line-mod-button-label">{{modButton.icon.text}}</span>

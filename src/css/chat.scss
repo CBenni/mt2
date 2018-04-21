@@ -75,7 +75,7 @@
 }
 
 .emote {
-  max-height: 1.75em;
+  max-height: 1.5em;
 }
 
 .chat-container {
@@ -110,6 +110,7 @@
     height: 4em;
     border: 0px none;
     resize: none;
+    box-sizing: border-box;
     background-color: $widget-body;
   }
 }
