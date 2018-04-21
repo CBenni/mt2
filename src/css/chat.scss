@@ -228,3 +228,10 @@
     }
   }
 }
+
+.hide-chat-input {
+  height: 25px;
+  textarea {
+    display: none;
+  }
+}
