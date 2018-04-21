@@ -39,7 +39,7 @@ export default class HomeController {
     this.searchedStreams = null;
     this.selectedStreamsTab = 0;
 
-    this.searchForStreamsThrottled = _.throttle(searchText => this.searchForStreams(searchText), 500);
+    this.searchForStreamsDebounced = _.debounce(searchText => this.searchForStreams(searchText), 500);
     this.currentStreamSearch = null;
 
     this.getGlobalStreams();
@@ -85,7 +85,7 @@ export default class HomeController {
 
   async getSearchedStreams() {
     const searchText = this.streamSearchText;
-    this.searchForStreamsThrottled(searchText);
+    this.searchForStreamsDebounced(searchText);
   }
 
   getStreams() {
@@ -111,7 +111,7 @@ export default class HomeController {
         });
         return Promise.all([streamsSearch, channelLookup, channelSearch]).then(results => {
           console.log(`Search results for ${searchText}: `, results);
-          this.searchedStreams = _.orderBy(_.uniqBy(_.flatten(results), a => `${a.channel._id}`), ['priority'], ['desc']);
+          this.searchedStreams = _.uniqBy(_.orderBy(_.flatten(results), ['priority'], ['desc']), a => `${a.channel._id}`);
           this.selectedStreamsTab = 2;
         });
       }
