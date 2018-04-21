@@ -261,6 +261,7 @@ export default class ChatController {
     if (filters.includes('mentions') && line.mention) return true;
     if (filters.includes('bits') && line.tags.bits) return true;
     if (filters.includes('chat') && line.chat) return true;
+    if (filters.includes('subs') && line.command === 'USERNOTICE') return true;
     return false;
   }
 

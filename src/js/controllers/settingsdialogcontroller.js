@@ -2,7 +2,7 @@ import angular from 'angular';
 import _ from 'lodash';
 import DialogController from './dialogcontroller';
 import { genNonce } from '../helpers';
-import defaultConfig from '../defaultConfig.json';
+import defaultConfig from '../defaultConfig';
 import iconCodes from '../iconCodes.json';
 
 export default class SettingsDialogController extends DialogController {

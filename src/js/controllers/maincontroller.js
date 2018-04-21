@@ -3,10 +3,10 @@ import GoldenLayout from 'golden-layout';
 import $ from 'jquery';
 import _ from 'lodash';
 
-import defaultConfig from '../defaultConfig.json';
-import defaultLayouts from '../defaultLayouts.json';
+import defaultConfig from '../defaultConfig';
+import defaultLayouts from '../defaultLayouts';
+import { migrateConfig, migrateLayouts } from '../migrations';
 import config from '../config';
-import { genNonce } from '../helpers';
 
 import chatTemplate from '../../templates/chatwindow.html';
 import streamTemplate from '../../templates/streamwindow.html';
@@ -45,9 +45,8 @@ export default class MainController {
     const storedConfig = localStorage.getItem('mt2-config');
     if (storedConfig) {
       this.config = JSON.parse(storedConfig);
-      _.each(this.config.settings.chatPresets, preset => {
-        if (!preset.id) preset.id = genNonce();
-      });
+      // run migrations
+      migrateConfig(this.config);
       $timeout(() => { $scope.loadingScreenClass = 'hide-fast'; }, 1000);
     } else {
       $timeout(() => { $scope.loadingScreenClass = 'hide-first-time'; }, 4000);
@@ -55,6 +54,7 @@ export default class MainController {
     const storedLayouts = localStorage.getItem('mt2-layouts');
     if (storedLayouts) {
       this.layouts = JSON.parse(storedLayouts);
+      migrateLayouts(this.layouts);
     }
 
     // temp "fix" for https://github.com/WolframHempel/golden-layout/issues/418
