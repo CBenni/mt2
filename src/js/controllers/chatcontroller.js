@@ -207,7 +207,7 @@ export default class ChatController {
       this.chatLines.splice(0, this.chatLines.length - scrollbackLength);
     }
 
-    if (line.user) {
+    if (line.user && line.user.id !== this.mainCtrl.auth.id) {
       if (!this.autocompleteData.users[line.user.id]) {
         this.autocompleteData.users[line.user.id] = {
           user: line.user

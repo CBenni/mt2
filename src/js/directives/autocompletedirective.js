@@ -98,7 +98,7 @@ export default function autocompleteDirective($mdPanel, KeyPressService, Throttl
             console.log('Tab completing', panelInfo);
             applySelection(word, panelInfo.selectedItem);
           }
-          panel.hide();
+          if (panel) panel.hide();
           panelInfo.items = [];
           selectItem(-1);
           event.preventDefault(true);
