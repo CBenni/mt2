@@ -38,12 +38,22 @@ export default function autocompleteDirective($mdPanel, KeyPressService, Throttl
       };
       $scope.autocomplete.status = panelInfo;
 
+      function selectItem(index) {
+        if (index < 0) index = 0;
+        if (index >= panelInfo.items.length) index = panelInfo.items.length - 1;
+        panelInfo.selectedIndex = index;
+        panelInfo.selectedItem = panelInfo.items[index];
+      }
+
       function applySelection(word, item) {
         const oldStr = ngModel.$viewValue;
         let newStr = oldStr.slice(0, word.start) + item.value + oldStr.slice(word.end);
         if (word.end === oldStr.length) newStr += ' ';
         ngModel.$setViewValue(newStr);
         ngModel.$render();
+        if (panel) panel.hide();
+        panelInfo.items = [];
+        selectItem(-1);
         setTimeout(() => {
           element.prop('selectionStart', word.start + item.value.length + 1);
           element.prop('selectionEnd', word.start + item.value.length + 1);
@@ -74,7 +84,7 @@ export default function autocompleteDirective($mdPanel, KeyPressService, Throttl
             position,
             groupName: 'autocomplete',
             onCloseSuccess: (ref, reason) => {
-              if (reason) applySelection(getCurrentWord(element), panelInfo.selectedItem);
+              if (reason === 'click') applySelection(getCurrentWord(element), panelInfo.selectedItem);
             }
           });
           panel.open();
@@ -82,40 +92,58 @@ export default function autocompleteDirective($mdPanel, KeyPressService, Throttl
         ThrottledDigestService.$apply();
       }
 
-      function selectItem(index) {
-        if (index < 0) index = 0;
-        if (index >= panelInfo.items.length) index = panelInfo.items.length - 1;
-        panelInfo.selectedIndex = index;
-        panelInfo.selectedItem = panelInfo.items[index];
-      }
-
+      let recentMessageSelection = null;
       function onKey(event) {
         if (event.target !== element[0]) return false;
         const word = getCurrentWord(element);
+
+        const oldMessageSelection = recentMessageSelection;
+        if (event.type === 'keydown') recentMessageSelection = null;
 
         if (event.key === 'Tab' || (event.key === 'Enter' && panelInfo.selectedItem)) {
           if (event.type === 'keydown' && panelInfo.selectedItem) {
             applySelection(word, panelInfo.selectedItem);
           }
-          if (panel) panel.hide();
-          panelInfo.items = [];
-          selectItem(-1);
           event.preventDefault(true);
           event.stopImmediatePropagation();
           return true;
         } else if (event.key === 'ArrowUp') {
           if (event.type === 'keydown') {
-            selectItem(panelInfo.selectedIndex + 1);
+            if (panelInfo.items.length === 0 && $scope.autocomplete.messages.length > 0) {
+              if (oldMessageSelection === null) recentMessageSelection = $scope.autocomplete.messages.length - 1;
+              else recentMessageSelection = Math.max(oldMessageSelection - 1, 0);
+              if (recentMessageSelection !== null) {
+                const msg = $scope.autocomplete.messages[recentMessageSelection];
+                if (msg) {
+                  ngModel.$setViewValue(msg);
+                  ngModel.$render();
+                }
+              }
+            } else selectItem(panelInfo.selectedIndex + 1);
           }
           event.preventDefault(true);
           return true;
         } else if (event.key === 'ArrowDown') {
           if (event.type === 'keydown') {
-            selectItem(panelInfo.selectedIndex - 1);
+            if (panelInfo.items.length === 0 && oldMessageSelection !== null) {
+              if (oldMessageSelection < $scope.autocomplete.messages.length - 1) recentMessageSelection = oldMessageSelection + 1;
+              if (recentMessageSelection !== null) {
+                const msg = $scope.autocomplete.messages[recentMessageSelection];
+                if (msg) {
+                  ngModel.$setViewValue(msg);
+                  ngModel.$render();
+                }
+              }
+            } else selectItem(panelInfo.selectedIndex - 1);
           }
           event.preventDefault(true);
           return true;
         } else if (event.key === 'Escape') {
+          panelInfo.items = [];
+          selectItem(-1);
+          event.preventDefault(true);
+          event.stopImmediatePropagation();
+          if (panel) panel.hide();
           return true;
         } else if (event.type === 'keyup') {
           if (word.text[0] === '@' && word.trimmed) {

@@ -31,7 +31,8 @@ export default class ChatController {
     this.autocompleteData = {
       users: {},
       commands: {},
-      emotes: {}
+      emotes: {},
+      messages: []
     };
     this.relevanceCounter = 0;
     this.pagesToShow = 10;
@@ -547,6 +548,11 @@ export default class ChatController {
 
   sendLine(text) {
     this.ChatService.chatSend(`PRIVMSG #${this.channelObj.name} :${text}`);
+    // if this message wasnt one of the 3 last ones, we add it in to the last messages
+    const textFound = this.autocompleteData.messages.lastIndexOf(text);
+    if (textFound === -1 || textFound < this.autocompleteData.messages.length - 5) {
+      this.autocompleteData.messages.push(text);
+    }
   }
 
   modAction($event, modButton, locals) {

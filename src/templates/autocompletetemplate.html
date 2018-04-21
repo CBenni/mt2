@@ -1,6 +1,6 @@
 <div class="autocomplete-panel-content">
   <md-list>
-    <md-list-item ng-repeat="item in autocompleteCtrl.info.items | limitTo:-5 | orderBy:'relevance':true" ng-class="{'autocomplete-selected': item === autocompleteCtrl.info.selectedItem}" throttled-click="autocompleteCtrl.selectItem(item)"> <!--  ng-style="{color: item.color}" -->
+    <md-list-item ng-repeat="item in autocompleteCtrl.info.items | limitTo:-5 | orderBy:'relevance':true" ng-class="{'autocomplete-selected': item === autocompleteCtrl.info.selectedItem}" ng-click="autocompleteCtrl.selectItem(item)"> <!--  ng-style="{color: item.color}" -->
       <img ng-src="{{item.img}}" ng-if="item.img" class="autocomplete-image"> {{item.text}}
     </md-list-item>
   </md-list>
