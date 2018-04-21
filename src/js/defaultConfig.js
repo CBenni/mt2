@@ -167,6 +167,7 @@ export default {
           hideChatInput: false,
           messageFilters: [
             'modlogs',
+            'subs',
             'chat',
             'bots',
             'mentions',

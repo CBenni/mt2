@@ -193,6 +193,13 @@
               <md-button class="md-primary md-raised" throttled-click="dialogCtrl.addChatPreset()">Add</md-button>
             </md-content>
           </md-tab>
+          <md-tab label="Import/Export">
+            <md-content>
+              <md-button ng-click="dialogCtrl.exportSettings()">Export settings</md-button><br>
+              <md-button ng-click="dialogCtrl.importSettings($event)">Import settings</md-button><br>
+              <md-button ng-click="dialogCtrl.resetSettings($event)">Reset settings</md-button>
+            </md-content>
+          </md-tab>
         </md-tabs>
       </div>
     </md-dialog-content>

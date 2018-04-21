@@ -110,7 +110,6 @@ export default class HomeController {
   searchForStreams(searchText) {
     try {
       if (searchText.length > 0) {
-        console.log(`Starting search for ${searchText}`);
         const streamsSearch = this.ApiService.twitchGet(`https://api.twitch.tv/kraken/search/streams?query=${window.encodeURIComponent(searchText)}&limit=25`)
         .then(response => setPriority(response.data.streams, 1000));
         const channelLookup = this.ApiService.twitchGetUserByName(searchText).then(user => {
@@ -123,7 +122,6 @@ export default class HomeController {
           return setPriority(_.map(channels, mockStreamFromChannel), 0);
         });
         return Promise.all([streamsSearch, channelLookup, channelSearch]).then(results => {
-          console.log(`Search results for ${searchText}: `, results);
           this.searchedStreams = _.orderBy(uniquifySearchResults(_.flatten(results)), ['priority'], ['desc']);
           this.selectedStreamsTab = 2;
         });

@@ -117,17 +117,14 @@ export default class ChatService extends EventEmitter {
         const dataObject = msg.data || msg.data_object;
         const msgType = msg.type || dataObject.type;
         if (dataObject && msgType) {
-          console.log('Emitting (1) ', `${msgType}`);
           this.emit(`${msgType}`, parsed);
         }
       }
       if (parsed.data.topic) {
-        console.log('Emitting (2) ', `${parsed.data.topic}`);
         this.emit(`${parsed.data.topic}`, parsed);
       }
     }
     if (parsed.type && parsed.nonce) {
-      console.log('Emitting (3) ', `${parsed.type}-${parsed.nonce}`);
       this.emit(`${parsed.type}-${parsed.nonce}`, parsed);
     }
   }
@@ -153,9 +150,7 @@ export default class ChatService extends EventEmitter {
     conn.send(JSON.stringify({ type, data: { topics, auth_token: this.user.token }, nonce }));
     if (!skipReply) {
       return new Promise((resolve, reject) => {
-        console.log('Listening for ', `RESPONSE-${nonce}`);
         this.once(`RESPONSE-${nonce}`, msg => {
-          console.log('Pubsub message reply received', msg);
           if (msg.error) reject(msg.error);
           else resolve();
         });

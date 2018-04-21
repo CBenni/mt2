@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import $ from 'jquery';
 
 export function genNonce() {
   const charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz';
@@ -97,7 +98,6 @@ export function escapeHtml(string) {
 
 export function formatTimeout(timeout) {
   const tags = timeout.tags;
-  console.log('Formatting timeout: ', tags);
   if (timeout.type === 'timeout') {
     // timeout
     if (!tags.reasons || tags.reasons.length === 0) {
@@ -228,4 +228,23 @@ export function listenEvent(eventEmitter, event, callback) {
   return () => {
     eventEmitter.removeListener(event, callback);
   };
+}
+
+export function loadJSONFromFile() {
+  return new Promise((resolve, reject) => {
+    const element = $('<input type="file" accept=".json">');
+    element.click().on('change', () => {
+      const file = element[0].files[0];
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          resolve(JSON.parse(e.target.result));
+        } catch (err) {
+          reject(err);
+        }
+      };
+      reader.onerror = e => reject(e);
+      reader.readAsText(file);
+    });
+  });
 }

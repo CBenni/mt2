@@ -116,7 +116,6 @@ export default class WhisperController {
         line.html = this.$sce.trustAsHtml(this.ChatService.renderEmotes(line, line.tags.emotes));
         return line;
       });
-      console.log('Lines:', conversation.lines);
       return conversation;
     });
   }

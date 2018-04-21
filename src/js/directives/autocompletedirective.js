@@ -95,7 +95,6 @@ export default function autocompleteDirective($mdPanel, KeyPressService, Throttl
 
         if (event.key === 'Tab' || (event.key === 'Enter' && panelInfo.selectedItem)) {
           if (event.type === 'keydown' && panelInfo.selectedItem) {
-            console.log('Tab completing', panelInfo);
             applySelection(word, panelInfo.selectedItem);
           }
           if (panel) panel.hide();
@@ -185,10 +184,6 @@ export default function autocompleteDirective($mdPanel, KeyPressService, Throttl
       $scope.$on('$destroy', () => {
         _.each(keyEvents, keyEvent => keyEvent());
       });
-
-      /* ctrl.$viewChangeListeners.push(() => {
-        console.log('Show autocomplete?', ctrl);
-      }); */
     }
   };
 }
