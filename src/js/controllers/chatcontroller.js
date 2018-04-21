@@ -226,6 +226,8 @@ export default class ChatController {
   }
 
   checkForMentions(line) {
+    // prevent self mentions
+    if (line.tags['user-id'] === this.mainCtrl.auth.id) return false;
     // check for mentions
     if (this.userMentionRegex.test(line.trailing)) return true;
     const extraMentions = this.mainCtrl.getSetting('chatSettings.extraMentions');
