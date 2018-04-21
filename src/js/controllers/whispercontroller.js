@@ -3,6 +3,19 @@ import _ from 'lodash';
 import whisperToastTemplate from '../../templates/whispertoasttemplate.html';
 import { getFullName } from '../helpers';
 
+function idLarger(id1, id2) {
+  if (id1.length > id2.length) return true;
+  if (id2.length > id1.length) return false;
+  return id1 > id2;
+}
+
+function createThreadID(userID, userID2) {
+  if (idLarger(userID, userID2)) {
+    return `${userID2}_${userID}`;
+  }
+  return `${userID}_${userID2}`;
+}
+
 export default class WhisperController {
   constructor($scope, $timeout, $sce, $filter, $mdToast, ApiService, ChatService, ThrottledDigestService) {
     'ngInject';
@@ -14,6 +27,8 @@ export default class WhisperController {
     this.$sce = $sce;
     this.$filter = $filter;
     this.$mdToast = $mdToast;
+
+    this.mainCtrl.whisperController = this;
 
     this.isSidenavOpen = true;
     this.whisperInputContent = '';
@@ -71,6 +86,7 @@ export default class WhisperController {
     await this.initConversation(conversation);
     this.selectedConversation = conversation;
     this.isSidenavOpen = false;
+    this.mainCtrl.selectWhisperTab();
   }
 
   initConversation(conversation) {
@@ -162,9 +178,9 @@ export default class WhisperController {
   }
 
   openConversation(user) {
-    const threadID = `${this.auth.id}_${user.id}`;
+    const threadID = createThreadID(this.mainCtrl.auth.id, user.id);
     const convo = this.findConversation({ user, threadID });
-    convo.collapse = false;
+    this.selectConversation(convo);
   }
 
   findConversation(msg) {
@@ -189,7 +205,7 @@ export default class WhisperController {
       });
       convo = {
         user: otherUser,
-        lines: [],
+        lines: null,
         whisperText: '',
         collapse: false,
         id: msg.threadID

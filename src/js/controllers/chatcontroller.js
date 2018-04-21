@@ -559,7 +559,7 @@ export default class ChatController {
         window.open(this.replaceVariables(modButton.action.url, locals), '_blank');
         break;
       case 'whisper':
-        this.mainCtrl.openConversation(locals.user);
+        this.mainCtrl.whisperController.openConversation(locals.user);
         break;
       case 'post':
         this.$http.post(this.replaceVariables(modButton.action.url))

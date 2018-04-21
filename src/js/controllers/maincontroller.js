@@ -40,6 +40,7 @@ export default class MainController {
     this.layouts = this.defaultLayouts;
     this.modCards = [];
     this.chatControllers = [];
+    this.whisperController = null;
 
     // initialize layout
     const storedConfig = localStorage.getItem('mt2-config');
@@ -295,6 +296,14 @@ export default class MainController {
           }
         });
       } else console.error('No home tab found!');
+    }
+  }
+
+  selectWhisperTab() {
+    const whisperTabs = this.findTab(this.layout.config, 'whisperTemplate');
+    if (whisperTabs.length === 1) {
+      const whisperTab = whisperTabs[0];
+      whisperTab.parent.setActiveContentItem(whisperTab);
     }
   }
 
