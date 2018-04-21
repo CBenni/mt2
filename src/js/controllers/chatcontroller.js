@@ -530,7 +530,7 @@ export default class ChatController {
   }
 
   scrollToBottom() {
-    this.ThrottledDigestService.scheduleOnce('scrollToBottom', () => {
+    this.ThrottledDigestService.schedule(() => {
       this.chatElement.scrollTop(this.chatElement[0].scrollHeight);
     });
   }
