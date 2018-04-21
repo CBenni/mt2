@@ -54,7 +54,7 @@
     <div class="chat-input-box" ng-class="{'hide-chat-input': chatCtrl.preset.settings.hideChatInput}" flex="none">
       <textarea class="chat-input" ng-model="chatCtrl.chatInputContent" rows=1 autocomplete="chatCtrl.autocompleteData" throttled-keydown="chatCtrl.chatInputKeyPress($event)"></textarea>
     </div>
-    <div class="emote-menu" ng-if="chatCtrl.showEmoteMenu" layout="column" layout-padding click-outside="chatCtrl.showEmoteMenu = false">
+    <div class="emote-menu no-global-hotkeys" ng-if="chatCtrl.showEmoteMenu" layout="column" layout-padding click-outside="chatCtrl.showEmoteMenu = false">
       <div class="emote-search" flex="none" layout="row">
         <md-input-container class="compact" flex="100">
           <input type="text" ng-model="chatCtrl.emoteSearchString" placeholder="Search...">
