@@ -152,8 +152,13 @@
         <img class="mod-card-profile-picture" flex="none" ng-src="{{modCard.stats.logo}}">
       </div>
       <div class="mod-card-header-info" layout="column" flex>
-        <div flex="none" layout="row" layout-align="space-between center">
-          <div class="mod-card-username" flex>{{modCard.user.fullName}}</div>
+        <div layout="row" flex="none">
+          <div flex layout="column">
+            <div class="mod-card-username" flex="none">{{modCard.user.fullName}}</div>
+            <div class="mod-card-channel-info" flex="none">
+              {{modCard.chatCtrl.channelObj.name}}
+            </div>
+          </div>
           <div class="mod-card-controls" flex="none">
             <md-menu md-position-mode="target-right target">
               <md-button class="md-icon-button" ng-click="mainCtrl.openMenu($mdMenu, $event)">
@@ -179,9 +184,6 @@
               <md-icon>close</md-icon>
             </md-button>
           </div>
-        </div>
-        <div class="mod-card-channel-info" flex>
-          {{modCard.chatCtrl.channelObj.name}}
         </div>
         <div class="mod-card-user-info" flex>
           <md-icon>
