@@ -1,7 +1,8 @@
 import _ from 'lodash';
 import { EventEmitter } from 'events';
 
-import { parseIRCMessage, jsonParseRecursive, sdbmCode, capitalizeFirst, genNonce, escapeHtml, entityMap, formatTimeout, instantiateRegex, alwaysResolve, getFullName } from '../helpers';
+import { parseIRCMessage, jsonParseRecursive, sdbmCode, capitalizeFirst, genNonce, escapeHtml, formatTimeout, instantiateRegex, alwaysResolve, getFullName, safeLink } from '../helpers';
+import urlRegex from '../urlRegex';
 
 const DEFAULTCOLORS = ['#e391b8', '#e091ce', '#da91de', '#c291db', '#ab91d9', '#9691d6', '#91a0d4', '#91b2d1', '#91c2cf', '#91ccc7', '#91c9b4', '#90c7a2', '#90c492', '#9dc290', '#aabf8f', '#b5bd8f', '#bab58f', '#b8a68e', '#b5998e', '#b38d8d'];
 export default class ChatService extends EventEmitter {
@@ -292,7 +293,7 @@ export default class ChatService extends EventEmitter {
           }
         }
       }
-      html = this.renderEmotes(message, emotes);
+      html = this.renderMessage(message, emotes);
     }
     if (message.type === 'timeout' || message.type === 'ban') {
       html += escapeHtml(formatTimeout(message));
@@ -303,7 +304,7 @@ export default class ChatService extends EventEmitter {
     return message;
   }
 
-  renderCustomEmotes(message, word) {
+  renderWord(message, word) {
     const holder = message.channel && this.channelEmotes.get(message.channel.id);
     const emote = this.thirdPartyEmotes.get(word) || (holder && holder.thirdPartyEmotes.get(word));
     if (emote) {
@@ -324,10 +325,14 @@ export default class ChatService extends EventEmitter {
     if (mentionMatch) {
       return `<span class="compile chat-mention" ng-click="chatCtrl.openModCardByName($event, '${mentionMatch[1]}')">${word}</span>`;
     }
-    return word;
+    const urlMatch = urlRegex.exec(word);
+    if (urlMatch) {
+      return safeLink(urlMatch[0]);
+    }
+    return escapeHtml(word);
   }
 
-  renderEmotes(message, emotes) {
+  renderMessage(message, emotes) {
     // replace emotes
     const charArray = Array.from(message.trailing);
     for (let i = 0; i < emotes.length; ++i) {
@@ -340,11 +345,18 @@ export default class ChatService extends EventEmitter {
     let word = '';
     for (let i = 0; i < charArray.length; i++) {
       if (charArray[i] === ' ') {
-        html += `${this.renderCustomEmotes(message, word)} `;
+        html += `${this.renderWord(message, word)} `;
         word = '';
-      } else word += entityMap[charArray[i]] || charArray[i];
+      } else if (charArray[i].length > 5) {
+        // pass through any HTML from twitch emotes
+        html += `${this.renderWord(message, word)}`;
+        html += charArray[i];
+        word = '';
+      } else {
+        word += charArray[i];
+      }
     }
-    html += this.renderCustomEmotes(message, word);
+    html += this.renderWord(message, word);
     return html;
   }
 

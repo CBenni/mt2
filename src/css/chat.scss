@@ -236,3 +236,9 @@
     display: none;
   }
 }
+
+.chat-line-wrapper .chat-line-text {
+  a, a:hover, a:visited, a:active {
+    color: black;
+  }
+}

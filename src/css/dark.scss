@@ -126,3 +126,9 @@ md-menu-content.md-dark-theme {
     color: $text-color-dark;
   }
 }
+
+.chat-line-wrapper .chat-line-text {
+  a, a:hover, a:visited, a:active {
+    color: $text-color-dark;
+  }
+}

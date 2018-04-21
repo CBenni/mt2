@@ -64,6 +64,10 @@ export const entityMap = {
 };
 export const htmlEntities = _.invert(entityMap);
 
+export function escapeHtml(str) {
+  return str.replace(/[&<>"'/{}\\]/g, m => entityMap[m]);
+}
+
 export function formatTimespan(timespan) {
   let age = Math.round(parseInt(timespan, 10));
   const periods = [
@@ -90,10 +94,6 @@ export function formatTimespan(timespan) {
 
 export function formatCount(i) {
   return i <= 1 ? '' : ` (${i} times)`;
-}
-
-export function escapeHtml(string) {
-  return String(string).replace(/[&<>"'\\/]/g, s => entityMap[s]);
 }
 
 export function formatTimeout(timeout) {
@@ -247,4 +247,8 @@ export function loadJSONFromFile() {
       reader.readAsText(file);
     });
   });
+}
+
+export function safeLink(url) {
+  return $('<a target="_blank" rel="noopener"></a>').attr('href', url).text(url)[0].outerHTML;
 }

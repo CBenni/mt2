@@ -70,7 +70,7 @@ export default class WhisperController {
           time: new Date(conversation.last_message.sent_ts * 1000),
           user
         };
-        lastMessage.html = this.$sce.trustAsHtml(this.ChatService.renderEmotes(lastMessage, lastMessage.tags.emotes));
+        lastMessage.html = this.$sce.trustAsHtml(this.ChatService.renderMessage(lastMessage, lastMessage.tags.emotes));
         return {
           id: conversation.id,
           user,
@@ -113,7 +113,7 @@ export default class WhisperController {
             color: message.tags.color
           }
         };
-        line.html = this.$sce.trustAsHtml(this.ChatService.renderEmotes(line, line.tags.emotes));
+        line.html = this.$sce.trustAsHtml(this.ChatService.renderMessage(line, line.tags.emotes));
         return line;
       });
       return conversation;
@@ -147,7 +147,7 @@ export default class WhisperController {
       recipient: msg.recipient,
       threadID: msg.thread_id
     };
-    transformedMessage.html = this.$sce.trustAsHtml(this.ChatService.renderEmotes(transformedMessage, transformedMessage.tags.emotes));
+    transformedMessage.html = this.$sce.trustAsHtml(this.ChatService.renderMessage(transformedMessage, transformedMessage.tags.emotes));
 
     const conversation = this.findConversation(transformedMessage);
 
