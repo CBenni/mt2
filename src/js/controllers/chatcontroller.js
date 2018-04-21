@@ -1,13 +1,13 @@
 import _ from 'lodash';
 
-import { stringifyTimeout, textToCursor, getFullName } from '../helpers';
+import { stringifyTimeout, textToCursor, getFullName, listenEvent } from '../helpers';
 import { fixContrastHSL, hexToRGB, getBrightness } from '../colorcorrection';
 import languageTable from '../languages.json';
 
 const templateRegex = /{{((?:\w+)(?:\.\w+)*)}}/g;
 
 export default class ChatController {
-  constructor($sce, $scope, $timeout, $http, $mdPanel, ChatService, ApiService, ThrottledDigestService, KeyPressService, ToastService) {
+  constructor($element, $sce, $scope, $timeout, $http, $mdPanel, ChatService, ApiService, ThrottledDigestService, KeyPressService, ToastService) {
     'ngInject';
 
     this.layout = $scope.layout;
@@ -63,37 +63,8 @@ export default class ChatController {
       this.user = $scope.mainCtrl.auth;
       if (this.user) {
         this.ChatService = ChatService;
-        this.ChatService.joinChannel({ name: this.state.channel }).then(channelObj => {
-          this.channelObj = channelObj;
-          this.systemMessage('Channel joined.');
-          this.ChatService.on(`PRIVMSG-#${this.channelObj.name}`, message => {
-            this.addChat(message);
-          });
-          this.ChatService.on(`USERNOTICE-#${this.channelObj.name}`, message => {
-            this.addUsernotice(message);
-          });
-          this.ChatService.on(`CLEARCHAT-#${this.channelObj.name}`, message => {
-            this.clearChat(message);
-          });
-          this.ChatService.on(`NOTICE-#${this.channelObj.name}`, message => {
-            this.systemMessage(message.trailing);
-          });
 
-          this.ChatService.on('chat_login_moderation', message => {
-            this.addModLogs(message);
-          });
-
-          Promise.all([ChatService.emotesPromise.global, ChatService.emotesPromise[channelObj.id]]).then(() => {
-            this.autocompleteData.emotes.global = ChatService.emotes;
-            this.autocompleteData.emotes.local = ChatService.channelEmotes.get(channelObj.id).emotes;
-          });
-        });
-
-        this.container.setTitle(this.state.channel);
-
-        this.userMentionRegex = new RegExp(`\\b${this.user.name}\\b`, 'gi');
-
-        const keyWatchers = [
+        const listeners = [
           this.KeyPressService.on('keydown', event => {
             const pauseSettings = this.mainCtrl.getSetting('chatSettings.pauseOn');
             if (pauseSettings.indexOf(event.code) >= 0) event.preventDefault();
@@ -110,8 +81,46 @@ export default class ChatController {
           this.mainCtrl.registerChatController(this)
         ];
 
+        this.ChatService.joinChannel({ name: this.state.channel }).then(channelObj => {
+          this.channelObj = channelObj;
+          this.systemMessage('Channel joined.');
+          listeners.push(listenEvent(this.ChatService, `PRIVMSG-#${this.channelObj.name}`, message => {
+            this.addChat(message);
+          }));
+          listeners.push(listenEvent(this.ChatService, `USERNOTICE-#${this.channelObj.name}`, message => {
+            this.addUsernotice(message);
+          }));
+          listeners.push(listenEvent(this.ChatService, `CLEARCHAT-#${this.channelObj.name}`, message => {
+            this.clearChat(message);
+          }));
+          listeners.push(listenEvent(this.ChatService, `NOTICE-#${this.channelObj.name}`, message => {
+            this.systemMessage(message.trailing);
+          }));
+
+          listeners.push(listenEvent(this.ChatService, 'chat_login_moderation', message => {
+            this.addModLogs(message);
+          }));
+
+          Promise.all([ChatService.emotesPromise.global, ChatService.emotesPromise[channelObj.id]]).then(() => {
+            this.autocompleteData.emotes.global = ChatService.emotes;
+            this.autocompleteData.emotes.local = ChatService.channelEmotes.get(channelObj.id).emotes;
+          });
+        });
+
+        this.container.setTitle(this.state.channel);
+
+        this.userMentionRegex = new RegExp(`\\b${this.user.name}\\b`, 'gi');
+
+
+        $element.on('remove', () => {
+          console.log('Chat element removed from DOM');
+          this.chatElement = null;
+          $scope.$destroy();
+          _.each(listeners, listener => listener());
+        });
         this.$scope.$on('$destroy', () => {
-          _.each(keyWatchers, keyWatcher => keyWatcher());
+          console.log('Destroying chat controller!');
+          _.each(listeners, listener => listener());
         });
       }
     });

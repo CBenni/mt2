@@ -219,6 +219,13 @@ export function textToCursor(text, size, font) {
 }
 
 export function getFullName(name, displayName) {
-  if(name === displayName.toLowerCase()) return displayName;
+  if (name === displayName.toLowerCase()) return displayName;
   return `${displayName} (${name})`;
+}
+
+export function listenEvent(eventEmitter, event, callback) {
+  eventEmitter.on(event, callback);
+  return () => {
+    eventEmitter.removeListener(event, callback);
+  };
 }
