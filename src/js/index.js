@@ -31,6 +31,7 @@ import simpleScrollbarDirective from './directives/simplescrolldirective';
 import autocompleteDirective from './directives/autocompletedirective';
 import { throttledMousemoveDirective, throttledClickDirective, throttledKeydownDirective, throttledUserScrollDirective } from './directives/throttledevents';
 import { timeAgoFilter, largeNumberFilter, durationFilter, uniqueFilter } from './directives/filters';
+import dynamicStylesheetDirective from './directives/dynamicstylesheetdirective';
 
 import ApiService from './services/apiservice';
 import ChatService from './services/chatservice';
@@ -65,9 +66,10 @@ app.directive('throttledMousemove', throttledMousemoveDirective);
 app.directive('throttledClick', throttledClickDirective);
 app.directive('throttledKeydown', throttledKeydownDirective);
 app.directive('throttledUserScroll', throttledUserScrollDirective);
-app.directive('simple-scrollbar', simpleScrollbarDirective);
+app.directive('simpleScrollbar', simpleScrollbarDirective);
 app.directive('autocomplete', autocompleteDirective);
 app.directive('compile', compileDirective);
+app.directive('dynamicStylesheet', dynamicStylesheetDirective);
 
 app.service('ApiService', ApiService);
 app.service('ChatService', ChatService);
