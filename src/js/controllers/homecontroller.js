@@ -1,6 +1,19 @@
 import _ from 'lodash';
 import SettingsDialog from '../../templates/settingsdialog.html';
 
+function uniquifySearchResults(results) {
+  const streams = {};
+  _.each(results, stream => {
+    const oldStream = streams[stream.channel._id] || {};
+    if (oldStream.priority > stream.priority) {
+      streams[stream.channel._id] = _.merge(stream, oldStream);
+    } else {
+      streams[stream.channel._id] = _.merge(oldStream, stream);
+    }
+  });
+  return _.values(streams);
+}
+
 function mockStreamFromChannel(channel) {
   const videoBanner = channel.video_banner || '/assets/defaultChannelBanner-1920x1080.png';
   return {
@@ -111,7 +124,7 @@ export default class HomeController {
         });
         return Promise.all([streamsSearch, channelLookup, channelSearch]).then(results => {
           console.log(`Search results for ${searchText}: `, results);
-          this.searchedStreams = _.uniqBy(_.orderBy(_.flatten(results), ['priority'], ['desc']), a => `${a.channel._id}`);
+          this.searchedStreams = _.orderBy(uniquifySearchResults(_.flatten(results)), ['priority'], ['desc']);
           this.selectedStreamsTab = 2;
         });
       }
