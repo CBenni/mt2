@@ -321,9 +321,9 @@ export default class ChatService extends EventEmitter {
           + `<span class="cheer-amount" style="color: ${cheerTier.color}">${amount}</span>`;
       }
     }
-    const mentionMatch = /^@(\w+)$/.exec(word);
+    const mentionMatch = /^@(\w+)\b(.*)$/.exec(word);
     if (mentionMatch) {
-      return `<span class="compile chat-mention" ng-click="chatCtrl.openModCardByName($event, '${mentionMatch[1]}')">${word}</span>`;
+      return `<span class="compile chat-mention" ng-click="chatCtrl.openModCardByName($event, '${mentionMatch[1]}')">@${mentionMatch[1]}</span>${escapeHtml(mentionMatch[2])}`;
     }
     const urlMatch = urlRegex.exec(word);
     if (urlMatch) {
