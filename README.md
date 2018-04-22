@@ -17,7 +17,7 @@ If you want to help out with features and the like, clone the repository, make s
 
     yarn install
     
-Then create a config.prod.json, config.staging.json and a config.dev.json in /src with the following:
+Then create a config.prod.json, config.staging.json and a config.dev.json in /src/js with the following:
 
     {
       "auth": {
@@ -33,3 +33,7 @@ To build and run the development environment, run
     yarn dev
     
 I would like to ask you not to host your own version of this, but to give back to this tool by submitting a pull request.
+
+### Development environment
+I strongly suggest an editor like Atom, VS Code or similar with support for .editorconfig and ESLint.
+Please make sure to adhere to the style set by the .eslint config (at least, to the point where theres no errors)
