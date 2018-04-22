@@ -17,7 +17,7 @@ If you want to help out with features and the like, clone the repository, make s
 
     yarn install
     
-Then create a config.prod.json and a config.dev.json with the following:
+Then create a config.prod.json, config.staging.json and a config.dev.json in /src with the following:
 
     {
       "auth": {
