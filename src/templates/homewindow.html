@@ -28,7 +28,7 @@
           <div stream-list="homeCtrl.globalStreams"></div>
         </md-tab-content>
       </md-tab>
-      <md-tab label="Followed" ng-disabled="!homeCtrl.followedStreams">
+      <md-tab label="Followed" ng-disabled="homeCtrl.followedStreams.length === 0">
         <md-tab-content>
           <div stream-list="homeCtrl.followedStreams"></div>
         </md-tab-content>
