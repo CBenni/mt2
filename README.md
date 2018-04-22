@@ -31,3 +31,5 @@ Then create a config.prod.json and a config.dev.json with the following:
 To build and run the development environment, run
 
     yarn dev
+    
+I would like to ask you not to host your own version of this, but to give back to this tool by submitting a pull request.
