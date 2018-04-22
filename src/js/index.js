@@ -7,6 +7,8 @@ import angularCookies from 'angular-cookies';
 import 'angular-ui-sortable';
 import '@iamadamjowett/angular-click-outside';
 
+import './errorreporting';
+
 import '../css/index.scss';
 
 import MainController from './controllers/maincontroller';
