@@ -22,7 +22,7 @@ export default class ButtonSettingsController {
   setHotkey(button, $event) {
     let code = '';
     if ($event) {
-      code = window.event.code;
+      code = $event.originalEvent.code;
       if (code === 'Escape') code = '';
       $event.preventDefault();
       $event.stopImmediatePropagation();

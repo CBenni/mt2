@@ -8,11 +8,12 @@ export default class KeyPressService {
     this.keysPressed = {};
     this.keyWatchers = {};
 
-    $document.on('keyup keydown', () => {
-      if (window.event.target) {
-        if ($(window.event.target).parents('.no-global-hotkeys').length > 0) return;
+    $document.on('keyup keydown', $event => {
+      const event = $event.originalEvent;
+      if (event.target) {
+        if ($(event.target).parents('.no-global-hotkeys').length > 0) return;
       }
-      this.emit(window.event);
+      this.emit(event);
       ThrottledDigestService.$apply();
     });
   }
