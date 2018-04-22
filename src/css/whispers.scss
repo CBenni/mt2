@@ -15,6 +15,15 @@
   }
 }
 
+.whisper-user-list {
+  max-width: 50%;
+  width: 500px;
+
+  .md-list-item-text {
+    max-width: calc(100% - 56px);
+  }
+}
+
 .whisper-lines-wrapper {
   overflow-y: auto;
   line-height: 1.5;
