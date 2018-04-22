@@ -6,9 +6,9 @@
   "author": "CBenni <levelcarnage@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "build": "webpack -p --define process.env.NODE_ENV='\"production\"' --config webpack.config.js",
-    "stage": "webpack -p --define process.env.NODE_ENV='\"staging\"' --config webpack.config.js",
-    "dev": "webpack-dev-server --history-api-fallback",
+    "build": "webpack --optimize-minimize --define process.env.NODE_ENV='\"prod\"' --config webpack.prod.js",
+    "stage": "webpack --optimize-minimize --define process.env.NODE_ENV='\"staging\"' --config webpack.staging.js",
+    "dev": "webpack-dev-server --history-api-fallback --config webpack.dev.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
@@ -17,6 +17,7 @@
     "babel-plugin-angularjs-annotate": "^0.8.2",
     "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.6.0",
+    "clean-webpack-plugin": "^0.1.19",
     "copy-webpack-plugin": "^4.1.1",
     "css-loader": "^0.28.7",
     "eslint": "^4.9.0",
