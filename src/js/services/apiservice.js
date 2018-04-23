@@ -23,7 +23,7 @@ export default class ApiService {
     return this.$http.get(endpoint, { headers, params: query });
   }
 
-  twitchPOST(endpoint, body, headers, token) {
+  twitchPost(endpoint, body, headers, token) {
     this.nothing = false;
     if (!headers) headers = {};
     headers['Client-ID'] = config.auth.client_id;

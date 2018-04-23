@@ -129,6 +129,10 @@ export default class ChatController {
     this.throttledUpdateChatPaused = _.throttle(() => {
       this.updateChatPaused();
     }, 10);
+
+    $scope.$parent.onTabActive = () => {
+      this.$scope.$parent.notifications = 0;
+    };
   }
 
   getEmbedUrl() {
@@ -256,6 +260,7 @@ export default class ChatController {
     if (line.mention) {
       if (!line.tags.classes) line.tags.classes = [];
       line.tags.classes.push('mention');
+      if (!this.$scope.$parent.tab.isActive) this.$scope.$parent.notifications++;
     }
 
     this.addLine(line);
@@ -417,7 +422,8 @@ export default class ChatController {
   timeoutModlogs(message) {
     const cachedTimeout = this.recentTimeouts[message.target_user_id];
     if (cachedTimeout) {
-      cachedTimeout.message.modlogs.push(message);
+      if (cachedTimeout.message) cachedTimeout.message.modlogs.push(message);
+      else cachedTimeout.modlogs.push(message);
     } else {
       this.recentTimeouts[message.target_user_id] = {
         stub: true,
@@ -435,7 +441,7 @@ export default class ChatController {
   }
 
   resolveAutomodMessage(action, msg) {
-    this.ApiService.twitchPOST(`https://api.twitch.tv/kraken/chat/automod/${action}`, { msg_id: msg.tags.id }, null, this.mainCtrl.auth.token);
+    this.ApiService.twitchPost(`https://api.twitch.tv/kraken/chat/automod/${action}`, { msg_id: msg.tags.id }, null, this.mainCtrl.auth.token);
   }
 
   updateChatPaused() {

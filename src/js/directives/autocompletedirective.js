@@ -21,7 +21,6 @@ function getCurrentWord(element) {
 }
 
 function pushByHeuristic(array, heuristic, value, maxlength, uniqueBy) {
-  console.log(`Inserting with heuristic ${heuristic}`, value);
   if (uniqueBy) {
     const duplicateIndex = _.findIndex(array, x => _.get(x.value, uniqueBy) === _.get(value, uniqueBy));
     if (duplicateIndex >= 0) {
@@ -37,7 +36,6 @@ function pushByHeuristic(array, heuristic, value, maxlength, uniqueBy) {
 }
 
 function findEmotes(local, global, word) {
-  console.log(`Searching for word ${word.text}`);
   const emotes = [];
   const originPenalties = {
     'twitch global': 0,

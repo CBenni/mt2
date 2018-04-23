@@ -4,7 +4,7 @@
       <md-list-item ng-repeat="conversation in whisperCtrl.conversations | orderBy:'lastMessage.time':true" layout="row" layout-align="start center" ng-click="whisperCtrl.selectConversation(conversation)">
         <img ng-src="{{conversation.user.profileImage}}" class="md-avatar" flex="none">
         <div class="md-list-item-text" flex>
-          <div class="whisper-user-name">{{conversation.user.fullName}}</div>
+          <div class="whisper-user-name"><span class="whisper-unread-count" ng-if="(conversation.lastMessage.id - (conversation.lastRead || 0)) > 0">{{conversation.lastMessage.id - (conversation.lastRead || 0)}}</span> {{conversation.user.fullName}}</div>
           <div ng-bind-html="conversation.lastMessage.html" class="whisper-last-message"></div>
         </div>
       </md-list-item>

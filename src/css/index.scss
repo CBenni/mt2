@@ -111,6 +111,25 @@ md-input-container {
 
   md-icon {
     font-size: 12px;
+    height: auto;
+    width: auto;
+    min-height: unset;
+    min-width: unset;
+  }
+}
+
+
+.lm_header .lm_tabs .lm_tab.unread-tab {
+  background-color: darkred;
+  color: white;
+
+  .tab-notification-count {
+    font-size: 12px;
+    background-color: black;
+    color: white;
+    padding: 2px 5.7px;
+    margin: -2px 4px;
+    border-radius: 10px;
   }
 }
 
@@ -122,6 +141,7 @@ md-toast {
 ::-webkit-scrollbar-track
 {
 	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+	box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
 	border-radius: 10px;
 }
 
@@ -134,6 +154,7 @@ md-toast {
 {
 	border-radius: 10px;
 	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+	box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
 	background-color: #555;
 }
 

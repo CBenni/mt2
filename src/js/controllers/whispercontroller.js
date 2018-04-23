@@ -24,6 +24,7 @@ export default class WhisperController {
     this.ChatService = ChatService;
     this.ThrottledDigestService = ThrottledDigestService;
     this.mainCtrl = $scope.$parent.mainCtrl;
+    this.$scope = $scope;
     this.$sce = $sce;
     this.$filter = $filter;
     this.$mdToast = $mdToast;
@@ -49,6 +50,10 @@ export default class WhisperController {
         });
       }
     });
+
+    $scope.$parent.onTabActive = () => {
+      this.updateUnreadStatus();
+    };
   }
 
   loadConversations() {
@@ -65,6 +70,7 @@ export default class WhisperController {
           profileImage: otherUser.profile_image && otherUser.profile_image['50x50'].url
         };
         const lastMessage = {
+          id: conversation.last_message.id,
           trailing: conversation.last_message.body,
           tags: conversation.last_message.tags,
           time: new Date(conversation.last_message.sent_ts * 1000),
@@ -76,9 +82,11 @@ export default class WhisperController {
           user,
           lines: null,
           lastMessage,
-          whisperText: ''
+          whisperText: '',
+          lastRead: conversation.last_read
         };
       });
+      this.updateUnreadStatus();
     });
   }
 
@@ -87,6 +95,7 @@ export default class WhisperController {
     this.selectedConversation = conversation;
     this.isSidenavOpen = false;
     this.mainCtrl.selectWhisperTab();
+    this.markAsRead(conversation);
   }
 
   initConversation(conversation) {
@@ -95,12 +104,14 @@ export default class WhisperController {
     }
     conversation.lastDate = '';
     return this.ApiService.twitchGet(`https://im-proxy.modch.at/v1/threads/${conversation.id}/messages?limit=20`, null, this.mainCtrl.auth.token).then(response => {
+      this.updateUnreadStatus();
       conversation.lines = _.map(_.reverse(response.data.data), message => {
         const date = new Date(message.sent_ts * 1000);
         let dateString = this.$filter('date')(date);
         if (dateString === conversation.lastDate) dateString = '';
         else conversation.lastDate = dateString;
         const line = {
+          id: message.id,
           trailing: message.body,
           tags: message.tags,
           time: date,
@@ -117,6 +128,13 @@ export default class WhisperController {
         return line;
       });
       return conversation;
+    });
+  }
+
+  markAsRead(conversation) {
+    return this.ApiService.twitchPost(`https://im-proxy.modch.at/v1/threads/${conversation.id}`, { mark_read: conversation.lastMessage.id }, null, this.mainCtrl.auth.token).then(response => {
+      conversation.lastRead = response.data.last_read;
+      this.updateUnreadStatus();
     });
   }
 
@@ -145,7 +163,8 @@ export default class WhisperController {
       },
       isAction,
       recipient: msg.recipient,
-      threadID: msg.thread_id
+      threadID: msg.thread_id,
+      id: msg.id
     };
     transformedMessage.html = this.$sce.trustAsHtml(this.ChatService.renderMessage(transformedMessage, transformedMessage.tags.emotes));
 
@@ -173,7 +192,10 @@ export default class WhisperController {
         },
         bindToController: true
       });
+    } else {
+      conversation.lastRead = transformedMessage.id;
     }
+    this.updateUnreadStatus();
   }
 
   openConversation(user) {
@@ -238,5 +260,11 @@ export default class WhisperController {
 
   openMenu($mdMenu, ev) {
     $mdMenu.open(ev);
+  }
+
+  updateUnreadStatus() {
+    const unread = _.countBy(this.conversations, conversation => (conversation.lastMessage.id - (conversation.lastRead || 0)) > 0).true;
+    console.log('Unread whispers: ', unread);
+    this.$scope.$parent.notifications = unread;
   }
 }

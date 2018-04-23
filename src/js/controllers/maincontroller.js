@@ -78,10 +78,35 @@ export default class MainController {
       newScope.container = container;
       newScope.state = state;
       newScope.mainCtrl = this;
+      newScope.notifications = 0;
       linkFun(newScope);
 
       // add icon
       container.on('tab', tab => {
+        newScope.tab = tab;
+
+        const notificationElement = $('<span class="lm_title tab-notification-count"></span>');
+        tab.element.prepend(notificationElement);
+        function updateNotifications() {
+          console.log('Number of notifications changed:', newScope.notifications);
+          console.log('Tab active', tab.isActive);
+          if (newScope.notifications > 0) {
+            notificationElement.text(newScope.notifications);
+            tab.element.addClass('unread-tab');
+          } else {
+            notificationElement.text('');
+            tab.element.removeClass('unread-tab');
+          }
+        }
+        newScope.$watch('notifications', updateNotifications);
+        const oldSetActive = Object.getPrototypeOf(tab).setActive;
+        tab.setActive = isActive => {
+          if (newScope.onTabActive) newScope.onTabActive();
+          oldSetActive.call(tab, isActive);
+          updateNotifications();
+        };
+
+
         let icon = state.icon;
         if (!icon) {
           const preset = this.getChatPreset(state.preset);
