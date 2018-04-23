@@ -52,6 +52,10 @@ export default class WhisperController {
     });
 
     $scope.$parent.onTabActive = () => {
+      if (this.selectedConversation) {
+        this.markAsRead(this.selectedConversation);
+        // this.selectedConversation.lastRead = this.selectedConversation.lastMessage.id;
+      }
       this.updateUnreadStatus();
     };
   }
@@ -178,7 +182,7 @@ export default class WhisperController {
     conversation.lines.push(transformedMessage);
     conversation.lastMessage = transformedMessage;
 
-    if (`${msg.from_id}` !== this.mainCtrl.auth.id) {
+    if (`${msg.from_id}` !== this.mainCtrl.auth.id && (this.selectedConversation !== conversation || !this.$scope.$parent.tab.isActive)) {
       this.$mdToast.show({
         hideDelay: 5000,
         position: 'top right',
