@@ -333,6 +333,7 @@ export default class ChatService extends EventEmitter {
   }
 
   renderMessage(message, emotes) {
+    if (!message) return '';
     // replace emotes
     const charArray = Array.from(message.trailing);
     for (let i = 0; i < emotes.length; ++i) {

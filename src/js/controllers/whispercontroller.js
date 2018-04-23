@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import raven from 'raven-js';
 
 import whisperToastTemplate from '../../templates/whispertoasttemplate.html';
 import { getFullName } from '../helpers';
@@ -173,6 +174,7 @@ export default class WhisperController {
     transformedMessage.html = this.$sce.trustAsHtml(this.ChatService.renderMessage(transformedMessage, transformedMessage.tags.emotes));
 
     const conversation = this.findConversation(transformedMessage);
+    if (!conversation) return;
 
     await this.initConversation(conversation);
     let dateString = this.$filter('date')(transformedMessage.time);
@@ -205,12 +207,18 @@ export default class WhisperController {
   openConversation(user) {
     const threadID = createThreadID(this.mainCtrl.auth.id, user.id);
     const convo = this.findConversation({ user, threadID });
-    this.selectConversation(convo);
+    if (convo) this.selectConversation(convo);
   }
 
   findConversation(msg) {
     let convo = _.find(this.conversations, conversation => conversation.id === msg.threadID);
     if (!convo) {
+      if (!msg.recipient) {
+        raven.captureMessage(`msg.recipient is ${msg.recipient}`, {
+          extra: { msg }
+        });
+        return null;
+      }
       let otherUser = msg.user;
       if (`${otherUser.id}` === this.mainCtrl.auth.id) {
         // we sent the message ourselves, find the other user
@@ -267,7 +275,7 @@ export default class WhisperController {
   }
 
   updateUnreadStatus() {
-    const unread = _.countBy(this.conversations, conversation => (conversation.lastMessage.id - (conversation.lastRead || 0)) > 0).true;
+    const unread = _.countBy(this.conversations, conversation => (((conversation.lastMessage && conversation.lastMessage.id) || 0) - (conversation.lastRead || 0)) > 0).true;
     console.log('Unread whispers: ', unread);
     this.$scope.$parent.notifications = unread;
   }

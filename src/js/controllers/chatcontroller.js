@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import raven from 'raven-js';
 
 import { stringifyTimeout, textToCursor, getFullName, listenEvent } from '../helpers';
 import { fixContrastHSL, hexToRGB, getBrightness } from '../colorcorrection';
@@ -84,6 +85,11 @@ export default class ChatController {
 
         this.ChatService.joinChannel({ name: this.state.channel }).then(channelObj => {
           this.channelObj = channelObj;
+          if (!channelObj.name || !channelObj.id) {
+            raven.captureMessage(`channelObj is ${channelObj}`, {
+              extra: { channelObj }
+            });
+          }
           this.systemMessage('Channel joined.');
           listeners.push(listenEvent(this.ChatService, `PRIVMSG-#${this.channelObj.name}`, message => {
             this.addChat(message);
@@ -538,7 +544,7 @@ export default class ChatController {
 
   scrollToBottom() {
     this.ThrottledDigestService.schedule(() => {
-      this.chatElement.scrollTop(this.chatElement[0].scrollHeight);
+      if (this.chatElement) this.chatElement.scrollTop(this.chatElement[0].scrollHeight);
     });
   }
 

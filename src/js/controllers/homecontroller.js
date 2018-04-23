@@ -98,7 +98,9 @@ export default class HomeController {
 
   async getSearchedStreams() {
     const searchText = this.streamSearchText;
-    this.searchForStreamsDebounced(searchText);
+    this.searchForStreamsDebounced(searchText).catch(err => {
+      console.log('Search failed', err);
+    });
   }
 
   getStreams() {
