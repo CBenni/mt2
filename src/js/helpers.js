@@ -182,10 +182,12 @@ export function stringifyTimeout(timeoutNotice) {
 
 // used to turn regex emote codes into proper names
 export function instantiateRegex(regex) {
-  return regex.replace(/\[([^\]])[^\]]*\]/g, '$1')
+  const res = regex.replace(/\[([^\]])[^\]]*\]/g, '$1')
   .replace(/\(([^|)]*)(?:\|[^)]*)*\)/g, '$1')
   .replace(/\\?(.)\??/g, '$1')
   .replace(/&(\w+);/g, m => htmlEntities[m] || m);
+  if(res !== regex) return res.toUpperCase();
+  return regex;
 }
 
 export function alwaysResolve(promise) {

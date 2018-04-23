@@ -391,8 +391,11 @@ export default class ChatService extends EventEmitter {
           emote.origin = 'twitch global';
           emote.setID = emoteSetId;
           emote.code = instantiateRegex(emote.code);
-          const prefixMatch = /([A-Z]\w*)/.exec(emote.code);
-          if (prefixMatch) emote.prefixless = prefixMatch[0].toLowerCase();
+          const prefixMatch = /^([a-z0-9]+|:-)([A-Z0-9]\w*)$/.exec(emote.code);
+          if (prefixMatch) {
+            emote.prefix = prefixMatch[1];
+            emote.prefixless = prefixMatch[2].toLowerCase();
+          }
           this.emotes.push(emote);
         });
       });

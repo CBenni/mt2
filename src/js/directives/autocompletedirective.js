@@ -15,9 +15,51 @@ function getCurrentWord(element) {
   return {
     start: wordStart,
     end: wordEnd,
-    text: selection,
+    text: selection.toLowerCase(),
     trimmed: trimmed && trimmed[0].toLowerCase()
   };
+}
+
+function pushByHeuristic(array, heuristic, value, maxlength, uniqueBy) {
+  console.log(`Inserting with heuristic ${heuristic}`, value);
+  if (uniqueBy) {
+    const duplicateIndex = _.findIndex(array, x => _.get(x.value, uniqueBy) === _.get(value, uniqueBy));
+    if (duplicateIndex >= 0) {
+      if (heuristic < array[duplicateIndex].heuristic) array[duplicateIndex] = value;
+      return;
+    }
+  }
+
+  const index = _.sortedIndexBy(array, { heuristic, value }, x => x.heuristic);
+  if (index >= maxlength) return;
+  array.splice(index, 0, { heuristic, value });
+  if (array.length > maxlength) array.splice(maxlength);
+}
+
+function findEmotes(local, global, word) {
+  console.log(`Searching for word ${word.text}`);
+  const emotes = [];
+  const originPenalties = {
+    'twitch global': 0,
+    'bttv global': 50,
+    'ffz global': 50
+  };
+
+  let index = 0;
+  _.each(global, emote => {
+    if (emote.code.toLowerCase() === word.trimmed) pushByHeuristic(emotes, originPenalties[emote.origin] + 0, emote, 5, 'code');
+    else if (emote.prefixless && emote.prefixless === word.trimmed) pushByHeuristic(emotes, originPenalties[emote.origin] + 0, emote, 5, 'code');
+    else if (emote.code.toLowerCase().startsWith(word.text)) pushByHeuristic(emotes, 0, emote, 5, 'code');
+    else if (emote.code.toLowerCase().startsWith(word.trimmed)) pushByHeuristic(emotes, originPenalties[emote.origin] + index++, emote, 5, 'code');
+    else if (emote.prefixless && emote.prefixless.startsWith(word.trimmed)) pushByHeuristic(emotes, originPenalties[emote.origin] + index++, emote, 5, 'code');
+    else if (emote.code.toLowerCase().includes(word.trimmed)) pushByHeuristic(emotes, originPenalties[emote.origin] + 500 + index++, emote, 5, 'code');
+  });
+  _.each(local, emote => {
+    if (emote.code.toLowerCase() === word.trimmed) pushByHeuristic(emotes, 0, emote, 5, 'code');
+    else if (emote.code.toLowerCase().startsWith(word.trimmed)) pushByHeuristic(emotes, index++, emote, 5, 'code');
+    else if (emote.code.toLowerCase().includes(word.trimmed)) pushByHeuristic(emotes, 500 + index++, emote, 5, 'code');
+  });
+  return emotes.map(x => x.value);
 }
 
 export default function autocompleteDirective($mdPanel, KeyPressService, ThrottledDigestService) {
@@ -164,26 +206,8 @@ export default function autocompleteDirective($mdPanel, KeyPressService, Throttl
             }
           } else if (word.text[0] === '!' && word.trimmed) {
             // showAutoComplete($scope.autocomplete.commands);
-          } else if (word.text[0] === ':' && word.trimmed) {
-            const emotes = [];
-            const containsEmotes = [];
-            _.each($scope.autocomplete.emotes.local, emote => {
-              if (emote.code.toLowerCase().startsWith(word.trimmed)) emotes.push(emote);
-              else if (emote.code.toLowerCase().includes(word.trimmed)) containsEmotes.push(emote);
-              if (emotes.length >= 5) return false;
-              return true;
-            });
-            if (emotes.length < 5) {
-              _.each($scope.autocomplete.emotes.global, emote => {
-                if (emote.code.toLowerCase().startsWith(word.trimmed)) emotes.push(emote);
-                else if (emote.prefixless && emote.prefixless.startsWith(word.trimmed)) emotes.push(emote);
-                if (emotes.length >= 5) return false;
-                return true;
-              });
-            }
-            if (emotes.length < 5) {
-              Array.prototype.push.apply(emotes, containsEmotes.slice(0, 5 - emotes.length));
-            }
+          } else if (word.text[0] === ':' && word.text.length > 1) {
+            const emotes = findEmotes($scope.autocomplete.emotes.local, $scope.autocomplete.emotes.global, word);
             panelInfo.items = _.map(emotes, emote => ({
               text: emote.code,
               value: emote.code,
