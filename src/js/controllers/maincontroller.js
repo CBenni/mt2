@@ -88,8 +88,6 @@ export default class MainController {
         const notificationElement = $('<span class="lm_title tab-notification-count"></span>');
         tab.element.prepend(notificationElement);
         function updateNotifications() {
-          console.log('Number of notifications changed:', newScope.notifications);
-          console.log('Tab active', tab.isActive);
           if (newScope.notifications > 0) {
             notificationElement.text(newScope.notifications);
             tab.element.addClass('unread-tab');
@@ -298,14 +296,11 @@ export default class MainController {
   }
 
   initWhisperWindow() {
-    console.log(this.layout);
     // find whisper window
     if (this.findTab(this.layout.config, 'whisperTemplate').length === 0) {
-      console.log('No whisper tab found, locating home tab');
       const homeTab = this.findTab(this.layout.config, 'homeTemplate')[0];
       if (homeTab) {
         const parent = homeTab.parent;
-        console.log('Adding whisper tab.');
         parent.addChild({
           title: 'Whispers',
           type: 'component',
