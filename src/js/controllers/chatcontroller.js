@@ -252,9 +252,26 @@ export default class ChatController {
     if (this.userMentionRegex.test(line.trailing)) return true;
     const extraMentions = this.mainCtrl.getSetting('chatSettings.extraMentions');
     if (!extraMentions) return false;
+    const text = line.trailing;
     for (let i = 0; i < extraMentions.length; ++i) {
-      const re = new RegExp(extraMentions[i], 'gi');
-      if (re.test(line.trailing)) return true;
+      const mention = extraMentions[i];
+      let str = text;
+      if (mention.ignoreCase) str = str.toLowerCase();
+      if (mention.type === 'regex') {
+        try {
+          const re = new RegExp(mention.data, `g${mention.ignoreCase ? 'i' : ''}`);
+          if (re.test(str)) return true;
+        } catch (err) {
+          console.error(err);
+        }
+      } else if (mention.type === 'word') {
+        const escapedRegex = mention.data.replace(/[\\*()[\]+-]/g, m => `\\${m}`);
+        const re = new RegExp(`(^|\\W)${escapedRegex}(\\W|$)`, `g${mention.ignoreCase ? 'i' : ''}`);
+        if (re.test(str)) return true;
+      } else if (mention.type === 'text') {
+        if (mention.ignoreCase) return str.includes(mention.data.toLowerCase());
+        if (str.includes(mention.data)) return true;
+      }
     }
     return false;
   }
@@ -280,6 +297,9 @@ export default class ChatController {
     if (filters.includes('automod') && line.automod) return true;
     if (!filters.includes('bots') && line.chat && this.mainCtrl.getSetting('chatSettings.knownBots').includes(line.user.name)) return false;
     if (filters.includes('mentions') && line.mention) return true;
+    else if (line.mention) {
+      _.pull(line.tags.classes, 'mention');
+    }
     if (filters.includes('bits') && line.tags.bits) return true;
     if (filters.includes('chat') && line.chat) return true;
     if (filters.includes('subs') && line.command === 'USERNOTICE') return true;

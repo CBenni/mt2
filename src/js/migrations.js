@@ -14,6 +14,17 @@ export const configMigrations = [
     if (chatPreset && chatPreset.settings.messageFilters.indexOf('subs') === -1) {
       chatPreset.settings.messageFilters.push('subs');
     }
+  },
+  config => {
+    console.log('Applying extra mentions migration');
+    config.settings.chatSettings.extraMentions = _.map(config.settings.chatSettings.extraMentions, mention => {
+      const isRegex = /[()[\]\\?]/g.exec(mention);
+      return {
+        type: isRegex ? 'regex' : 'word',
+        data: mention,
+        ignoreCase: true
+      };
+    });
   }
 ];
 

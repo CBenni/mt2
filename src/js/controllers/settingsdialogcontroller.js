@@ -68,6 +68,12 @@ export default class SettingsDialogController extends DialogController {
       }
     };
 
+    this.defaultExtraMention = {
+      type: 'text',
+      data: '',
+      ignoreCase: true
+    };
+
     this.initDefault('style');
     this.initDefault('styleSheet');
     this.initDefault('modButtons');
@@ -144,5 +150,13 @@ export default class SettingsDialogController extends DialogController {
       window.location.reload();
     })
     .catch(() => {});
+  }
+
+  addExtraMention() {
+    this.$scope.settings.chatSettings.extraMentions.push(angular.copy(this.defaultExtraMention));
+  }
+
+  deleteExtraMention(mention) {
+    _.pull(this.$scope.settings.chatSettings.extraMentions, mention);
   }
 }
