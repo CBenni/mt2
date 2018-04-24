@@ -77,12 +77,12 @@
     }
   }
 
+  .drag-handle {
+    cursor: move;
+  }
+
   .settings-mod-button {
     margin-bottom: 8px;
-
-    .drag-handle {
-      cursor: move;
-    }
 
     md-input-container.dropdown {
       min-width: 150px;
