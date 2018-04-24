@@ -76,6 +76,16 @@ export default class MainController {
       const linkFun = $compile(element);
       const newScope = $scope.$new(true, $scope);
       newScope.container = container;
+      if (state.templateId === 'chatTemplate') {
+        if (!_.find(this.config.settings.chatPresets, preset => preset.id === state.preset)) {
+          if (this.config.settings.chatPresets.length > 0) {
+            state.preset = this.config.settings.chatPresets[0].id;
+          } else {
+            newScope.$destroy();
+            return null;
+          }
+        }
+      }
       newScope.state = state;
       newScope.mainCtrl = this;
       newScope.notifications = 0;
