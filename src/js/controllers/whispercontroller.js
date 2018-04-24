@@ -181,8 +181,10 @@ export default class WhisperController {
     if (dateString === conversation.lastDate) dateString = '';
     else conversation.lastDate = dateString;
     transformedMessage.date = dateString;
-    conversation.lines.push(transformedMessage);
-    conversation.lastMessage = transformedMessage;
+    if (conversation.lastMessage && conversation.lastMessage.id !== transformedMessage.id) {
+      conversation.lines.push(transformedMessage);
+      conversation.lastMessage = transformedMessage;
+    }
 
     if (`${msg.from_id}` !== this.mainCtrl.auth.id && (this.selectedConversation !== conversation || !this.$scope.$parent.tab.isActive)) {
       this.$mdToast.show({

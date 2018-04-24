@@ -98,9 +98,7 @@ export default class HomeController {
 
   async getSearchedStreams() {
     const searchText = this.streamSearchText;
-    this.searchForStreamsDebounced(searchText).catch(err => {
-      console.log('Search failed', err);
-    });
+    this.searchForStreamsDebounced(searchText);
   }
 
   getStreams() {
@@ -126,6 +124,8 @@ export default class HomeController {
         return Promise.all([streamsSearch, channelLookup, channelSearch]).then(results => {
           this.searchedStreams = _.orderBy(uniquifySearchResults(_.flatten(results)), ['priority'], ['desc']);
           this.selectedStreamsTab = 2;
+        }).catch(err => {
+          console.log('Search failed', err);
         });
       }
       this.searchedStreams = null;
