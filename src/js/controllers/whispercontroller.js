@@ -137,7 +137,7 @@ export default class WhisperController {
   }
 
   markAsRead(conversation) {
-    return this.ApiService.twitchPost(`https://im-proxy.modch.at/v1/threads/${conversation.id}`, { mark_read: conversation.lastMessage.id }, null, this.mainCtrl.auth.token).then(response => {
+    return this.ApiService.twitchPost(`https://im-proxy.modch.at/v1/threads/${conversation.id}`, { mark_read: conversation.lastMessage ? conversation.lastMessage.id : 0 }, null, this.mainCtrl.auth.token).then(response => {
       conversation.lastRead = response.data.last_read;
       this.updateUnreadStatus();
     });

@@ -69,7 +69,7 @@ export default class SettingsDialogController extends DialogController {
     };
 
     this.defaultExtraMention = {
-      type: 'text',
+      type: 'word',
       data: '',
       ignoreCase: true
     };

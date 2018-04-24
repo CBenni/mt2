@@ -18,11 +18,28 @@ export const configMigrations = [
   config => {
     console.log('Applying extra mentions migration');
     config.settings.chatSettings.extraMentions = _.map(config.settings.chatSettings.extraMentions, mention => {
-      const isRegex = /[()[\]\\?]/g.exec(mention);
+      let data = mention;
+      let isRegex = /[\\^$.|?*+(){}[\]]/g.exec(mention);
+      // only mark valid regexes as such
+      if (isRegex) {
+        try {
+          RegExp(data);
+        } catch (err) {
+          isRegex = false;
+        }
+      }
+      let type = isRegex ? 'regex' : 'word';
+      let ignoreCase = true;
+      if (isRegex && data.includes('(?-i)')) ignoreCase = false;
+      const isSurroundedByWB = /^\\b([^\\^$.|?*+(){}[\]]*)\\b$/.exec(mention);
+      if (isSurroundedByWB) {
+        type = 'word';
+        data = isSurroundedByWB[1];
+      }
       return {
-        type: isRegex ? 'regex' : 'word',
-        data: mention,
-        ignoreCase: true
+        type,
+        data,
+        ignoreCase
       };
     });
   }
