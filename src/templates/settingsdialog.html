@@ -103,9 +103,9 @@
                           </md-button>
                         </div>
                       </div>
-                      <div flex layout="row" layout-wrap>
+                      <div flex layout="row" layout-wrap layout-align="start end">
                         <div flex="25">
-                          <md-input-container flex="none" class="dropdown md-no-underline">
+                          <md-input-container flex="none" class="dropdown md-no-underline compact no-error-spacer">
                             <label>Type</label>
                             <md-select name="style" class="compact md-no-underline" ng-model="mention.type" placeholder="Icon type">
                               <md-option value="word">Text (surrounded by word boundaries)</md-option>
@@ -115,12 +115,12 @@
                           </md-input-container>
                         </div>
                         <div flex="25">
-                          <md-input-container class="text-input md-no-underline">
+                          <md-input-container class="text-input md-no-underline compact no-error-spacer">
                             <input type="text" ng-model="mention.data" placeholder="Highlight text">
                           </md-input-container>
                         </div>
                         <div flex="25">
-                          <md-input-container class="md-no-underline">
+                          <md-input-container class="md-no-underline compact no-error-spacer">
                             <md-checkbox ng-model="mention.ignoreCase">case insensitive</md-checkbox>
                           </md-input-container>
                         </div>
@@ -129,7 +129,7 @@
                   </ul>
                 </div>
                 <div flex="100">
-                  <md-button ng-click="dialogCtrl.addExtraMention()">
+                  <md-button ng-click="dialogCtrl.addExtraMention()" class="md-primary md-raised">
                     Add
                   </md-button>
                 </div>

@@ -64,9 +64,14 @@
   }
 }
 
+
 .settings-dialog {
   width: 70%;
   min-height: 50%;
+
+  .drag-handle {
+    cursor: move;
+  }
 
   .settings-row {
     min-width: 400px;
@@ -77,8 +82,16 @@
     }
   }
 
-  .drag-handle {
-    cursor: move;
+  .settings-extra-mentions {
+    padding: 8px;
+    margin-bottom: 8px;
+    md-input-container {
+      margin-bottom: 8px;
+    }
+
+    md-checkbox {
+      margin-bottom: 0;
+    }
   }
 
   .settings-mod-button {
