@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import raven from 'raven-js';
 import { EventEmitter } from 'events';
 
 import { parseIRCMessage, jsonParseRecursive, sdbmCode, capitalizeFirst, genNonce, escapeHtml, formatTimeout, instantiateRegex, alwaysResolve, getFullName, safeLink } from '../helpers';
@@ -345,7 +346,14 @@ export default class ChatService extends EventEmitter {
     let html = '';
     let word = '';
     for (let i = 0; i < charArray.length; i++) {
-      if (charArray[i] === ' ') {
+      if (charArray[i] === undefined) {
+        raven.captureMessage('charArray invalid: ', {
+          extra: {
+            message,
+            charArray
+          }
+        });
+      } else if (charArray[i] === ' ') {
         html += `${this.renderWord(message, word)} `;
         word = '';
       } else if (charArray[i].length > 5) {
