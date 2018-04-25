@@ -120,6 +120,14 @@ export default class ChatController {
             this.oldRecentTimeouts = this.recentTimeouts;
             this.recentTimeouts = {};
           }, 30000);
+
+          this.autocompleteData.users[channelObj.id] = {
+            user: {
+              id: this.channelObj.id,
+              name: this.channelObj.name,
+              fullName: this.channelObj.name
+            }
+          };
         });
 
         this.container.setTitle(this.state.channel);
