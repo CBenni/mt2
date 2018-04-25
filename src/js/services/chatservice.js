@@ -2,7 +2,7 @@ import _ from 'lodash';
 import raven from 'raven-js';
 import { EventEmitter } from 'events';
 
-import { parseIRCMessage, jsonParseRecursive, sdbmCode, capitalizeFirst, genNonce, escapeHtml, formatTimeout, instantiateRegex, alwaysResolve, getFullName, safeLink } from '../helpers';
+import { parseIRCMessage, jsonParseRecursive, sdbmCode, capitalizeFirst, genNonce, escapeHtml, formatTimeout, instantiateRegex, alwaysResolve, getFullName, safeLink, globalModTypes } from '../helpers';
 import urlRegex from '../urlRegex';
 
 const DEFAULTCOLORS = ['#e391b8', '#e091ce', '#da91de', '#c291db', '#ab91d9', '#9691d6', '#91a0d4', '#91b2d1', '#91c2cf', '#91ccc7', '#91c9b4', '#90c7a2', '#90c492', '#9dc290', '#aabf8f', '#b5bd8f', '#bab58f', '#b8a68e', '#b5998e', '#b38d8d'];
@@ -254,11 +254,14 @@ export default class ChatService extends EventEmitter {
       const displayName = message.tags['display-name'] || capitalizeFirst(username);
       const fullName = getFullName(username, displayName);
 
+      const userID = message.tags['user-id'];
       message.user = {
         name: username,
-        id: message.tags['user-id'],
+        id: userID,
         displayName,
-        fullName
+        fullName,
+        type: message.tags['user-type'],
+        isMod: (message.tags.mod === '1') || (message.channel && userID === message.channel.id) || globalModTypes.includes(message.tags['user-type'])
       };
       let color = message.tags.color;
       if (!color || color === '') {

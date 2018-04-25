@@ -54,6 +54,23 @@ export const configMigrations = [
     _.each(config.settings.chatHeaderButtons, button => {
       button.show = 'always';
     });
+  },
+  config => {
+    console.log('Applying button bannable migration');
+    _.each(config.settings.modButtons, button => {
+      if (button.action.type === 'command' && button.show === 'mod') {
+        if (button.action.command.startsWith('/timeout') || button.action.command.startsWith('/ban')) {
+          button.show = 'bannable';
+        }
+      }
+    });
+    _.each(config.settings.modCardButtons, button => {
+      if (button.action.type === 'command' && button.show === 'mod') {
+        if (button.action.command.startsWith('/timeout') || button.action.command.startsWith('/ban')) {
+          button.show = 'bannable';
+        }
+      }
+    });
   }
 ];
 

@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import raven from 'raven-js';
 
-import { stringifyTimeout, textToCursor, getFullName, listenEvent } from '../helpers';
+import { stringifyTimeout, textToCursor, getFullName, listenEvent, globalModTypes } from '../helpers';
 import { fixContrastHSL, hexToRGB, getBrightness } from '../colorcorrection';
 import languageTable from '../languages.json';
 
@@ -685,8 +685,10 @@ export default class ChatController {
     }
   }
 
-  showButton(button) {
-    return (button.show === 'always') || (button.show === 'mod' && this.isMod());
+  showButton(button, user) {
+    return (button.show === 'always')
+    || (button.show === 'mod' && this.isMod())
+    || (user && button.show === 'bannable' && (this.isMod() && !user.isMod) || (this.channelObj && this.channelObj.id === this.mainCtrl.auth.id) && !globalModTypes.includes(user.type));
   }
 
   isMod() {

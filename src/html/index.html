@@ -205,7 +205,7 @@
     <div class="mod-card-body layout-padding" flex="100" layout="column">
       <div class="mod-card-mod-buttons">
         <md-button class="md-primary mod-card-mod-button dynamic-icon-button" ng-repeat="modButton in mainCtrl.getSetting('modCardButtons')"
-          throttled-click="modCard.chatCtrl.modAction($event, modButton, modCard)" ng-if="modCard.chatCtrl.showButton(modButton)">
+          throttled-click="modCard.chatCtrl.modAction($event, modButton, modCard)" ng-if="modCard.chatCtrl.showButton(modButton, modCard.user)">
           <md-tooltip md-delay="500">{{modButton.tooltip}}</md-tooltip>
           <md-icon ng-if="modButton.icon.type === 'icon'">{{modButton.icon.code}}</md-icon>
           <span ng-if="modButton.icon.type === 'text'" class="chat-line-mod-button-label">{{modButton.icon.text}}</span>

@@ -186,7 +186,7 @@ export function instantiateRegex(regex) {
   .replace(/\(([^|)]*)(?:\|[^)]*)*\)/g, '$1')
   .replace(/\\?(.)\??/g, '$1')
   .replace(/&(\w+);/g, m => htmlEntities[m] || m);
-  if(res !== regex) return res.toUpperCase();
+  if (res !== regex) return res.toUpperCase();
   return regex;
 }
 
@@ -255,3 +255,5 @@ export function loadJSONFromFile() {
 export function safeLink(url) {
   return $('<a target="_blank" rel="noopener"></a>').attr('href', url).text(url)[0].outerHTML;
 }
+
+export const globalModTypes = ['staff', 'admin', 'global_mod'];

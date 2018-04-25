@@ -4,7 +4,7 @@
     {{::line.time | date : $parent.mainCtrl.getSetting('timeFormat')}}
   </span>
   <span class="chat-line-mod-buttons" ng-if="::chatCtrl">
-    <span class="chat-line-mod-button compact" ng-repeat="modButton in ::$parent.mainCtrl.getSetting('modButtons')" ng-if="::chatCtrl.showButton(modButton)" throttled-click="chatCtrl.modAction($event, modButton, line)">
+    <span class="chat-line-mod-button compact" ng-repeat="modButton in ::$parent.mainCtrl.getSetting('modButtons')" ng-if="::chatCtrl.showButton(modButton, line.user)" throttled-click="chatCtrl.modAction($event, modButton, line)">
       <md-tooltip md-delay="500">{{::modButton.tooltip}}</md-tooltip>
       <md-icon ng-if="::modButton.icon.type === 'icon'">{{::modButton.icon.code}}</md-icon>
       <span ng-if="::modButton.icon.type === 'text'" class="chat-line-mod-button-label">{{::modButton.icon.text}}</span>
