@@ -693,9 +693,9 @@ export default class ChatController {
   }
 
   isMod() {
-    if (this.channelObj.id === this.mainCtrl.auth.id) return true;
+    if (this.channelObj && this.channelObj.id === this.mainCtrl.auth.id) return true;
     if (this.ChatService.globalUserState['user-type'] !== '') return true;
-    if (this.channelObj.userState) {
+    if (this.channelObj && this.channelObj.userState) {
       return this.channelObj.userState.mod === '1';
     }
     return true;

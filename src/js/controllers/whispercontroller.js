@@ -52,12 +52,14 @@ export default class WhisperController {
       }
     });
 
-    $scope.$parent.onTabActive = () => {
-      if (this.selectedConversation) {
-        this.markAsRead(this.selectedConversation);
-        // this.selectedConversation.lastRead = this.selectedConversation.lastMessage.id;
+    $scope.$parent.onTabActive = isActive => {
+      if (isActive) {
+        if (this.selectedConversation) {
+          this.markAsRead(this.selectedConversation);
+          // this.selectedConversation.lastRead = this.selectedConversation.lastMessage.id;
+        }
+        this.updateUnreadStatus();
       }
-      this.updateUnreadStatus();
     };
   }
 
@@ -137,7 +139,8 @@ export default class WhisperController {
   }
 
   markAsRead(conversation) {
-    return this.ApiService.twitchPost(`https://im-proxy.modch.at/v1/threads/${conversation.id}`, { mark_read: conversation.lastMessage ? conversation.lastMessage.id : 0 }, null, this.mainCtrl.auth.token).then(response => {
+    if (!conversation.last_message) return;
+    return this.ApiService.twitchPost(`https://im-proxy.modch.at/v1/threads/${conversation.id}`, { mark_read: conversation.lastMessage.id }, null, this.mainCtrl.auth.token).then(response => {
       conversation.lastRead = response.data.last_read;
       this.updateUnreadStatus();
     });

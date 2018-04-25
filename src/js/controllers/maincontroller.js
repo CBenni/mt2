@@ -109,7 +109,7 @@ export default class MainController {
         newScope.$watch('notifications', updateNotifications);
         const oldSetActive = Object.getPrototypeOf(tab).setActive;
         tab.setActive = isActive => {
-          if (newScope.onTabActive) newScope.onTabActive();
+          if (newScope.onTabActive) newScope.onTabActive(isActive);
           oldSetActive.call(tab, isActive);
           updateNotifications();
         };
