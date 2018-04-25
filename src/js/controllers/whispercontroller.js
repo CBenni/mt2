@@ -98,6 +98,7 @@ export default class WhisperController {
   }
 
   async selectConversation(conversation) {
+    if (!conversation) return;
     await this.initConversation(conversation);
     this.selectedConversation = conversation;
     this.isSidenavOpen = false;
@@ -139,7 +140,7 @@ export default class WhisperController {
   }
 
   markAsRead(conversation) {
-    if (!conversation.lastMessage) return null;
+    if (!conversation || !conversation.lastMessage) return null;
     return this.ApiService.twitchPost(`https://im-proxy.modch.at/v1/threads/${conversation.id}`, { mark_read: conversation.lastMessage.id }, null, this.mainCtrl.auth.token).then(response => {
       conversation.lastRead = response.data.last_read;
       this.updateUnreadStatus();
@@ -218,14 +219,8 @@ export default class WhisperController {
   findConversation(msg) {
     let convo = _.find(this.conversations, conversation => conversation.id === msg.threadID);
     if (!convo) {
-      if (!msg.recipient) {
-        raven.captureMessage(`msg.recipient is ${msg.recipient}`, {
-          extra: { msg }
-        });
-        return null;
-      }
       let otherUser = msg.user;
-      if (`${otherUser.id}` === this.mainCtrl.auth.id) {
+      if (`${otherUser.id}` === this.mainCtrl.auth.id && msg.recipient) {
         // we sent the message ourselves, find the other user
         otherUser = {
           id: msg.recipient.id,
