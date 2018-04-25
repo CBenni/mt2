@@ -1,5 +1,5 @@
 <div class="chat-line-wrapper" ng-class="line.tags.classes">
-  <span ng-if="line.systemHtml"><span compile="line.systemHtml"></span><br></span>
+  <span ng-if="line.systemHtml"><span compile="line.systemHtml"></span><br ng-if="line.html"></span>
   <span ng-if="line.html">
     <span class="chat-line-time hide-s" ng-if="::$parent.mainCtrl.getSetting('timeFormat')">
       <!-- timestamp -->
@@ -28,15 +28,15 @@
     </span>
     <span class="chat-line-username" ng-style="::{color: chatCtrl.getColor(line.user.color)}" throttled-click="chatCtrl.openModCard($event, line.user)">{{::line.user.fullName}}</span><span class="chat-line-colon">: </span>
     <span class="chat-line-text" compile="line.html" ng-style="::{color: line.action && chatCtrl.getColor(line.user.color)}"></span>
-    <span ng-if="line.modlogs | isntEmpty">(By: {{chatCtrl.getModlogList(line)}})
-      <md-tooltip md-direction="top" class="large-tooltip">
-        <table>
-          <tr ng-repeat="modlog in line.modlogs">
-            <td>{{::modlog.created_by}}</td>
-            <td>{{::chatCtrl.getModlogCommand(modlog)}}</td>
-          </tr>
-        </table>
-      </md-tooltip>
-    </span>
+  </span>
+  <span ng-if="line.modlogs | isntEmpty">(By: {{chatCtrl.getModlogList(line)}})
+    <md-tooltip md-direction="top" class="large-tooltip">
+      <table>
+        <tr ng-repeat="modlog in line.modlogs">
+          <td>{{::modlog.created_by}}</td>
+          <td>{{::chatCtrl.getModlogCommand(modlog)}}</td>
+        </tr>
+      </table>
+    </md-tooltip>
   </span>
 </div>

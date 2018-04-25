@@ -379,6 +379,20 @@ export default class ChatController {
     }
   }
 
+  timeoutModlogs(message) {
+    const cachedTimeout = this.recentTimeouts[message.target_user_id] || this.oldRecentTimeouts[message.target_user_id];
+    if (cachedTimeout) {
+      if (cachedTimeout.message) cachedTimeout.message.modlogs.push(message);
+      else cachedTimeout.modlogs.push(message);
+      this.recentTimeouts[message.target_user_id] = cachedTimeout;
+    } else {
+      this.recentTimeouts[message.target_user_id] = {
+        stub: true,
+        modlogs: [message]
+      };
+    }
+  }
+
   addUsernotice(message) {
     message.systemMsg = message.tags['system-msg'].replace(/\\s/g, ' ');
     const userName = message.tags.login;
@@ -416,13 +430,37 @@ export default class ChatController {
         break;
       case 'timeout':
       case 'ban':
-      case 'unban':
-      case 'untimeout':
         this.timeoutModlogs(info);
+        break;
+      case 'untimeout':
+      case 'unban':
+        this.unbanModlogs(info);
         break;
       default:
         this.modlogMessage(info);
     }
+  }
+
+  unbanModlogs(info) {
+    const actionString = {
+      unban: 'unbanned',
+      untimeout: 'untimeouted'
+    };
+    const msg = {
+      tags: {
+        color: 'inherit',
+        classes: ['system-msg']
+      },
+      dontDelete: true,
+      modlogs: [info],
+      prefix: 'jtv!jtv.chat.twitch.tv',
+      command: 'NOTICE',
+      param: [`#${this.channelObj.name}`],
+      trailing: '',
+      systemMsg: `${info.args[0]} has been ${actionString[info.moderation_action]}`
+    };
+    if (this.recentTimeouts[info.target_user_id]) this.recentTimeouts[info.target_user_id] = null;
+    this.addLine(msg);
   }
 
   modlogMessage(info) {
@@ -461,26 +499,12 @@ export default class ChatController {
     this.addLine(msg);
   }
 
-  timeoutModlogs(message) {
-    const cachedTimeout = this.recentTimeouts[message.target_user_id] || this.oldRecentTimeouts[message.target_user_id];
-    if (cachedTimeout) {
-      if (cachedTimeout.message) cachedTimeout.message.modlogs.push(message);
-      else cachedTimeout.modlogs.push(message);
-      this.recentTimeouts[message.target_user_id] = cachedTimeout;
-    } else {
-      this.recentTimeouts[message.target_user_id] = {
-        stub: true,
-        modlogs: [message]
-      };
-    }
-  }
-
   getModlogList(line) {
     return _.uniq(_.map(line.modlogs, modlog => modlog.created_by)).join(', ');
   }
 
   getModlogCommand(modlog) {
-    return `/${modlog.moderation_action}${modlog.args ? modlog.args.join(' ') : ''}`;
+    return `/${modlog.moderation_action}${modlog.args ? ` ${modlog.args.join(' ')}` : ''}`;
   }
 
   resolveAutomodMessage(action, msg) {
