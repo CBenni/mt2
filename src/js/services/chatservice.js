@@ -318,6 +318,9 @@ export default class ChatService extends EventEmitter {
       html += escapeHtml(formatTimeout(message));
     }
 
+    if (message.systemMsg) {
+      message.systemHtml = message.systemMsg.replace(/^\w+\b/, match => `<span class="compile system-user" ng-click="chatCtrl.openModCardByName($event, '${match}')">${match}</span>`);
+    }
     message.html = html;
 
     return message;

@@ -107,6 +107,9 @@ export default class ChatController {
           listeners.push(listenEvent(this.ChatService, 'chat_login_moderation', message => {
             this.addModLogs(message);
           }));
+          listeners.push(listenEvent(this.ChatService, 'chat_channel_moderation', message => {
+            this.addModLogs(message);
+          }));
 
           Promise.all([ChatService.emotesPromise.global, ChatService.emotesPromise[channelObj.id]]).then(() => {
             this.autocompleteData.emotes.global = ChatService.emotes;
@@ -369,7 +372,7 @@ export default class ChatController {
   }
 
   addUsernotice(message) {
-    message.trailing = message.tags['system-msg'].replace(/\\s/g, ' ');
+    message.systemMsg = message.tags['system-msg'].replace(/\\s/g, ' ');
     const userName = message.tags.login;
     message.prefix = `${userName}!${userName}.chat.twitch.tv`;
     message.tags.classes = ['usernotice-msg'];

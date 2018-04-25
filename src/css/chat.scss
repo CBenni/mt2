@@ -72,6 +72,12 @@
   .chat-line-text {
     word-break: break-word;
   }
+
+  .system-user {
+    font-weight: bold;
+    cursor: pointer;
+    outline: none;
+  }
 }
 
 .emote {
