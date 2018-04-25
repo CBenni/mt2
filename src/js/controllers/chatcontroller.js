@@ -30,6 +30,7 @@ export default class ChatController {
     this.pausedChatLines = [];
     this.chatLines = [];
     this.recentTimeouts = {};
+    this.oldRecentTimeouts = {};
     this.autocompleteData = {
       users: {},
       commands: {},
@@ -111,6 +112,11 @@ export default class ChatController {
             this.autocompleteData.emotes.global = ChatService.emotes;
             this.autocompleteData.emotes.local = ChatService.channelEmotes.get(channelObj.id).emotes;
           });
+
+          setInterval(() => {
+            this.oldRecentTimeouts = this.recentTimeouts;
+            this.recentTimeouts = {};
+          }, 30000);
         });
 
         this.container.setTitle(this.state.channel);
@@ -283,6 +289,7 @@ export default class ChatController {
       if (!this.$scope.$parent.tab.isActive) this.$scope.$parent.notifications++;
     }
 
+    if (this.recentTimeouts[line.tags['user-id']]) this.recentTimeouts[line.tags['user-id']] = null;
     this.addLine(line);
   }
 
@@ -320,13 +327,14 @@ export default class ChatController {
         if (line.user.id === targetID && !line.dontDelete) line.tags.classes.push('chat-line-deleted');
       }
       const duration = parseInt(message.tags['ban-duration'], 10);
-      let timeoutNotice = this.recentTimeouts[targetID];
+      let timeoutNotice = this.recentTimeouts[targetID] || this.oldRecentTimeouts[targetID];
       if (timeoutNotice && !timeoutNotice.stub) {
         timeoutNotice.count++;
         timeoutNotice.duration = duration;
         if (message.tags['ban-reason']) timeoutNotice.reasons.push(message.tags['ban-reason']);
         // update the html
         timeoutNotice.message.html = stringifyTimeout(timeoutNotice);
+        this.recentTimeouts[targetID] = timeoutNotice;
       } else {
         const userName = message.trailing;
         const userID = message.tags['target-user-id'];
@@ -443,10 +451,11 @@ export default class ChatController {
   }
 
   timeoutModlogs(message) {
-    const cachedTimeout = this.recentTimeouts[message.target_user_id];
+    const cachedTimeout = this.recentTimeouts[message.target_user_id] || this.oldRecentTimeouts[message.target_user_id];
     if (cachedTimeout) {
       if (cachedTimeout.message) cachedTimeout.message.modlogs.push(message);
       else cachedTimeout.modlogs.push(message);
+      this.recentTimeouts[message.target_user_id] = cachedTimeout;
     } else {
       this.recentTimeouts[message.target_user_id] = {
         stub: true,
