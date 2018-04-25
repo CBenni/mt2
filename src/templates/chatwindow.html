@@ -4,7 +4,7 @@
     <div class="chat-header" flex="none" layout="row" layout-align="space-between center">
       <div flex="none" class="chat-header-buttons">
         <md-button class="chat-header-button compact md-primary" ng-repeat="chatHeaderButton in chatCtrl.mainCtrl.getSetting('chatHeaderButtons')"
-          throttled-click="chatCtrl.modAction($event, chatHeaderButton, {})">
+          throttled-click="chatCtrl.modAction($event, chatHeaderButton, {})" ng-if="chatCtrl.showButton(chatHeaderButton)">
           <md-tooltip md-delay="500">{{chatHeaderButton.tooltip}}</md-tooltip>
           <md-icon ng-if="chatHeaderButton.icon.type === 'icon'">{{chatHeaderButton.icon.code}}</md-icon>
           <span ng-if="chatHeaderButton.icon.type === 'text'" class="chat-header-button-label">{{chatHeaderButton.icon.text}}</span>

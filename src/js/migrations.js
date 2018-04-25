@@ -42,6 +42,18 @@ export const configMigrations = [
         ignoreCase
       };
     });
+  },
+  config => {
+    console.log('Applying button showing migration');
+    _.each(config.settings.modButtons, button => {
+      button.show = button.action.type === 'command' ? 'mod' : 'always';
+    });
+    _.each(config.settings.modCardButtons, button => {
+      button.show = button.action.type === 'command' ? 'mod' : 'always';
+    });
+    _.each(config.settings.chatHeaderButtons, button => {
+      button.show = 'always';
+    });
   }
 ];
 

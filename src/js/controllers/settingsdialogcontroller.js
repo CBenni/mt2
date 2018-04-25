@@ -32,7 +32,8 @@ export default class SettingsDialogController extends DialogController {
         type: 'text',
         text: '60s'
       },
-      hotkey: ''
+      hotkey: '',
+      show: 'mod'
     };
 
     $scope.defaultChatHeaderButton = {
@@ -45,7 +46,8 @@ export default class SettingsDialogController extends DialogController {
         type: 'text',
         text: 'Button'
       },
-      hotkey: ''
+      hotkey: '',
+      show: 'always'
     };
 
     this.defaultChatPreset = {

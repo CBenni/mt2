@@ -79,6 +79,16 @@
         </div>
       </div>
       <div flex="10" layout="row" class="settings-mod-button-setting-very-simple">
+        <md-input-container class="dropdown md-no-underline">
+          <label>Show button</label>
+          <md-select name="style" class="compact md-no-underline" ng-model="button.show" placeholder="Show button">
+            <md-option value="always">always</md-option>
+            <md-option value="mod">when mod</md-option>
+            <md-option value="never">never</md-option>
+          </md-select>
+        </md-input-container>
+      </div>
+      <div flex="10" layout="row" class="settings-mod-button-setting-very-simple">
         <md-input-container class="text-input" flex>
           <input type="text" ng-model="button.hotkey" placeholder="Hotkey" throttled-keydown="btnsCtrl.setHotkey(button, $event)">
         </md-input-container>

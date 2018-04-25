@@ -20,6 +20,7 @@ export default class ChatService extends EventEmitter {
     this.pubsubConnection = null;
     this.user = null;
     this.joinedChannels = {};
+    this.channelObjs = [];
 
     this.badges = {};
     this.getBadges();
@@ -31,6 +32,8 @@ export default class ChatService extends EventEmitter {
 
     this.channelEmotes = new Map();
     this.emotesPromise = {};
+
+    this.globalUserState = {};
   }
 
   init(user) {
@@ -92,6 +95,16 @@ export default class ChatService extends EventEmitter {
       const channelObj = await this.joinedChannels[parsed.tags['room-id']];
       if (channelObj) _.merge(channelObj.roomState, parsed.tags);
       else console.error('ROOMSTATE received for unknown channel', { id: parsed.tags['room-id'], name: parsed.param });
+    });
+
+    this.on('USERSTATE', async parsed => {
+      const channelObj = await _.find(this.channelObjs, channel => `#${channel.name}` === parsed.param);
+      if (channelObj) _.merge(channelObj.userState, parsed.tags);
+      else console.error('USERSTATE received for unknown channel', { name: parsed.param });
+    });
+
+    this.on('GLOBALUSERSTATE', async parsed => {
+      this.globalUserState = parsed.tags;
     });
   }
 
@@ -176,6 +189,7 @@ export default class ChatService extends EventEmitter {
     if (!channelObj.name) channelObj.name = (await this.ApiService.twitchGetUserByID(channelObj.id)).name;
     if (!channelObj.id) channelObj.id = (await this.ApiService.twitchGetUserByName(channelObj.name))._id;
     if (!channelObj.roomState) channelObj.roomState = {};
+    if (!channelObj.userState) channelObj.userState = {};
 
     if (this.joinedChannels[channelObj.id]) return this.joinedChannels[channelObj.id];
     this.chatReceiveConnection.then(conn => {
@@ -190,6 +204,7 @@ export default class ChatService extends EventEmitter {
     const channelJoinedPromise = Promise.all([chatJoinedPromise, pubsubJoinedPromise]).then(() => channelObj);
     this.joinedChannels[channelObj.id] = channelJoinedPromise;
     this.emotesPromise[channelObj.id] = this.getChannelEmotes(channelObj);
+    this.channelObjs.push(channelObj);
     return channelJoinedPromise;
   }
 

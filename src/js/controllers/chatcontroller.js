@@ -687,4 +687,17 @@ export default class ChatController {
       this.modAction($event, this.buttonCursor, line);
     }
   }
+
+  showButton(button) {
+    return (button.show === 'always') || (button.show === 'mod' && this.isMod());
+  }
+
+  isMod() {
+    if (this.channelObj.id === this.mainCtrl.auth.id) return true;
+    if (this.ChatService.globalUserState['user-type'] !== '') return true;
+    if (this.channelObj.userState) {
+      return this.channelObj.userState.mod === '1';
+    }
+    return true;
+  }
 }
