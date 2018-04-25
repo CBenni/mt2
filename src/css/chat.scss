@@ -178,9 +178,11 @@
   bottom: 4em;
   right: 0;
   height: 50%;
-  width: 50%;
+  max-width: 500px;
+  max-height: 500px;
+  width: 90%;
   z-index: 65;
-  background-color: $widget-body;
+  background-color: rgba(200,200,200,0.8);
 
   .emote {
     cursor: pointer;
