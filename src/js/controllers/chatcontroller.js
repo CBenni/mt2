@@ -436,7 +436,7 @@ export default class ChatController {
       prefix: 'jtv!jtv.chat.twitch.tv',
       command: 'NOTICE',
       param: [`#${this.channelObj.name}`],
-      trailing: `${info.created_by} used command /${info.moderation_action} ${info.args.join(' ')}`
+      trailing: `${info.created_by} used command /${info.moderation_action}${info.args ? ` ${info.args.join(' ')}` : ''}`
     };
     this.addLine(msg);
   }
@@ -480,7 +480,7 @@ export default class ChatController {
   }
 
   getModlogCommand(modlog) {
-    return `/${modlog.moderation_action} ${modlog.args.join(' ')}`;
+    return `/${modlog.moderation_action}${modlog.args ? modlog.args.join(' ') : ''}`;
   }
 
   resolveAutomodMessage(action, msg) {
