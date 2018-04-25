@@ -136,8 +136,8 @@ export default class ChatController {
       this.updateChatPaused();
     }, 10);
 
-    $scope.$parent.onTabActive = () => {
-      this.$scope.$parent.notifications = 0;
+    $scope.$parent.onTabActive = isActive => {
+      if (isActive) this.$scope.$parent.notifications = 0;
     };
   }
 
@@ -262,7 +262,7 @@ export default class ChatController {
           const re = new RegExp(mention.data, `g${mention.ignoreCase ? 'i' : ''}`);
           if (re.test(str)) return true;
         } catch (err) {
-          console.error(err);
+          // do nothing
         }
       } else if (mention.type === 'word') {
         const escapedRegex = mention.data.replace(/[\\*()[\]+-]/g, m => `\\${m}`);
