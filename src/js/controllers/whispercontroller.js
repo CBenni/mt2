@@ -139,7 +139,7 @@ export default class WhisperController {
   }
 
   markAsRead(conversation) {
-    if (!conversation.last_message) return;
+    if (!conversation.lastMessage) return null;
     return this.ApiService.twitchPost(`https://im-proxy.modch.at/v1/threads/${conversation.id}`, { mark_read: conversation.lastMessage.id }, null, this.mainCtrl.auth.token).then(response => {
       conversation.lastRead = response.data.last_read;
       this.updateUnreadStatus();
@@ -184,7 +184,7 @@ export default class WhisperController {
     if (dateString === conversation.lastDate) dateString = '';
     else conversation.lastDate = dateString;
     transformedMessage.date = dateString;
-    if (conversation.lastMessage && conversation.lastMessage.id !== transformedMessage.id) {
+    if (!conversation.lastMessage || conversation.lastMessage.id !== transformedMessage.id) {
       conversation.lines.push(transformedMessage);
       conversation.lastMessage = transformedMessage;
     }

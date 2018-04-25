@@ -60,7 +60,7 @@
           <input type="text" ng-model="chatCtrl.emoteSearchString" placeholder="Search...">
         </md-input-container>
       </div>
-      <div class="emote-menu-list" flex layout="row" layout-wrap>
+      <div class="emote-menu-list" flex layout="row" layout-align="start start" layout-wrap>
         <div ng-repeat="emote in chatCtrl.ChatService.channelEmotes.get(chatCtrl.channelObj.id).emotes | filter: {code: chatCtrl.emoteSearchString}"
           flex="none">
           <img class="emote" ng-src="{{emote.url}}" throttled-click="chatCtrl.insertEmote(emote)">

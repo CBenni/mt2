@@ -24,6 +24,7 @@ export default class ChatController {
     this.ThrottledDigestService = ThrottledDigestService;
     this.ToastService = ToastService;
     this.ApiService = ApiService;
+    this.ChatService = ChatService;
 
     this.preset = _.find(this.mainCtrl.getSetting('chatPresets'), { id: this.state.preset });
     this.pausedChatLines = [];
@@ -64,8 +65,6 @@ export default class ChatController {
     $timeout(() => {
       this.user = $scope.mainCtrl.auth;
       if (this.user) {
-        this.ChatService = ChatService;
-
         const listeners = [
           this.KeyPressService.on('keydown', event => {
             const pauseSettings = this.mainCtrl.getSetting('chatSettings.pauseOn');
@@ -115,8 +114,6 @@ export default class ChatController {
         });
 
         this.container.setTitle(this.state.channel);
-
-        this.userMentionRegex = new RegExp(`\\b${this.user.name}\\b`, 'gi');
 
 
         $element.on('remove', () => {
@@ -249,7 +246,7 @@ export default class ChatController {
     // prevent self mentions
     if (line.tags['user-id'] === this.mainCtrl.auth.id) return false;
     // check for mentions
-    if (this.userMentionRegex.test(line.trailing)) return true;
+    if (new RegExp(`\\b${this.user.name}\\b`, 'gi').test(line.trailing)) return true;
     const extraMentions = this.mainCtrl.getSetting('chatSettings.extraMentions');
     if (!extraMentions) return false;
     const text = line.trailing;
