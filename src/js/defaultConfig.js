@@ -17,7 +17,8 @@ export default {
           type: 'icon',
           code: 'remove_circle_outline'
         },
-        hotkey: ''
+        hotkey: '',
+        show: 'bannable'
       },
       {
         action: {
@@ -29,7 +30,8 @@ export default {
           type: 'icon',
           code: 'hourglass_empty'
         },
-        hotkey: ''
+        hotkey: '',
+        show: 'bannable'
       },
       {
         action: {
@@ -41,7 +43,8 @@ export default {
           type: 'icon',
           code: 'block'
         },
-        hotkey: ''
+        hotkey: '',
+        show: 'bannable'
       }
     ],
     modCardButtons: [
@@ -54,7 +57,8 @@ export default {
           type: 'text',
           text: 'Whisper'
         },
-        hotkey: 'KeyW'
+        hotkey: 'KeyW',
+        show: 'always'
       },
       {
         action: {
@@ -66,7 +70,8 @@ export default {
           type: 'icon',
           code: 'remove_circle_outline'
         },
-        hotkey: 'KeyP'
+        hotkey: 'KeyP',
+        show: 'bannable'
       },
       {
         action: {
@@ -78,7 +83,8 @@ export default {
           type: 'icon',
           code: 'hourglass_empty'
         },
-        hotkey: 'KeyT'
+        hotkey: 'KeyT',
+        show: 'bannable'
       },
       {
         action: {
@@ -90,7 +96,8 @@ export default {
           type: 'icon',
           code: 'block'
         },
-        hotkey: 'KeyB'
+        hotkey: 'KeyB',
+        show: 'bannable'
       },
       {
         action: {
@@ -102,7 +109,8 @@ export default {
           type: 'image',
           image: 'https://cbenni.com/html/img/favicon-32x32.png'
         },
-        hotkey: ''
+        hotkey: '',
+        show: 'always'
       }
     ],
     chatHeaderButtons: [
@@ -116,7 +124,8 @@ export default {
           type: 'image',
           image: 'https://cbenni.com/html/img/favicon-32x32.png'
         },
-        hotkey: ''
+        hotkey: '',
+        show: 'always'
       },
       {
         action: {
@@ -128,7 +137,8 @@ export default {
           type: 'image',
           image: 'https://cbenni.com/static/moobot.png'
         },
-        hotkey: ''
+        hotkey: '',
+        show: 'mod'
       }
     ],
     chatSettings: {

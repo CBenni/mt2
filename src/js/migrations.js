@@ -43,6 +43,8 @@ export const configMigrations = [
       };
     });
   },
+  null,
+  null,
   config => {
     console.log('Applying button showing migration');
     _.each(config.settings.modButtons, button => {
@@ -81,7 +83,9 @@ export function migrateConfig(config) {
     config.version = 0;
   }
   while (config.version < configMigrations.length) {
-    configMigrations[config.version++](config);
+    const migration = configMigrations[config.version];
+    if (migration) migration(config);
+    config.version++;
   }
 }
 
@@ -91,7 +95,9 @@ export function migrateLayouts(layouts) {
       layout.version = 0;
     }
     while (layout.version < layoutMigrations.length) {
-      layoutMigrations[layout.version++](layout);
+      const migration = layoutMigrations[layout.version];
+      if (migration) migration(layout);
+      layout.version++;
     }
   });
 }
