@@ -18,6 +18,7 @@ export default class ChatService extends EventEmitter {
     this.chatReceiveConnection = null;
     this.chatSendConnection = null;
     this.pubsubConnection = null;
+    this.reconnections = {};
     this.user = null;
     this.joinedChannels = {};
     this.channelObjs = [];
@@ -40,16 +41,30 @@ export default class ChatService extends EventEmitter {
     this.user = user;
     this.emotesPromise.global = this.getGlobalEmotes();
 
-    this.chatReceiveConnection = this.connectWebsocket('wss://irc-ws.chat.twitch.tv:443');
-    this.chatSendConnection = this.connectWebsocket('wss://irc-ws.chat.twitch.tv:443');
-    this.pubsubConnection = this.connectWebsocket('wss://pubsub-edge.twitch.tv');
-
-    this.chatReceiveConnection.then(conn => {
-      console.log('Chat receive connection opened');
+    this.connectWebsocket('wss://irc-ws.chat.twitch.tv:443', 'chatReceiveConnection', conn => {
       conn.send('CAP REQ :twitch.tv/tags twitch.tv/commands');
       conn.send(`PASS oauth:${user.token}`);
       conn.send(`NICK ${user.name}`);
-      conn.name = 'chatReceiveConnection';
+
+      _.each(this.channelObjs, channelObj => {
+        conn.send(`JOIN #${channelObj.name}`);
+      });
+    });
+    this.connectWebsocket('wss://irc-ws.chat.twitch.tv:443', 'chatSendConnection', conn => {
+      conn.send('CAP REQ :twitch.tv/tags twitch.tv/commands');
+      conn.send(`PASS oauth:${user.token}`);
+      conn.send(`NICK ${user.name}`);
+    });
+    this.connectWebsocket('wss://pubsub-edge.twitch.tv', 'pubsubConnection', () => {
+      this.pubsubSend('LISTEN', [`whispers.${user.id}`]);
+
+      _.each(this.channelObjs, channelObj => {
+        this.pubsubSend('LISTEN', [`chat_moderator_actions.${this.user.id}.${channelObj.id}`]);
+      });
+    });
+
+    this.chatReceiveConnection.then(conn => {
+      console.log('Chat receive connection opened');
 
       conn.addEventListener('message', event => {
         this.handleIRCMessage(conn, event.data);
@@ -58,10 +73,6 @@ export default class ChatService extends EventEmitter {
     });
     this.chatSendConnection.then(conn => {
       console.log('Chat send connection opened');
-      conn.send('CAP REQ :twitch.tv/tags twitch.tv/commands');
-      conn.send(`PASS oauth:${user.token}`);
-      conn.send(`NICK ${user.name}`);
-      conn.name = 'chatSendConnection';
 
       conn.addEventListener('message', event => {
         this.handleIRCMessage(conn, event.data);
@@ -73,7 +84,6 @@ export default class ChatService extends EventEmitter {
     });
     this.pubsubConnection.then(conn => {
       console.log('Pubsub connection opened');
-      this.pubsubSend('LISTEN', [`whispers.${user.id}`]);
 
       conn.addEventListener('message', event => {
         this.ThrottledDigestService.$apply(() => {
@@ -105,6 +115,37 @@ export default class ChatService extends EventEmitter {
 
     this.on('GLOBALUSERSTATE', async parsed => {
       this.globalUserState = parsed.tags;
+    });
+  }
+
+  connectWebsocket(url, socketName, onOpen) {
+    this[socketName] = new Promise(resolve => {
+      if (!this.reconnections[socketName]) this.reconnections[socketName] = { last: 0, count: 0 };
+      const reconnection = this.reconnections[socketName];
+      if (Date.now() - reconnection.last < 60 * 1000) {
+        reconnection.count++;
+      } else {
+        reconnection.count = 0;
+      }
+      reconnection.last = Date.now();
+      const reconnectDelay = Math.min(32, 2 ** reconnection.count);
+      console.log(`Reconnecting websocket in ${reconnectDelay} seconds`);
+      setTimeout(() => {
+        const ws = new WebSocket(url);
+        ws.name = socketName;
+        ws.addEventListener('open', () => {
+          if (onOpen) onOpen(ws);
+          resolve(ws);
+        });
+        ws.addEventListener('close', () => {
+          console.log('Socket closed!', ws);
+          this.connectWebsocket(url, onOpen);
+        });
+        ws.addEventListener('error', err => {
+          console.error('Socket encountered an error!', err);
+          this.connectWebsocket(url, onOpen);
+        });
+      }, reconnectDelay * 1000);
     });
   }
 
@@ -142,21 +183,6 @@ export default class ChatService extends EventEmitter {
     if (parsed.type && parsed.nonce) {
       this.emit(`${parsed.type}-${parsed.nonce}`, parsed);
     }
-  }
-
-  connectWebsocket(url) {
-    return new Promise(resolve => {
-      const ws = new WebSocket(url);
-      ws.addEventListener('open', () => {
-        resolve(ws);
-      });
-      ws.addEventListener('close', () => {
-        console.log('Socket closed!', ws);
-      });
-      ws.addEventListener('error', err => {
-        console.error('Socket encountered an error!', err);
-      });
-    });
   }
 
   async pubsubSend(type, topics, skipReply) {

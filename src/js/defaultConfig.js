@@ -206,5 +206,5 @@ export default {
     timeFormat: 'HH:mm',
     scrollbackLength: 5000
   },
-  version: configMigrations.length
+  version: 7
 };

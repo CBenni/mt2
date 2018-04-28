@@ -1,4 +1,3 @@
-import $ from 'jquery';
 import _ from 'lodash';
 
 export default class KeyPressService {
@@ -11,7 +10,7 @@ export default class KeyPressService {
     $document.on('keyup keydown', $event => {
       const event = $event.originalEvent;
       if (event.target) {
-        if ($(event.target).parents('.no-global-hotkeys').length > 0) return;
+        if (event.target.matches('.no-global-hotkeys, .no-global-hotkeys *').length > 0) return;
       }
       this.emit(event);
       ThrottledDigestService.$apply();
