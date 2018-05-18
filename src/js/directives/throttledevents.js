@@ -14,7 +14,7 @@ function throttledEventDirective(eventName) {
             const callback = () => {
               fn(scope, { $event: event });
             };
-            ThrottledDigestService.$apply(callback);
+            ThrottledDigestService.$apply(scope, callback);
           });
         };
       }
@@ -35,7 +35,7 @@ export function throttledUserScrollDirective($parse, ThrottledDigestService) {
           const callback = () => {
             fn(scope, { $event: event, $element: element });
           };
-          ThrottledDigestService.$apply(callback);
+          ThrottledDigestService.$apply(scope, callback);
         });
       };
     }

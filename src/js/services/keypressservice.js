@@ -2,7 +2,7 @@ import $ from 'jquery';
 import _ from 'lodash';
 
 export default class KeyPressService {
-  constructor($document, ThrottledDigestService) {
+  constructor($document) {
     'ngInject';
 
     this.keysPressed = {};
@@ -14,7 +14,6 @@ export default class KeyPressService {
         if ($(event.target).parents('.no-global-hotkeys').length > 0) return;
       }
       this.emit(event);
-      ThrottledDigestService.$apply();
     });
   }
 

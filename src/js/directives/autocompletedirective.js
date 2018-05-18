@@ -129,7 +129,7 @@ export default function autocompleteDirective($mdPanel, KeyPressService, Throttl
           });
           panel.open();
         }
-        ThrottledDigestService.$apply();
+        ThrottledDigestService.$apply($scope);
       }
 
       let recentMessageSelection = null;
