@@ -63,10 +63,10 @@
       <div class="emote-menu-list" flex layout="row" layout-align="start start" layout-wrap>
         <div ng-repeat="emote in chatCtrl.ChatService.channelEmotes.get(chatCtrl.channelObj.id).emotes | filter: {code: chatCtrl.emoteSearchString}"
           flex="none">
-          <img class="emote" ng-src="{{emote.url}}" throttled-click="chatCtrl.insertEmote(emote)">
+          <img class="emote" ng-src="{{::emote.url}}" throttled-click="chatCtrl.insertEmote(emote)">
         </div>
         <div ng-repeat="emote in chatCtrl.ChatService.emotes | filter: {code: chatCtrl.emoteSearchString}" flex="none">
-          <img class="emote" ng-src="{{emote.url}}" throttled-click="chatCtrl.insertEmote(emote)">
+          <img class="emote" ng-src="{{::emote.url}}" throttled-click="chatCtrl.insertEmote(emote)">
         </div>
       </div>
     </div>

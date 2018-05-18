@@ -68,7 +68,6 @@ export default class ChatService extends EventEmitter {
 
       conn.addEventListener('message', event => {
         this.handleIRCMessage(conn, event.data);
-        this.ThrottledDigestService.$apply();
       });
     });
     this.chatSendConnection.then(conn => {
@@ -86,9 +85,7 @@ export default class ChatService extends EventEmitter {
       console.log('Pubsub connection opened');
 
       conn.addEventListener('message', event => {
-        this.ThrottledDigestService.$apply(() => {
-          this.handlePubSubMessage(conn, event.data);
-        });
+        this.handlePubSubMessage(conn, event.data);
       });
 
       setInterval(() => {

@@ -62,6 +62,7 @@ export default class ChatController {
       'subs-only': '0'
     };
     this.buttonCursor = null;
+    this.showHeaderButtons = false;
 
     $timeout(() => {
       this.user = $scope.mainCtrl.auth;
@@ -604,7 +605,7 @@ export default class ChatController {
   }
 
   scrollToBottom() {
-    this.ThrottledDigestService.schedule(() => {
+    this.ThrottledDigestService.schedule(this.$scope, () => {
       if (this.chatElement) this.chatElement.scrollTop(this.chatElement[0].scrollHeight);
     });
   }

@@ -41,12 +41,12 @@ export default class WhisperController {
         this.loadConversations();
         ChatService.on('whisper_received', pubsubMessage => {
           this.addWhisper(pubsubMessage.data.message.data).then(() => {
-            this.ThrottledDigestService.$apply(() => { });
+            this.ThrottledDigestService.$apply($scope);
           });
         });
         ChatService.on('whisper_sent', pubsubMessage => {
           this.addWhisper(pubsubMessage.data.message.data).then(() => {
-            this.ThrottledDigestService.$apply(() => { });
+            this.ThrottledDigestService.$apply($scope);
           });
         });
       }
