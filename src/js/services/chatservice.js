@@ -358,7 +358,7 @@ export default class ChatService extends EventEmitter {
     for (let i = 0; i < emotes.length; ++i) {
       const emote = emotes[i];
       const emoteName = charArray.slice(emote.start, emote.end + 1).join('');
-      charArray[emote.start] = `<img class="emote emote-${emote.id}" alt="${emoteName}" title="${emoteName}" src="//static-cdn.jtvnw.net/emoticons/v1/${emote.id}/3.0"></img>`;
+      charArray[emote.start] = `<img class="emote emote-${emote.id}" alt="${emoteName}" title="${emoteName}" src="//static-cdn.jtvnw.net/emoticons/v1/${emote.id}/1.0"></img>`;
       for (let k = emote.start + 1; k <= emote.end; ++k) charArray[k] = '';
     }
     let html = '';
