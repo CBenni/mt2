@@ -270,22 +270,24 @@ export default class ChatController {
     const text = line.trailing;
     for (let i = 0; i < extraMentions.length; ++i) {
       const mention = extraMentions[i];
-      let str = text;
-      if (mention.ignoreCase) str = str.toLowerCase();
-      if (mention.type === 'regex') {
-        try {
-          const re = new RegExp(mention.data, `g${mention.ignoreCase ? 'i' : ''}`);
+      if (mention.data) {
+        let str = text;
+        if (mention.ignoreCase) str = str.toLowerCase();
+        if (mention.type === 'regex') {
+          try {
+            const re = new RegExp(mention.data, `g${mention.ignoreCase ? 'i' : ''}`);
+            if (re.test(str)) return true;
+          } catch (err) {
+            // do nothing
+          }
+        } else if (mention.type === 'word') {
+          const escapedRegex = mention.data.replace(/[\\*()[\]+-]/g, m => `\\${m}`);
+          const re = new RegExp(`(^|\\W)${escapedRegex}(\\W|$)`, `g${mention.ignoreCase ? 'i' : ''}`);
           if (re.test(str)) return true;
-        } catch (err) {
-          // do nothing
+        } else if (mention.type === 'text') {
+          if (mention.ignoreCase && str.includes(mention.data.toLowerCase())) return true;
+          if (str.includes(mention.data)) return true;
         }
-      } else if (mention.type === 'word') {
-        const escapedRegex = mention.data.replace(/[\\*()[\]+-]/g, m => `\\${m}`);
-        const re = new RegExp(`(^|\\W)${escapedRegex}(\\W|$)`, `g${mention.ignoreCase ? 'i' : ''}`);
-        if (re.test(str)) return true;
-      } else if (mention.type === 'text') {
-        if (mention.ignoreCase && str.includes(mention.data.toLowerCase())) return true;
-        if (str.includes(mention.data)) return true;
       }
     }
     return false;
