@@ -40,6 +40,7 @@ import ChatService from './services/chatservice';
 import KeyPressService from './services/keypressservice';
 import ToastService from './services/toastservice';
 import ThrottledDigestService from './services/throttleddigestservice';
+import FFZSocketService from './services/ffzsocketservice';
 
 import registerDarkMode from './themes/dark';
 import registerLightMode from './themes/light';
@@ -78,6 +79,7 @@ app.service('ChatService', ChatService);
 app.service('KeyPressService', KeyPressService);
 app.service('ToastService', ToastService);
 app.service('ThrottledDigestService', ThrottledDigestService);
+app.service('FFZSocketService', FFZSocketService);
 
 app.filter('isntEmpty', isntEmptyFilter);
 app.filter('timeAgo', timeAgoFilter);

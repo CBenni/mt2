@@ -7,12 +7,13 @@ import urlRegex from '../urlRegex';
 
 const DEFAULTCOLORS = ['#e391b8', '#e091ce', '#da91de', '#c291db', '#ab91d9', '#9691d6', '#91a0d4', '#91b2d1', '#91c2cf', '#91ccc7', '#91c9b4', '#90c7a2', '#90c492', '#9dc290', '#aabf8f', '#b5bd8f', '#bab58f', '#b8a68e', '#b5998e', '#b38d8d'];
 export default class ChatService extends EventEmitter {
-  constructor(ApiService, ThrottledDigestService, $sce) {
+  constructor(ApiService, ThrottledDigestService, $sce, FFZSocketService) {
     'ngInject';
 
     super();
     this.ApiService = ApiService;
     this.ThrottledDigestService = ThrottledDigestService;
+    this.FFZSocketService = FFZSocketService;
     this.$sce = $sce;
 
     this.chatReceiveConnection = null;
@@ -43,6 +44,8 @@ export default class ChatService extends EventEmitter {
     this.chatReceiveConnection = this.connectWebsocket('wss://irc-ws.chat.twitch.tv:443');
     this.chatSendConnection = this.connectWebsocket('wss://irc-ws.chat.twitch.tv:443');
     this.pubsubConnection = this.connectWebsocket('wss://pubsub-edge.twitch.tv');
+
+    this.FFZSocketService.setChatService(this);
 
     this.chatReceiveConnection.then(conn => {
       console.log('Chat receive connection opened');
@@ -187,6 +190,7 @@ export default class ChatService extends EventEmitter {
     if (!channelObj.id) channelObj.id = (await this.ApiService.twitchGetUserByName(channelObj.name))._id;
     if (!channelObj.roomState) channelObj.roomState = {};
     if (!channelObj.userState) channelObj.userState = {};
+    this.FFZSocketService.joinChannel(channelObj);
 
     if (this.joinedChannels[channelObj.id]) return this.joinedChannels[channelObj.id];
     this.chatReceiveConnection.then(conn => {
@@ -235,7 +239,11 @@ export default class ChatService extends EventEmitter {
       name: channelName
     };
     const badgesOrPromise = this.getBadges(channelID);
-    if (badgesOrPromise.then) return badgesOrPromise.then(badges => this._processMessage(message, badges));
+    if (badgesOrPromise.then) {
+      return badgesOrPromise.then(badges => this._processMessage(message, badges)).catch(err => {
+        console.error(err);
+      });
+    }
     return this._processMessage(message, badgesOrPromise);
   }
 
@@ -325,7 +333,7 @@ export default class ChatService extends EventEmitter {
 
   renderWord(message, word) {
     const holder = message.channel && this.channelEmotes.get(message.channel.id);
-    const emote = this.thirdPartyEmotes.get(word) || (holder && holder.thirdPartyEmotes.get(word));
+    const emote = this.thirdPartyEmotes.get(word) || (holder && holder.thirdPartyEmotes.get(word)) || message.channel && this.FFZSocketService.getChannelFeaturedEmotes(message.channel.name)[word];
     if (emote) {
       return `<img class="emote emote-${emote.id}" alt="${emote.code}" title="${emote.code}" src="${emote.url}">`;
     }
