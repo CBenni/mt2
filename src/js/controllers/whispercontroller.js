@@ -49,6 +49,12 @@ export default class WhisperController {
             this.ThrottledDigestService.$apply($scope);
           });
         });
+        ChatService.on('NOTICE', parsed => {
+          if (parsed.tags['msg-id'] === 'whisper_restricted_recipient') {
+            // @msg-id=whisper_restricted_recipient;target-user-id=19264788 :tmi.twitch.tv NOTICE #jtv :That user's settings prevent them from receiving this whisper.
+            this.addSystemMsg(parsed);
+          }
+        });
       }
     });
 
@@ -147,6 +153,46 @@ export default class WhisperController {
     });
   }
 
+  async addSystemMsg(msg) {
+    const transformedMessage = {
+      time: msg.sent_ts ? new Date(msg.sent_ts * 1000) : new Date(),
+      tags: msg.tags,
+      trailing: msg.trailing,
+      user: {
+        id: msg.tags['target-user-id'],
+        name: 'jtv',
+        displayName: '',
+        fullName: '',
+        color: '',
+        badges: ''
+      },
+      isAction: false,
+      isSystem: true,
+      recipient: {
+        id: msg.tags['target-user-id'],
+        username: '',
+        display_name: '',
+        fullName: '',
+        color: '',
+        badges: ''
+      },
+      threadID: createThreadID(this.mainCtrl.auth.id, msg.tags['target-user-id']),
+      id: `whisper_not_delivered_${Date.now()}`
+    };
+    transformedMessage.html = this.$sce.trustAsHtml(transformedMessage.trailing);
+
+    const conversation = this.findConversation(transformedMessage);
+    if (!conversation) return;
+
+    await this.initConversation(conversation);
+    if (conversation) {
+      conversation.lines.push(transformedMessage);
+      conversation.lastMessage = transformedMessage;
+      conversation.lastRead = transformedMessage.id;
+    }
+    this.updateUnreadStatus();
+  }
+
   async addWhisper(msg) {
     if (msg.tags.badges && msg.tags.badges.length > 0) await this.upgradeBadges(msg.tags.badges);
 
@@ -235,6 +281,9 @@ export default class WhisperController {
 
       this.ApiService.twitchGet(`https://api.twitch.tv/kraken/channels/${otherUser.id}`).then(response => {
         otherUser.profileImage = response.data.logo;
+        otherUser.displayName = response.data.display_name;
+        otherUser.name = response.data.name;
+        otherUser.fullName = getFullName(otherUser.name, otherUser.displayName);
       });
       convo = {
         user: otherUser,

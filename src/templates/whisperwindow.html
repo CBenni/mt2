@@ -50,7 +50,7 @@
           <span class="chat-line-badges">
             <img ng-src="{{::badge.url}}" ng-repeat="badge in ::line.user.badges" class="chat-line-badge" title="{{::badge.title}}">
           </span>
-          <span class="chat-line-username" ng-style="::{color: line.user.color}">{{::line.user.fullName}}</span><span class="chat-line-colon">: </span>
+          <span class="chat-line-username" ng-if="::!line.isSystem" ng-style="::{color: line.user.color}">{{::line.user.fullName}}</span><span class="chat-line-colon">: </span>
           <span class="chat-line-text whisper-text" ng-bind-html="line.html" ng-style="::{color: line.action && line.user.color}"></span>
         </div>
     </div>
