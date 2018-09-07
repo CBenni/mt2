@@ -173,9 +173,9 @@ export function stringifyTimeout(timeoutNotice) {
   else res = 'has been banned';
   if (timeoutNotice.count > 1) res += ` (${timeoutNotice.count} times)`;
   if (timeoutNotice.reasons.length === 1) {
-    res += ` with reason: ${escapeHtml(timeoutNotice.reasons[0])}`;
+    res += ` with reason: ${timeoutNotice.reasons[0]}`;
   } else if (timeoutNotice.reasons.length > 1) {
-    res += ` with reasons: ${escapeHtml(timeoutNotice.reasons.join(', '))}`;
+    res += ` with reasons: ${timeoutNotice.reasons.join(', ')}`;
   }
   return res;
 }

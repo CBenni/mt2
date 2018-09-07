@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import raven from 'raven-js';
 
-import { stringifyTimeout, textToCursor, getFullName, listenEvent, globalModTypes } from '../helpers';
+import { stringifyTimeout, textToCursor, getFullName, listenEvent, globalModTypes, escapeHtml } from '../helpers';
 import { fixContrastHSL, hexToRGB, getBrightness } from '../colorcorrection';
 import languageTable from '../languages.json';
 
@@ -347,7 +347,7 @@ export default class ChatController {
         timeoutNotice.duration = duration;
         if (message.tags['ban-reason']) timeoutNotice.reasons.push(message.tags['ban-reason']);
         // update the html
-        timeoutNotice.message.html = stringifyTimeout(timeoutNotice);
+        timeoutNotice.message.html = escapeHtml(stringifyTimeout(timeoutNotice));
         this.recentTimeouts[targetID] = timeoutNotice;
       } else {
         const userName = message.trailing;
