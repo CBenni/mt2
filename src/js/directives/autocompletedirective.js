@@ -60,7 +60,7 @@ function findEmotes(local, global, word) {
   return emotes.map(x => x.value);
 }
 
-export default function autocompleteDirective($mdPanel, KeyPressService, ThrottledDigestService) {
+export default function autocompleteDirective($rootScope, $mdPanel, KeyPressService, ThrottledDigestService) {
   'ngInject';
 
   return {
@@ -134,6 +134,7 @@ export default function autocompleteDirective($mdPanel, KeyPressService, Throttl
 
       let recentMessageSelection = null;
       function onKey(event) {
+        ThrottledDigestService.$apply($rootScope);
         if (event.target !== element[0]) return false;
         const word = getCurrentWord(element);
 

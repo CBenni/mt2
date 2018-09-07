@@ -1,8 +1,10 @@
 export default class AutocompletePanelController {
-  constructor(mdPanelRef) {
+  constructor($scope, mdPanelRef, ThrottledDigestService) {
     'ngInject';
 
+    this.$scope = $scope;
     this.mdPanelRef = mdPanelRef;
+    this.ThrottledDigestService = ThrottledDigestService;
   }
 
   selectItem(item) {

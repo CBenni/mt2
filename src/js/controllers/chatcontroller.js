@@ -284,7 +284,7 @@ export default class ChatController {
         const re = new RegExp(`(^|\\W)${escapedRegex}(\\W|$)`, `g${mention.ignoreCase ? 'i' : ''}`);
         if (re.test(str)) return true;
       } else if (mention.type === 'text') {
-        if (mention.ignoreCase) return str.includes(mention.data.toLowerCase());
+        if (mention.ignoreCase && str.includes(mention.data.toLowerCase())) return true;
         if (str.includes(mention.data)) return true;
       }
     }
