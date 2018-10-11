@@ -101,6 +101,9 @@ export default class ChatController {
           listeners.push(listenEvent(this.ChatService, `CLEARCHAT-#${this.channelObj.name}`, message => {
             this.clearChat(message);
           }));
+          listeners.push(listenEvent(this.ChatService, `CLEARMSG-#${this.channelObj.name}`, message => {
+            this.deleteMessage(message);
+          }));
           listeners.push(listenEvent(this.ChatService, `NOTICE-#${this.channelObj.name}`, message => {
             this.systemMessage(message.trailing);
           }));
@@ -322,6 +325,27 @@ export default class ChatController {
     if (filters.includes('chat') && line.chat) return true;
     if (filters.includes('subs') && line.command === 'USERNOTICE') return true;
     return false;
+  }
+
+  deleteMessage(message) {
+    const targetID = message.tags['target-msg-id'];
+    const messagesToCheck = 200;
+    const pausedMessagesToCheck = Math.min(messagesToCheck, this.pausedChatLines.length);
+    const addedMessagesToCheck = Math.min(messagesToCheck - pausedMessagesToCheck, this.chatLines.length);
+    for (let i = 1; i <= pausedMessagesToCheck; ++i) {
+      const line = this.pausedChatLines[this.pausedChatLines.length - i];
+      if (line.tags.id === targetID && !line.dontDelete) {
+        line.tags.classes.push('chat-line-deleted');
+        return;
+      }
+    }
+    for (let i = 1; i <= addedMessagesToCheck; ++i) {
+      const line = this.chatLines[this.chatLines.length - i];
+      if (line.tags.id === targetID && !line.dontDelete) {
+        line.tags.classes.push('chat-line-deleted');
+        return;
+      }
+    }
   }
 
   clearChat(message) {
@@ -633,6 +657,7 @@ export default class ChatController {
 
   modAction($event, modButton, locals) {
     locals = _.merge({}, locals, { channel: this.channelObj });
+    console.log('modAction locals:', locals);
     switch (modButton.action.type) {
       case 'command':
         this.runCommand(modButton.action.command, locals);

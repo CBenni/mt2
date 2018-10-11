@@ -10,12 +10,12 @@ export default {
       {
         action: {
           type: 'command',
-          command: '/timeout {{user.name}} 1'
+          command: '/delete {{tags.id}} 1'
         },
-        tooltip: 'Purge',
+        tooltip: 'Delete message',
         icon: {
           type: 'icon',
-          code: 'remove_circle_outline'
+          code: 'close'
         },
         hotkey: '',
         show: 'bannable'

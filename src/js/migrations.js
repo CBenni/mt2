@@ -73,6 +73,16 @@ export const configMigrations = [
         }
       }
     });
+  },
+  config => {
+    console.log('Applying delete message migration');
+    _.each(config.settings.modButtons, button => {
+      if (button.action.type === 'command') {
+        if (button.action.command === '/timeout {{user.name}} 1') {
+          button.action.command = '/delete {{tags.id}}';
+        }
+      }
+    });
   }
 ];
 
