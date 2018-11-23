@@ -10,7 +10,7 @@ export default {
       {
         action: {
           type: 'command',
-          command: '/delete {{tags.id}} 1'
+          command: '/delete {{tags.id}}'
         },
         tooltip: 'Delete message',
         icon: {

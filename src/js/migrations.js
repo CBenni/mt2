@@ -45,6 +45,7 @@ export const configMigrations = [
   },
   null,
   null,
+  null,
   config => {
     console.log('Applying button showing migration');
     _.each(config.settings.modButtons, button => {
@@ -79,6 +80,9 @@ export const configMigrations = [
     _.each(config.settings.modButtons, button => {
       if (button.action.type === 'command') {
         if (button.action.command === '/timeout {{user.name}} 1') {
+          button.action.command = '/delete {{tags.id}}';
+        }
+        if (button.action.command === '/delete {{tags.id}} 1') {
           button.action.command = '/delete {{tags.id}}';
         }
       }
