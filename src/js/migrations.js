@@ -45,7 +45,6 @@ export const configMigrations = [
   },
   null,
   null,
-  null,
   config => {
     console.log('Applying button showing migration');
     _.each(config.settings.modButtons, button => {
@@ -71,6 +70,16 @@ export const configMigrations = [
       if (button.action.type === 'command' && button.show === 'mod') {
         if (button.action.command.startsWith('/timeout') || button.action.command.startsWith('/ban')) {
           button.show = 'bannable';
+        }
+      }
+    });
+  },
+  config => {
+    console.log('Applying delete message migration');
+    _.each(config.settings.modButtons, button => {
+      if (button.action.type === 'command') {
+        if (button.action.command === '/timeout {{user.name}} 1') {
+          button.action.command = '/delete {{tags.id}}';
         }
       }
     });
