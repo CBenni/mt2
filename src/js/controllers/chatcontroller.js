@@ -761,7 +761,10 @@ export default class ChatController {
     if (button.show === undefined) return true;
     return (button.show === 'always')
     || (button.show === 'mod' && this.isMod())
-    || (user && button.show === 'bannable' && (this.isMod() && !user.isMod) || (this.channelObj && this.channelObj.id === this.mainCtrl.auth.id) && !globalModTypes.includes(user.type));
+    || (user && button.show === 'bannable' && ( // chatter is bannable...
+      (this.isMod() && !user.isMod) // if the chatter isnt a mod, the user is however
+      || (this.channelObj && this.channelObj.id === this.mainCtrl.auth.id) && !globalModTypes.includes(user.type) // the user is the broadcaster and the chatter is not a global mod/admin/staff
+    ));
   }
 
   isMod() {
