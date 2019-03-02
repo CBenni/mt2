@@ -161,7 +161,9 @@ export default class ChatController {
 
   getEmbedUrl() {
     console.log('Loading native twitch chat embed.');
-    return this.$sce.trustAsResourceUrl(`https://www.twitch.tv/embed/${this.state.channel}/chat`);
+    let darkpopout = '';
+    if (this.mainCtrl.getSetting('style') === 'dark') darkpopout = '?darkpopout=1';
+    return this.$sce.trustAsResourceUrl(`https://www.twitch.tv/embed/${this.state.channel}/chat${darkpopout}`);
   }
 
   debugTest(...args) {
@@ -227,6 +229,8 @@ export default class ChatController {
   _addLine(line) {
     if (!line.tags) line.tags = {};
     if (!line.tags.classes) line.classes = [];
+
+    // console.log("Adding line", line, "to chat ", this ," with preset", this.preset, "; Message passes filters:", this.messagePassesFilters(line))
 
     // check if the message passes our filters
     if (!this.messagePassesFilters(line)) return false;
@@ -317,6 +321,9 @@ export default class ChatController {
     if (filters.includes('modlogs') && line.modlogs) return true;
     if (filters.includes('automod') && line.automod) return true;
     if (!filters.includes('bots') && line.chat && this.mainCtrl.getSetting('chatSettings.knownBots').includes(line.user.name)) return false;
+
+    if (this.preset.name === 'Mentions') console.log('Checking if line ', line, 'is mention and therefore passes the filters... Is mention:', line.mention, '; filters includes mentions:', filters.includes('mentions'), '; preset:', this.preset);
+
     if (filters.includes('mentions') && line.mention) return true;
     else if (line.mention) {
       _.pull(line.tags.classes, 'mention');
